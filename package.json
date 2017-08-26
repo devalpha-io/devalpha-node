@@ -1,0 +1,71 @@
+{
+  "name": "vester",
+  "version": "0.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "CBuffer": "^2.0.0",
+    "babyparse": "^0.4.6",
+    "fastpriorityqueue": "^0.3.1",
+    "highland": "^2.11.1",
+    "immutable": "^3.8.1",
+    "mathjs": "^3.16.2",
+    "moment": "^2.18.1",
+    "redux": "^3.7.2"
+  },
+  "devDependencies": {
+    "ava": "^0.22.0",
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-register": "^6.26.0",
+    "eslint": "^4.5.0",
+    "eslint-config-airbnb-base": "^11.3.2",
+    "eslint-plugin-import": "^2.7.0",
+    "nyc": "^11.1.0"
+  },
+  "scripts": {
+    "build": "BABEL_ENV=production babel lib -d dist",
+    "start": "babel-node lib/index.js",
+    "test": "NODE_ENV=test ava tests/**/*.spec.js",
+    "report": "nyc report --reporter=html",
+    "coverage": "NODE_ENV=test nyc ava tests/**/*.spec.js"
+  },
+  "ava": {
+    "require": [
+      "babel-register",
+      "babel-polyfill"
+    ]
+  },
+  "babel": {
+    "presets": [
+      "@ava/stage-4",
+      [
+        "env",
+        {
+          "targets": {
+            "browsers": [
+              "last 2 versions",
+              "safari >= 7"
+            ],
+            "node": "8"
+          }
+        }
+      ]
+    ],
+    "plugins": [
+      [
+        "transform-object-rest-spread",
+        {
+          "useBuildIns": true
+        }
+      ]
+    ],
+    "ignore": "*.spec.js",
+    "env": {
+      "development": {
+        "sourceMaps": "inline"
+      }
+    }
+  }
+}
