@@ -10,6 +10,9 @@ export default function createMockClient() {
     fail: [],
     cancel: []
   }
+
+  let orderIdCounter = 0
+
   return {
     onFill(cb) {
       listeners.fill.push(cb)
@@ -21,7 +24,8 @@ export default function createMockClient() {
       listeners.cancel.push(cb)
     },
     executeOrder(order) {
-      const executedOrder = { ...order, commission: 0 }
+      orderIdCounter += 1
+      const executedOrder = { ...order, commission: 0, id: orderIdCounter }
       setImmediate(() => notify(listeners.fill, {
         ...executedOrder,
         expectedPrice: order.price,

@@ -31,6 +31,8 @@ test.cb('backtest event order', t => {
     case ORDER_FILLED:
       executions.push('e')
       break
+    default:
+      break
     }
   }
 
