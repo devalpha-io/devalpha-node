@@ -1,5 +1,6 @@
 import test from 'ava'
 import run from '../lib'
+import createMockWritable from './util/createMockWritable'
 import {
   ORDER_PLACED,
   ORDER_FILLED
@@ -43,6 +44,7 @@ test.cb('backtest event order', t => {
     backtest: {
       initialCash: 10000000
     },
+    journal: createMockWritable(),
     strategy
   })
 

@@ -22,7 +22,8 @@
     "eslint": "^4.5.0",
     "eslint-config-airbnb-base": "^11.3.2",
     "eslint-plugin-import": "^2.7.0",
-    "nyc": "^11.1.0"
+    "nyc": "^11.1.0",
+    "sinon": "^3.2.1"
   },
   "scripts": {
     "build": "BABEL_ENV=production babel lib -d dist",

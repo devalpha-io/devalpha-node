@@ -2,6 +2,7 @@ import test from 'ava'
 import _ from 'highland'
 import run from '../lib'
 import createMockClient from './util/createMockClient'
+import createMockWritable from './util/createMockWritable'
 import {
   ORDER_PLACED,
   ORDER_FILLED
@@ -10,7 +11,7 @@ import {
 test.cb('live trading event order', t => {
 
   const executions = []
-  const strategy = ({ state, order, cancel }, action) => {
+  const strategy = ({ order }, action) => {
     switch (action.type) {
     case 'example':
       executions.push('a')
@@ -54,14 +55,15 @@ test.cb('live trading event order', t => {
     },
     client: createMockClient(),
     strategy,
+    journal: createMockWritable(),
     backtesting: false
   })
 
   setTimeout(() => {
-    const expected = 'abcabcddddeeee'
+    const expected = 'abcabcdededede'
     const actual = executions.join('')
     t.is(actual, expected)
     t.end()
-  }, 1500)
+  }, 1000)
 
 })
