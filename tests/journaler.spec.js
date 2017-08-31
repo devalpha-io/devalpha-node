@@ -14,7 +14,7 @@ test.beforeEach((t) => {
   t.context.stream = createMockWriteable()
 })
 
-test('it should be aynchronous', (t) => {
+test('be aynchronous', (t) => {
   const { store, next, stream } = t.context
   const action = { type: 'FOO', payload: {} }
 
@@ -23,7 +23,7 @@ test('it should be aynchronous', (t) => {
   t.false(next.called)
 })
 
-test('it should pass the intercepted action to the next', async (t) => {
+test('pass the intercepted action to the next', async (t) => {
   const { store, next, stream } = t.context
   const action = { type: 'FOO', payload: {} }
   const middleware = createMiddleware(stream)(store)(next)
@@ -33,7 +33,7 @@ test('it should pass the intercepted action to the next', async (t) => {
   t.true(next.withArgs(action).calledOnce)
 })
 
-test('it should write the action to the stream', async (t) => {
+test('write the action to the stream', async (t) => {
   const { store, next, stream } = t.context
   const action = { type: 'FOO', payload: {} }
   const middleware = createMiddleware(stream)(store)(next)

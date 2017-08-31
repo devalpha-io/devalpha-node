@@ -21,7 +21,7 @@ test.beforeEach((t) => {
   t.context.middleware = createMiddleware()(store)(next)
 })
 
-test('it should pass the intercepted action to the next', async (t) => {
+test('pass the intercepted action to the next', async (t) => {
   const { middleware, next } = t.context
   const action = { type: 'FOO', payload: {} }
   await middleware(action)
