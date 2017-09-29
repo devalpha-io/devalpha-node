@@ -8,7 +8,7 @@ import {
   ORDER_FILLED
 } from '../lib/constants'
 
-test.cb('live trading event order', t => {
+test.skip.cb('live trading event order', t => {
 
   const executions = []
   const strategy = ({ order }, action) => {

@@ -68,5 +68,10 @@
         "sourceMaps": "inline"
       }
     }
+  },
+  "nyc": {
+    "exclude": [
+      "tests/"
+    ]
   }
 }

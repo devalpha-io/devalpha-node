@@ -1,7 +1,7 @@
 export default function createMockClient() {
   let orderIdCounter = 0
   return ({ onFill }) => ({
-    executeOrder(order) {
+    executeOrder: async (order) => {
       orderIdCounter += 1
       const executedOrder = { ...order, commission: 0, id: orderIdCounter }
       setTimeout(() => onFill({
@@ -9,12 +9,10 @@ export default function createMockClient() {
         expectedPrice: order.price,
         expectedQuantity: order.quantity,
         expectedCommission: order.commission
-      }))
+      }), 200)
       return { ...executedOrder }
     },
-    cancelOrder() {},
-    calculateCommission() {
-      return 0
-    }
+    cancelOrder: () => {},
+    calculateCommission: () => 0
   })
 }
