@@ -29,6 +29,7 @@
     "build": "BABEL_ENV=production babel lib -d dist",
     "start": "babel-node lib/index.js",
     "test": "NODE_ENV=test ava tests/**/*.spec.js",
+    "test-only": "NODE_ENV=test ava",
     "report": "nyc report --reporter=html",
     "coverage": "NODE_ENV=test nyc ava tests/**/*.spec.js"
   },
