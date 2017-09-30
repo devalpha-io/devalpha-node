@@ -2,7 +2,7 @@ import test from 'ava'
 import sinon from 'sinon'
 import { Map, List, is } from 'immutable'
 
-import reducer from '../lib/reducer'
+import reducer from '../lib/reducers/capitalReducer'
 import {
   INITIALIZED,
   ORDER_CREATED,
@@ -73,13 +73,10 @@ test('return the initial state', (t) => {
     cash: 0,
     commission: 0,
     history: List(),
-    listeners: Map(),
     metrics: Map({
       maxDrawdown: 0,
       sharpeRatio: 0
     }),
-    orders: Map(),
-    positions: Map(),
     reservedCash: 0,
     returnsTotal: 0,
     returnsPeriod: 0,
@@ -89,25 +86,9 @@ test('return the initial state', (t) => {
   t.deepEqual(actual.toJS(), expect.toJS())
 })
 
-test(`${ORDER_PLACED} adds an order to the Map of orders`, (t) => {
+test(`${ORDER_PLACED} of a sell-side order does not modify anything`, (t) => {
   const order = {
-    id: 0,
-    identifier: 'MSFT',
-    quantity: 100,
-    price: 100,
-    commission: 10
-  }
-  const action = { type: ORDER_PLACED, payload: order }
-
-  const actual = reducer(undefined, action).get('orders')
-  const expect = Map().set(0, order)
-
-  t.true(is(actual, expect))
-})
-
-test(`${ORDER_PLACED} of a sell-side order does not modify anything but the Map of orders`, (t) => {
-  const order = {
-    id: 1,
+    id: '1',
     identifier: 'MSFT',
     quantity: -50,
     price: 110,
@@ -115,15 +96,15 @@ test(`${ORDER_PLACED} of a sell-side order does not modify anything but the Map 
   }
   const action = { type: ORDER_PLACED, payload: order }
 
-  const actual = reducer(undefined, action).filter((v, k) => k !== 'orders')
-  const expect = reducer(undefined, {}).filter((v, k) => k !== 'orders')
+  const actual = reducer(undefined, action)
+  const expect = reducer(undefined, {})
 
   t.true(is(actual, expect))
 })
 
 test(`${ORDER_PLACED} of a buy-side order correctly edits cash and reservedCash`, (t) => {
   const order = {
-    id: 0,
+    id: '0',
     identifier: 'MSFT',
     quantity: 100,
     price: 100,
@@ -141,31 +122,9 @@ test(`${ORDER_PLACED} of a buy-side order correctly edits cash and reservedCash`
   t.true(is(actualCash, expectCash))
 })
 
-
-test(`${ORDER_CANCELLED} removes an order from the Map of orders`, (t) => {
+test(`${ORDER_CANCELLED} of a sell-side order does not modify anything`, (t) => {
   const order = {
-    id: 0,
-    identifier: 'MSFT',
-    quantity: 100,
-    price: 100,
-    commission: 10
-  }
-  const action = { type: ORDER_CANCELLED, payload: order }
-  const initialState = Map({
-    orders: Map({ 0: order }),
-    cash: 0,
-    reservedCash: 0
-  })
-
-  const actual = reducer(initialState, action).get('orders')
-  const expect = Map()
-
-  t.true(is(actual, expect))
-})
-
-test(`${ORDER_CANCELLED} of a sell-side order does not modify anything but the Map of orders`, (t) => {
-  const order = {
-    id: 1,
+    id: '1',
     identifier: 'MSFT',
     quantity: -50,
     price: 110,
@@ -173,15 +132,15 @@ test(`${ORDER_CANCELLED} of a sell-side order does not modify anything but the M
   }
   const action = { type: ORDER_CANCELLED, payload: order }
 
-  const actual = reducer(undefined, action).filter((v, k) => k !== 'orders')
-  const expect = reducer(undefined, {}).filter((v, k) => k !== 'orders')
+  const actual = reducer(undefined, action)
+  const expect = reducer(undefined, {})
 
   t.true(is(actual, expect))
 })
 
 test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reservedCash`, (t) => {
   const order = {
-    id: 0,
+    id: '0',
     identifier: 'MSFT',
     quantity: 100,
     price: 100,
@@ -189,7 +148,6 @@ test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reserved
   }
   const action = { type: ORDER_CANCELLED, payload: order }
   const initialState = Map({
-    orders: Map({ 0: order }),
     cash: 0,
     reservedCash: 10010
   })
