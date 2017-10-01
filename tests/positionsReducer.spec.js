@@ -3,7 +3,8 @@ import { Map, is } from 'immutable'
 
 import reducer from '../lib/reducers/positionsReducer'
 import {
-  ORDER_FILLED
+  ORDER_FILLED,
+  BAR_RECEIVED
 } from '../lib/constants'
 
 test('return the initial state', (t) => {
@@ -106,3 +107,47 @@ test(`${ORDER_FILLED}, sell-side, existing position: delete the position if quan
   t.false(reducer(initialState, action).has(order.identifier))
 })
 
+test(`${BAR_RECEIVED}: correctly update price, quantity and value`, (t) => {
+  const bar = {
+    identifier: 'MSFT',
+    timestamp: 0,
+    open: 90,
+    high: 110,
+    low: 90,
+    close: 100
+  }
+  const action = { type: BAR_RECEIVED, payload: bar }
+  const initialState = Map({
+    MSFT: Map({
+      quantity: 50,
+      value: 2500,
+      price: 50
+    })
+  })
+
+  const actual = reducer(initialState, action).get(bar.identifier)
+  const expected = Map({
+    quantity: 50,
+    value: 5000,
+    price: 50
+  })
+
+  t.true(is(actual, expected))
+})
+
+test(`${BAR_RECEIVED}: dont break if non-existent position`, (t) => {
+  const bar = {
+    identifier: 'MSFT',
+    timestamp: 0,
+    open: 90,
+    high: 110,
+    low: 90,
+    close: 100
+  }
+  const action = { type: BAR_RECEIVED, payload: bar }
+
+  const actual = reducer(undefined, action)
+  const expected = Map()
+
+  t.true(is(actual, expected))
+})
