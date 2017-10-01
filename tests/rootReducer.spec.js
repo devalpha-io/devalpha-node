@@ -24,22 +24,22 @@ test('return the initial state', (t) => {
     }),
     positions: Map(),
     orders: Map(),
-    history: List(),
     metrics: Map({
+      history: List(),
       maxDrawdown: 0,
-      sharpeRatio: 0
-    }),
-    returnsTotal: 0,
-    returnsPeriod: 0,
-    total: 0,
-    timestamp: 0
+      sharpeRatio: 0,
+      returnsTotal: 0,
+      returnsPeriod: 0,
+      total: 0,
+      timestamp: 0
+    })
   })
   t.true(is(actual, expect))
 })
 
 test(`${INITIALIZED} correctly builds the first history`, (t) => {
   const action = { type: INITIALIZED, payload: { timestamp: 100 } }
-  const actual = reducer(undefined, action).get('history').get(0)
+  const actual = reducer(undefined, action).getIn(['metrics', 'history']).get(0)
   const expect = Map({
     capital: Map({
       cash: 0,
@@ -49,13 +49,14 @@ test(`${INITIALIZED} correctly builds the first history`, (t) => {
     positions: Map(),
     orders: Map(),
     metrics: Map({
+      history: List(),
       maxDrawdown: 0,
-      sharpeRatio: 0
-    }),
-    returnsTotal: 0,
-    returnsPeriod: 0,
-    total: 0,
-    timestamp: 100
+      sharpeRatio: 0,
+      returnsTotal: 0,
+      returnsPeriod: 0,
+      total: 0,
+      timestamp: 100
+    })
   })
 
   t.true(is(actual, expect))

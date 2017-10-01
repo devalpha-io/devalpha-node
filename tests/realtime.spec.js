@@ -8,7 +8,7 @@ import {
   ORDER_FILLED
 } from '../lib/constants'
 
-test.skip.cb('live trading event order', t => {
+test.cb('live trading event order', t => {
 
   const executions = []
   const strategy = ({ order }, action) => {
@@ -60,7 +60,7 @@ test.skip.cb('live trading event order', t => {
   })
 
   setTimeout(() => {
-    const expected = 'abcabcdededede'
+    const expected = 'abcabcddddeeee'
     const actual = executions.join('')
     t.is(actual, expected)
     t.end()

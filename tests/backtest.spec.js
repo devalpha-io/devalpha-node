@@ -6,7 +6,7 @@ import {
   ORDER_FILLED
 } from '../lib/constants'
 
-test.skip.cb('backtest event order', t => {
+test.cb('backtest event order', t => {
 
   const executions = []
   const strategy = ({ state, order, cancel }, action) => {
