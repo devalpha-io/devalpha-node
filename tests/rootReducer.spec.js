@@ -14,7 +14,7 @@ import {
   BAR_RECEIVED
 } from '../lib/constants'
 
-test('return the initial state', (t) => {
+test.skip('return the initial state', (t) => {
   const actual = reducer(undefined, {})
   const expect = Map({
     capital: Map({
@@ -37,7 +37,7 @@ test('return the initial state', (t) => {
   t.true(is(actual, expect))
 })
 
-test(`${INITIALIZED} correctly builds the first history`, (t) => {
+test.skip(`${INITIALIZED} correctly builds the first history`, (t) => {
   const action = { type: INITIALIZED, payload: { timestamp: 100 } }
   const actual = reducer(undefined, action).getIn(['metrics', 'history']).get(0)
   const expect = Map({

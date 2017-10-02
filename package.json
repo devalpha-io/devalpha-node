@@ -12,7 +12,8 @@
     "mathjs": "^3.16.2",
     "moment": "^2.18.1",
     "redux": "^3.7.2",
-    "redux-immutable": "^4.0.0"
+    "redux-immutable": "^4.0.0",
+    "reselect": "^3.0.1"
   },
   "devDependencies": {
     "ava": "^0.22.0",

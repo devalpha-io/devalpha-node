@@ -12,7 +12,7 @@ test.beforeEach((t) => {
 
   t.context.store = store
   t.context.next = next
-  t.context.middleware = createMiddleware()(store)(next)
+  t.context.middleware = createMiddleware({}, () => {})(store)(next)
 })
 
 test('pass the intercepted action to the next', async (t) => {

@@ -14,6 +14,7 @@ import {
 test('return the initial state', (t) => {
   const actual = reducer(undefined, {})
   const expect = Map({
+    initialCash: 0,
     cash: 0,
     commission: 0,
     reservedCash: 0
@@ -33,6 +34,7 @@ test(`${ORDER_PLACED} of a sell-side order correctly edits reservedCash`, (t) =>
 
   const actual = reducer(undefined, action)
   const expect = Map({
+    initialCash: 0,
     reservedCash: 5.5,
     cash: -5.5,
     commission: 0
@@ -53,6 +55,7 @@ test(`${ORDER_PLACED} of a buy-side order correctly edits cash, commission and r
 
   const actual = reducer(undefined, action)
   const expect = reducer(undefined, {}).merge(Map({
+    initialCash: 0,
     reservedCash: 10010,
     cash: -10010,
     commission: 0
@@ -87,6 +90,7 @@ test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reserved
   }
   const action = { type: ORDER_CANCELLED, payload: order }
   const initialState = Map({
+    initialCash: 0,
     cash: 0,
     reservedCash: 10010,
     commission: 0
@@ -115,6 +119,7 @@ test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decre
   }
   const action = { type: ORDER_FILLED, payload: order }
   const initialState = Map({
+    initialCash: 0,
     cash: -10,
     reservedCash: 10,
     commission: 0
@@ -122,6 +127,7 @@ test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decre
 
   const actual = reducer(initialState, action)
   const expect = Map({
+    initialCash: 0,
     cash: 9990,
     reservedCash: 0,
     commission: 10
@@ -143,6 +149,7 @@ test(`${ORDER_FILLED}, buy-side, should increase commission and decrease reserve
   }
   const action = { type: ORDER_FILLED, payload: order }
   const initialState = Map({
+    initialCash: 0,
     cash: 0,
     reservedCash: 10010,
     commission: 0
@@ -150,6 +157,7 @@ test(`${ORDER_FILLED}, buy-side, should increase commission and decrease reserve
 
   const actual = reducer(initialState, action)
   const expect = Map({
+    initialCash: 0,
     cash: 0,
     reservedCash: 0,
     commission: 10
@@ -171,6 +179,7 @@ test(`${ORDER_FILLED}, buy-side, partial fill, should increase commission and de
   }
   const action = { type: ORDER_FILLED, payload: order }
   const initialState = Map({
+    initialCash: 0,
     cash: 0,
     reservedCash: 10010,
     commission: 0
@@ -178,6 +187,7 @@ test(`${ORDER_FILLED}, buy-side, partial fill, should increase commission and de
 
   const actual = reducer(initialState, action)
   const expect = Map({
+    initialCash: 0,
     cash: 0,
     reservedCash: 5005,
     commission: 5
@@ -199,6 +209,7 @@ test(`${ORDER_FILLED}, sell-side, partial fill, increase cash and commission, an
   }
   const action = { type: ORDER_FILLED, payload: order }
   const initialState = Map({
+    initialCash: 0,
     cash: -10,
     reservedCash: 10,
     commission: 0
@@ -206,6 +217,7 @@ test(`${ORDER_FILLED}, sell-side, partial fill, increase cash and commission, an
 
   const actual = reducer(initialState, action)
   const expect = Map({
+    initialCash: 0,
     cash: 4990,
     reservedCash: 5,
     commission: 5
@@ -227,6 +239,7 @@ test(`${ORDER_FILLED}, buy-side, better price, should increase commission and de
   }
   const action = { type: ORDER_FILLED, payload: order }
   const initialState = Map({
+    initialCash: 0,
     cash: 0,
     reservedCash: 10010,
     commission: 0
@@ -234,6 +247,7 @@ test(`${ORDER_FILLED}, buy-side, better price, should increase commission and de
 
   const actual = reducer(initialState, action)
   const expect = Map({
+    initialCash: 0,
     cash: 0,
     reservedCash: 0,
     commission: 9
@@ -255,6 +269,7 @@ test(`${ORDER_FILLED}, sell-side, better price, increase cash and commission, an
   }
   const action = { type: ORDER_FILLED, payload: order }
   const initialState = Map({
+    initialCash: 0,
     cash: -10,
     reservedCash: 10,
     commission: 0
@@ -262,6 +277,7 @@ test(`${ORDER_FILLED}, sell-side, better price, increase cash and commission, an
 
   const actual = reducer(initialState, action)
   const expect = Map({
+    initialCash: 0,
     cash: 10979,
     reservedCash: 0,
     commission: 11

@@ -17,7 +17,7 @@ test.beforeEach((t) => {
 
   t.context.store = store
   t.context.next = next
-  t.context.middleware = createMiddleware(() => {})(store)(next)
+  t.context.middleware = createMiddleware(() => {}, () => {})(store)(next)
 })
 
 test('pass the intercepted action to the next', async (t) => {
@@ -33,7 +33,7 @@ test.cb('state should be a plain object', (t) => {
   createMiddleware(({ state }) => {
     t.true(typeof state === 'object')
     t.end()
-  })(store)(next)(action)
+  }, () => {})(store)(next)(action)
 })
 
 test.cb('order() should synchronously dispatch order requested', (t) => {
@@ -46,7 +46,7 @@ test.cb('order() should synchronously dispatch order requested', (t) => {
     t.true(store.dispatch.firstCall.args[0].type === ORDER_REQUESTED)
 
     t.end()
-  })(store)(next)(action)
+  }, () => {})(store)(next)(action)
 })
 
 test.cb('cancel() should synchronously dispatch order cancel', (t) => {
@@ -59,5 +59,5 @@ test.cb('cancel() should synchronously dispatch order cancel', (t) => {
     t.true(store.dispatch.firstCall.args[0].type === ORDER_CANCEL)
 
     t.end()
-  })(store)(next)(action)
+  }, () => {})(store)(next)(action)
 })
