@@ -1,5 +1,5 @@
 import test from 'ava'
-import { Map, is } from 'immutable'
+import { Map, List, is } from 'immutable'
 
 import reducer from '../lib/reducers/capitalReducer'
 import {
@@ -8,7 +8,7 @@ import {
   ORDER_FILLED,
   ORDER_FAILED,
   ORDER_REJECTED,
-  ORDER_CANCELLED,
+  ORDER_CANCELLED
 } from '../lib/constants'
 
 test('return the initial state', (t) => {
@@ -17,7 +17,8 @@ test('return the initial state', (t) => {
     initialCash: 0,
     cash: 0,
     commission: 0,
-    reservedCash: 0
+    reservedCash: 0,
+    history: List()
   })
   t.deepEqual(actual.toJS(), expect.toJS())
 })
@@ -37,7 +38,8 @@ test(`${ORDER_PLACED} of a sell-side order correctly edits reservedCash`, (t) =>
     initialCash: 0,
     reservedCash: 5.5,
     cash: -5.5,
-    commission: 0
+    commission: 0,
+    history: List()
   })
 
   t.true(is(actual, expect))
@@ -58,7 +60,8 @@ test(`${ORDER_PLACED} of a buy-side order correctly edits cash, commission and r
     initialCash: 0,
     reservedCash: 10010,
     cash: -10010,
-    commission: 0
+    commission: 0,
+    history: List()
   }))
 
   t.true(is(actual, expect))
@@ -70,7 +73,8 @@ test(`${ORDER_CANCELLED} of a sell-side order does not modify anything`, (t) => 
     identifier: 'MSFT',
     quantity: -50,
     price: 110,
-    commission: 5.5
+    commission: 5.5,
+    history: List()
   }
   const action = { type: ORDER_CANCELLED, payload: order }
 
@@ -93,14 +97,14 @@ test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reserved
     initialCash: 0,
     cash: 0,
     reservedCash: 10010,
-    commission: 0
+    commission: 0,
+    history: List()
   })
 
   const actual = reducer(initialState, action)
   const expect = reducer(initialState, {}).merge(Map({
     cash: 10010,
-    reservedCash: 0,
-    commission: 0
+    reservedCash: 0
   }))
 
   t.true(is(actual, expect))
@@ -115,14 +119,16 @@ test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decre
     commission: 10,
     expectedQuantity: -100,
     expectedPrice: 100,
-    expectedCommission: 10
+    expectedCommission: 10,
+    timestamp: 100
   }
   const action = { type: ORDER_FILLED, payload: order }
   const initialState = Map({
     initialCash: 0,
     cash: -10,
     reservedCash: 10,
-    commission: 0
+    commission: 0,
+    history: List()
   })
 
   const actual = reducer(initialState, action)
@@ -130,7 +136,14 @@ test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decre
     initialCash: 0,
     cash: 9990,
     reservedCash: 0,
-    commission: 10
+    commission: 10,
+    history: List([Map({
+      initialCash: 0,
+      cash: -10,
+      reservedCash: 10,
+      commission: 0,
+      timestamp: 100
+    })])
   })
 
   t.true(is(actual, expect))
@@ -145,14 +158,16 @@ test(`${ORDER_FILLED}, buy-side, should increase commission and decrease reserve
     commission: 10,
     expectedQuantity: 100,
     expectedPrice: 100,
-    expectedCommission: 10
+    expectedCommission: 10,
+    timestamp: 100
   }
   const action = { type: ORDER_FILLED, payload: order }
   const initialState = Map({
     initialCash: 0,
     cash: 0,
     reservedCash: 10010,
-    commission: 0
+    commission: 0,
+    history: List()
   })
 
   const actual = reducer(initialState, action)
@@ -160,7 +175,14 @@ test(`${ORDER_FILLED}, buy-side, should increase commission and decrease reserve
     initialCash: 0,
     cash: 0,
     reservedCash: 0,
-    commission: 10
+    commission: 10,
+    history: List([Map({
+      initialCash: 0,
+      cash: 0,
+      reservedCash: 10010,
+      commission: 0,
+      timestamp: 100
+    })])
   })
 
   t.true(is(actual, expect))
@@ -175,14 +197,16 @@ test(`${ORDER_FILLED}, buy-side, partial fill, should increase commission and de
     commission: 5,
     expectedQuantity: 100,
     expectedPrice: 100,
-    expectedCommission: 10
+    expectedCommission: 10,
+    timestamp: 100
   }
   const action = { type: ORDER_FILLED, payload: order }
   const initialState = Map({
     initialCash: 0,
     cash: 0,
     reservedCash: 10010,
-    commission: 0
+    commission: 0,
+    history: List()
   })
 
   const actual = reducer(initialState, action)
@@ -190,7 +214,14 @@ test(`${ORDER_FILLED}, buy-side, partial fill, should increase commission and de
     initialCash: 0,
     cash: 0,
     reservedCash: 5005,
-    commission: 5
+    commission: 5,
+    history: List([Map({
+      initialCash: 0,
+      cash: 0,
+      reservedCash: 10010,
+      commission: 0,
+      timestamp: 100
+    })])
   })
 
   t.true(is(actual, expect))
@@ -205,14 +236,16 @@ test(`${ORDER_FILLED}, sell-side, partial fill, increase cash and commission, an
     commission: 5,
     expectedQuantity: -100,
     expectedPrice: 100,
-    expectedCommission: 10
+    expectedCommission: 10,
+    timestamp: 100
   }
   const action = { type: ORDER_FILLED, payload: order }
   const initialState = Map({
     initialCash: 0,
     cash: -10,
     reservedCash: 10,
-    commission: 0
+    commission: 0,
+    history: List()
   })
 
   const actual = reducer(initialState, action)
@@ -220,7 +253,14 @@ test(`${ORDER_FILLED}, sell-side, partial fill, increase cash and commission, an
     initialCash: 0,
     cash: 4990,
     reservedCash: 5,
-    commission: 5
+    commission: 5,
+    history: List([Map({
+      initialCash: 0,
+      cash: -10,
+      reservedCash: 10,
+      commission: 0,
+      timestamp: 100
+    })])
   })
 
   t.true(is(actual, expect))
@@ -235,14 +275,16 @@ test(`${ORDER_FILLED}, buy-side, better price, should increase commission and de
     commission: 9,
     expectedQuantity: 100,
     expectedPrice: 100,
-    expectedCommission: 10
+    expectedCommission: 10,
+    timestamp: 100
   }
   const action = { type: ORDER_FILLED, payload: order }
   const initialState = Map({
     initialCash: 0,
     cash: 0,
     reservedCash: 10010,
-    commission: 0
+    commission: 0,
+    history: List()
   })
 
   const actual = reducer(initialState, action)
@@ -250,7 +292,14 @@ test(`${ORDER_FILLED}, buy-side, better price, should increase commission and de
     initialCash: 0,
     cash: 0,
     reservedCash: 0,
-    commission: 9
+    commission: 9,
+    history: List([Map({
+      initialCash: 0,
+      cash: 0,
+      reservedCash: 10010,
+      commission: 0,
+      timestamp: 100
+    })])
   })
 
   t.true(is(actual, expect))
@@ -265,14 +314,16 @@ test(`${ORDER_FILLED}, sell-side, better price, increase cash and commission, an
     commission: 11,
     expectedQuantity: -100,
     expectedPrice: 100,
-    expectedCommission: 10
+    expectedCommission: 10,
+    timestamp: 100
   }
   const action = { type: ORDER_FILLED, payload: order }
   const initialState = Map({
     initialCash: 0,
     cash: -10,
     reservedCash: 10,
-    commission: 0
+    commission: 0,
+    history: List()
   })
 
   const actual = reducer(initialState, action)
@@ -280,7 +331,14 @@ test(`${ORDER_FILLED}, sell-side, better price, increase cash and commission, an
     initialCash: 0,
     cash: 10979,
     reservedCash: 0,
-    commission: 11
+    commission: 11,
+    history: List([Map({
+      initialCash: 0,
+      cash: -10,
+      reservedCash: 10,
+      commission: 0,
+      timestamp: 100
+    })])
   })
 
   t.true(is(actual, expect))
