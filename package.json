@@ -37,9 +37,9 @@
     "sinon": "^3.2.1"
   },
   "scripts": {
-    "build:es6": "babel lib -d dist",
-    "build:cjs": "rollup --config",
-    "build": "NODE_ENV=production yarn build:es6 && yarn build:cjs",
+    "build:es6": "NODE_ENV=production babel lib -d dist",
+    "build:cjs": "NODE_ENV=production rollup --config",
+    "build": "NODE_ENV=production yarn build:es6 & yarn build:cjs",
     "start": "babel-node lib/index.js",
     "test": "NODE_ENV=test ava tests/**/*.spec.js",
     "test-only": "NODE_ENV=test ava",

@@ -5,6 +5,7 @@ import replace from 'rollup-plugin-replace'
 import uglify from 'rollup-plugin-uglify'
 
 const env = process.env.NODE_ENV
+console.log(env)
 const config = {
   input: 'lib/index.js',
   output: {
