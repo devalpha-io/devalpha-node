@@ -5,6 +5,8 @@
   "license": "MIT",
   "dependencies": {
     "CBuffer": "^2.0.0",
+    "babel-cli": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
     "babyparse": "^0.4.6",
     "fastpriorityqueue": "^0.3.1",
     "highland": "^2.11.1",
@@ -17,7 +19,8 @@
   },
   "devDependencies": {
     "ava": "^0.22.0",
-    "babel-cli": "^6.26.0",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.0",
     "babel-register": "^6.26.0",
@@ -25,10 +28,18 @@
     "eslint-config-airbnb-base": "^11.3.2",
     "eslint-plugin-import": "^2.7.0",
     "nyc": "^11.1.0",
+    "rollup": "^0.50.0",
+    "rollup-plugin-babel": "^3.0.2",
+    "rollup-plugin-commonjs": "^8.2.1",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-replace": "^2.0.0",
+    "rollup-plugin-uglify": "^2.0.1",
     "sinon": "^3.2.1"
   },
   "scripts": {
-    "build": "BABEL_ENV=production babel lib -d dist",
+    "build:es6": "babel lib -d dist",
+    "build:cjs": "rollup --config",
+    "build": "NODE_ENV=production yarn build:es6 && yarn build:cjs",
     "start": "babel-node lib/index.js",
     "test": "NODE_ENV=test ava tests/**/*.spec.js",
     "test-only": "NODE_ENV=test ava",
@@ -43,7 +54,6 @@
   },
   "babel": {
     "presets": [
-      "@ava/stage-4",
       [
         "env",
         {
@@ -53,11 +63,13 @@
               "safari >= 7"
             ],
             "node": "8"
-          }
+          },
+          "modules": false
         }
       ]
     ],
     "plugins": [
+      "transform-async-to-generator",
       [
         "transform-object-rest-spread",
         {
@@ -65,10 +77,14 @@
         }
       ]
     ],
-    "ignore": "*.spec.js",
+    "ignore": [
+      "*.spec.js"
+    ],
     "env": {
-      "development": {
-        "sourceMaps": "inline"
+      "test": {
+        "presets": [
+          "@ava/stage-4"
+        ]
       }
     }
   },

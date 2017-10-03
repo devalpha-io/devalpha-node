@@ -10,7 +10,7 @@ module.exports = {
     "func-names": 0,
     "generator-star-spacing": 0,
     "import/no-extraneous-dependencies": ["error", {
-      "devDependencies": ["**/tests/**/*", "**/scripts/**/*"]
+      "devDependencies": ["**/tests/**/*", "**/scripts/**/*", "rollup.config.js"]
     }],
     "import/no-named-as-default-member": 0,
     "indent": ["error", 2],

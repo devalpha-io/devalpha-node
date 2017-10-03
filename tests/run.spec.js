@@ -119,7 +119,7 @@ test.skip.cb('live trading event order', t => {
 
 })
 
-test.only.cb('metrics and state are objects', t => {
+test.cb('metrics and state are objects', t => {
 
   const strategy = ({ state, metrics, order, cancel }, action) => {
     t.is(typeof state, 'object')
