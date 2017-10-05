@@ -3,6 +3,7 @@ import { Map, List, is } from 'immutable'
 
 import reducer from '../lib/reducers/capitalReducer'
 import {
+  INITIALIZED,
   ORDER_CREATED,
   ORDER_PLACED,
   ORDER_FILLED,
@@ -21,6 +22,20 @@ test('return the initial state', (t) => {
     history: List()
   })
   t.deepEqual(actual.toJS(), expect.toJS())
+})
+
+test(`add initial state to history on ${INITIALIZED}`, (t) => {
+  const initialState = reducer(undefined, {})
+  const action = { type: INITIALIZED, payload: { timestamp: 100, initialCash: 0 } }
+
+  const actual = reducer(undefined, action).get('history')
+  const expect = List([
+    initialState
+      .set('timestamp', 100)
+      .delete('history')
+  ])
+
+  t.true(is(actual, expect))
 })
 
 test(`${ORDER_PLACED} of a sell-side order correctly edits reservedCash`, (t) => {

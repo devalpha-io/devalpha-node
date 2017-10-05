@@ -3,6 +3,7 @@ import { Map, List, is } from 'immutable'
 
 import reducer from '../lib/reducers/positionsReducer'
 import {
+  INITIALIZED,
   ORDER_FILLED,
   BAR_RECEIVED
 } from '../lib/constants'
@@ -14,6 +15,20 @@ test('return the initial state', (t) => {
     history: List()
   })
   t.deepEqual(actual.toJS(), expect.toJS())
+})
+
+test(`add initial state to history on ${INITIALIZED}`, (t) => {
+  const initialState = reducer(undefined, {})
+  const action = { type: INITIALIZED, payload: { timestamp: 100 } }
+
+  const actual = reducer(undefined, action).get('history')
+  const expect = List([
+    initialState
+      .set('timestamp', 100)
+      .delete('history')
+  ])
+
+  t.true(is(actual, expect))
 })
 
 test(`${ORDER_FILLED}, new position: add position to the state`, (t) => {
