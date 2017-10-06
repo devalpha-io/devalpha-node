@@ -5,10 +5,12 @@ import createMockClient from './util/createMockClient'
 import createMockWritable from './util/createMockWritable'
 import {
   ORDER_PLACED,
-  ORDER_FILLED
+  ORDER_FILLED,
+  ORDER_FAILED,
+  ORDER_CANCELLED
 } from '../lib/constants'
 
-test.skip.cb('backtest event order', t => {
+test.cb('backtest event order', t => {
 
   const executions = []
   const strategy = ({ state, order, cancel }, action) => {
@@ -59,7 +61,7 @@ test.skip.cb('backtest event order', t => {
 
 })
 
-test.skip.cb('live trading event order', t => {
+test.cb('live trading event order', t => {
 
   const executions = []
   const strategy = ({ order }, action) => {
@@ -137,4 +139,117 @@ test.cb('metrics and state are objects', t => {
     journal: createMockWritable(),
     strategy
   })
+})
+
+test.cb('failing orders are dispatched', t => {
+  const strategy = ({ order }, action) => {
+    switch (action.type) {
+    case 'example':
+      order({
+        identifier: 'GOOG',
+        price: 100,
+        quantity: 50
+      })
+      break
+    case ORDER_FAILED:
+      t.end()
+      break
+    default:
+      break
+    }
+  }
+
+  run({
+    feeds: {
+      example: _((push, next) => {
+        setTimeout(() => {
+          push(null, 'event 1')
+        }, 0)
+      })
+    },
+    backtest: {
+      initialCash: 10000000
+    },
+    client: createMockClient(true),
+    strategy,
+    journal: createMockWritable(),
+    backtesting: false
+  })
+
+})
+
+test.cb('orders are cancellable', t => {
+  const strategy = async ({ order, cancel, state }, action) => {
+    switch (action.type) {
+    case 'example':
+      order({
+        identifier: 'GOOG',
+        price: 100,
+        quantity: 50
+      })
+      break
+    case ORDER_PLACED:
+      cancel('1')
+      break
+    case ORDER_CANCELLED:
+      const actual = state.orders
+      const expected = {}
+      t.deepEqual(actual, expected)
+      t.end()
+      break
+    default:
+      break
+    }
+  }
+
+  run({
+    feeds: {
+      example: _((push, next) => {
+        setTimeout(() => {
+          push(null, 'event 1')
+        }, 0)
+      })
+    },
+    backtest: {
+      initialCash: 10000000
+    },
+    client: createMockClient(),
+    strategy,
+    journal: createMockWritable(),
+    backtesting: false
+  })
+
+})
+
+test.cb('should not be able to cancel unknown orders', t => {
+  const strategy = async ({ order, cancel, state }, action) => {
+    switch (action.type) {
+    case 'example':
+      cancel('1')
+      break
+    case ORDER_FAILED:
+      t.end()
+      break
+    default:
+      break
+    }
+  }
+
+  run({
+    feeds: {
+      example: _((push, next) => {
+        setTimeout(() => {
+          push(null, 'event 1')
+        }, 0)
+      })
+    },
+    backtest: {
+      initialCash: 10000000
+    },
+    client: createMockClient(true),
+    strategy,
+    journal: createMockWritable(),
+    backtesting: false
+  })
+
 })

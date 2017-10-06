@@ -9,7 +9,8 @@ import {
   ORDER_FILLED,
   ORDER_FAILED,
   ORDER_REJECTED,
-  ORDER_CANCELLED
+  ORDER_CANCELLED,
+  BAR_RECEIVED
 } from '../lib/constants'
 
 test('return the initial state', (t) => {
@@ -344,4 +345,30 @@ test(`${ORDER_FILLED}, sell-side, better price, increase cash and commission, an
   })
 
   t.true(is(actual, expect))
+})
+
+test(`update history on ${BAR_RECEIVED}`, (t) => {
+  const action = {
+    type: BAR_RECEIVED,
+    payload: {
+      identifier: 'MSFT',
+      open: 110,
+      high: 120,
+      low: 90,
+      close: 100,
+      timestamp: 200
+    }
+  }
+
+  const actual = reducer(undefined, action).get('history')
+  const expected = List([
+    Map({
+      cash: 0,
+      reservedCash: 0,
+      commission: 0,
+      timestamp: 200
+    })
+  ])
+
+  t.true(is(actual, expected))
 })

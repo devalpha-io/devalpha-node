@@ -56,7 +56,7 @@ test(`${ORDER_CANCELLED} removes an order from the Map of orders`, (t) => {
     price: 100,
     commission: 10
   }
-  const action = { type: ORDER_CANCELLED, payload: order }
+  const action = { type: ORDER_CANCELLED, payload: { id: '0' } }
   const initialState = Map().set('0', order)
 
   const actual = reducer(initialState, action)
