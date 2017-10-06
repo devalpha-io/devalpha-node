@@ -1,6 +1,12 @@
 import test from 'ava'
 import { Map, List } from 'immutable'
-import { getCurrentTotal, getReturnsTotal, getReturnsPeriod, getMaxDrawdown } from '../lib/selectors/metrics'
+import {
+  getCurrentTotal,
+  getReturnsTotal,
+  getReturnsPeriod,
+  getMaxDrawdown,
+  getSharpeRatio
+} from '../lib/selectors/metrics'
 
 test('getCurrentTotal should not break when dividing by zero', (t) => {
   const capitalHistory = List([
@@ -304,6 +310,85 @@ test('getMaxdrawdown should correctly the maximum drawdown', (t) => {
 
   const expected = 0.3895495668996669
   const actual = getMaxDrawdown(state)
+
+  t.is(expected, actual)
+})
+
+test('getSharpeRatio should correctly calculate the Sharpe ratio', (t) => {
+  const capitalHistory = List([
+    Map({
+      cash: 0,
+      reservedCash: 0,
+      commission: 0,
+      timestamp: 1
+    }),
+    Map({
+      cash: 0,
+      reservedCash: 0,
+      commission: 0,
+      timestamp: 2
+    }),
+    Map({
+      cash: 0,
+      reservedCash: 0,
+      commission: 0,
+      timestamp: 3
+    })
+  ])
+  const positionsHistory = List([
+    Map({
+      timestamp: 1,
+      instruments: Map({
+        GOOG: Map({
+          quantity: 1,
+          price: 10,
+          value: 100
+        }),
+        MSFT: Map({
+          quantity: 1,
+          price: 100,
+          value: 120
+        })
+      })
+    }),
+    Map({
+      timestamp: 2,
+      instruments: Map({
+        GOOG: Map({
+          quantity: 1,
+          price: 10,
+          value: 105
+        }),
+        MSFT: Map({
+          quantity: 1,
+          price: 100,
+          value: 125
+        })
+      })
+    }),
+    Map({
+      timestamp: 3,
+      instruments: Map({
+        GOOG: Map({
+          quantity: 1,
+          price: 10,
+          value: 110
+        }),
+        MSFT: Map({
+          quantity: 1,
+          price: 100,
+          value: 115
+        })
+      })
+    })
+  ])
+
+  const state = Map()
+    .setIn(['capital', 'history'], capitalHistory)
+    .setIn(['positions', 'history'], positionsHistory)
+
+  const expected = 0.24956709924231082
+  const actual = getSharpeRatio(state)
 
   t.is(expected, actual)
 })

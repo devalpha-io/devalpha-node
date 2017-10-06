@@ -29,10 +29,13 @@ const config = {
           'bignumber',
           'chain',
           'max',
+          'mean',
           'min',
           'multiply',
           'number',
           'sign',
+          'sqrt',
+          'std',
           'subtract'
         ]
       }
