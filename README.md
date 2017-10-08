@@ -5,8 +5,8 @@ Vester is a high-level Node.js framework for creating and running your own algor
 It is inspired by the [LMAX architecture](https://martinfowler.com/articles/lmax.html) and built using [Redux](http://redux.js.org/) and a bunch of custom middleware.
 
 ## Features
-- [x] Event driven
-- [x] Less than 900k file size
+- [x] Event sourced
+- [x] Less than 900k bundle size
 - [x] Backtesting metrics
 - [x] Multiple order types*
 - [x] Slack notifications
@@ -16,16 +16,7 @@ It is inspired by the [LMAX architecture](https://martinfowler.com/articles/lmax
 \*Supported in live-trading.
 
 ## Installation
-
-Install via [npm](https://www.npmjs.com/package/vester)
-
-```bash
-$ npm install vester
-```
-or
-```bash
-$ yarn add vester
-```
+Coming soon.
 
 ## Get Started
 
