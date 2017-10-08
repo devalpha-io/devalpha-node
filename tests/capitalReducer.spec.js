@@ -4,11 +4,8 @@ import { Map, List, is } from 'immutable'
 import reducer from '../lib/reducers/capitalReducer'
 import {
   INITIALIZED,
-  ORDER_CREATED,
   ORDER_PLACED,
   ORDER_FILLED,
-  ORDER_FAILED,
-  ORDER_REJECTED,
   ORDER_CANCELLED,
   BAR_RECEIVED
 } from '../lib/constants'

@@ -7,10 +7,10 @@ It is inspired by the [LMAX architecture](https://martinfowler.com/articles/lmax
 ## Features
 - [x] Event driven
 - [x] Fully synchronous data flow
-- [x] 100% pluggable
+- [x] Backtesting metrics
 - [ ] Multiple order types (market, limit, percentage)
 - [ ] Scheduling
-- [ ] Notifications
+- [x] Notifications
 
 ## Installation
 
