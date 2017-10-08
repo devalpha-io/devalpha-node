@@ -30,7 +30,14 @@ test('pass the intercepted action to the next', async (t) => {
 
 test('synchronously dispatch order created upon order requested', async (t) => {
   const { middleware, store } = t.context
-  const action = { type: ORDER_REQUESTED, payload: {} }
+  const action = {
+    type: ORDER_REQUESTED,
+    payload: {
+      identifier: 'GOOG',
+      quantity: 10,
+      price: 20
+    }
+  }
   middleware(action)
 
   t.true(store.dispatch.calledOnce)

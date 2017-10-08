@@ -30,7 +30,14 @@ test('pass the intercepted action to the next', async (t) => {
 
 test('synchronously dispatch order created upon order requested', async (t) => {
   const { middleware, store } = t.context
-  const action = { type: ORDER_REQUESTED, payload: {} }
+  const action = {
+    type: ORDER_REQUESTED,
+    payload: {
+      identifier: 'GOOG',
+      quantity: 10,
+      price: 20
+    }
+  }
   middleware(action)
 
   t.true(store.dispatch.calledOnce)
@@ -44,4 +51,47 @@ test('asynchronously dispatch order placed upon order created', async (t) => {
 
   t.true(store.dispatch.calledOnce)
   t.true(store.dispatch.firstCall.args[0].type === ORDER_PLACED)
+})
+
+test('build limit orders', async (t) => {
+  const { middleware, store } = t.context
+  const action = {
+    type: ORDER_REQUESTED,
+    payload: {
+      identifier: 'MSFT',
+      quantity: 10,
+      price: 20
+    }
+  }
+  await middleware(action)
+
+  const actual = store.dispatch.firstCall.args[0].payload
+  const expect = {
+    identifier: 'MSFT',
+    quantity: 10,
+    price: 20,
+    commission: 0
+  }
+  t.deepEqual(actual, expect)
+})
+
+test('build market orders', async (t) => {
+  const { middleware, store } = t.context
+  const action = {
+    type: ORDER_REQUESTED,
+    payload: {
+      identifier: 'MSFT',
+      quantity: 10
+    }
+  }
+  await middleware(action)
+
+  const actual = store.dispatch.firstCall.args[0].payload
+  const expect = {
+    identifier: 'MSFT',
+    quantity: 10,
+    price: 20,
+    commission: 0
+  }
+  t.deepEqual(actual, expect)
 })

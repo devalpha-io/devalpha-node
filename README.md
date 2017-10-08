@@ -6,11 +6,14 @@ It is inspired by the [LMAX architecture](https://martinfowler.com/articles/lmax
 
 ## Features
 - [x] Event driven
-- [x] Fully synchronous data flow
+- [x] Less than 900k file size
 - [x] Backtesting metrics
-- [ ] Multiple order types (market, limit, percentage)
+- [x] Multiple order types*
+- [x] Slack notifications
+- [x] Built-in CSV parsing
 - [ ] Scheduling
-- [x] Notifications
+
+\*Supported in live-trading.
 
 ## Installation
 
@@ -18,6 +21,10 @@ Install via [npm](https://www.npmjs.com/package/vester)
 
 ```bash
 $ npm install vester
+```
+or
+```bash
+$ yarn add vester
 ```
 
 ## Get Started
