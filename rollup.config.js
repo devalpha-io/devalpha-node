@@ -22,7 +22,7 @@ const config = {
     commonjs({
       include: ['node_modules/**'],
       namedExports: {
-        immutable: ['Map', 'List', 'is'],
+        immutable: ['Map', 'List', 'is', 'fromJS'],
         mathjs: [
           'add',
           'bignumber',
