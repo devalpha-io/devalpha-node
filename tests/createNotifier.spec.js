@@ -41,7 +41,17 @@ test.cb(`fires notification on ${INITIALIZED}`, (t) => {
       t.end()
     }
   })(store)(next)
-  const action = { type: INITIALIZED, payload: { initialCash: 100, timestamp: 100 } }
+  const action = {
+    type: INITIALIZED,
+    payload: {
+      initialStates: {
+        capital: {
+          cash: 100
+        }
+      },
+      timestamp: 100
+    }
+  }
   middleware(action)
 })
 
