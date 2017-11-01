@@ -23,7 +23,7 @@ test('return the initial state', (t) => {
 
 test(`add initial state to history on ${INITIALIZED}`, (t) => {
   const initialState = reducer(undefined, {})
-  const action = { type: INITIALIZED, payload: { timestamp: 100, initialCash: 0 } }
+  const action = { type: INITIALIZED, payload: { timestamp: 100, initialStates: {} } }
 
   const actual = reducer(undefined, action).get('history')
   const expect = List([
@@ -35,11 +35,37 @@ test(`add initial state to history on ${INITIALIZED}`, (t) => {
   t.true(is(actual, expect))
 })
 
-test(`set initial cash on ${INITIALIZED}`, (t) => {
-  const action = { type: INITIALIZED, payload: { timestamp: 50, initialCash: 100 } }
+test(`set initial values on ${INITIALIZED}`, (t) => {
+  const action = {
+    type: INITIALIZED,
+    payload: {
+      timestamp: 50,
+      initialStates: {
+        capital: {
+          cash: 100,
+          reservedCash: 101,
+          commission: 102,
+          history: ['foobar']
+        }
+      }
+    }
+  }
 
-  const actual = reducer(undefined, action).get('cash')
-  const expect = 100
+  const actual = reducer(undefined, action)
+  const expect = Map({
+    cash: 100,
+    reservedCash: 101,
+    commission: 102,
+    history: List([
+      'foobar',
+      Map({
+        cash: 100,
+        reservedCash: 101,
+        commission: 102,
+        timestamp: 50
+      })
+    ])
+  })
 
   t.true(is(actual, expect))
 })

@@ -45,9 +45,6 @@ test.cb('backtest event order', t => {
     feeds: {
       example: ['event 1', 'event 2']
     },
-    backtest: {
-      initialCash: 10000000
-    },
     journal: createMockWritable(),
     strategy
   })
@@ -103,9 +100,6 @@ test.cb('live trading event order', t => {
         }, 0)
       })
     },
-    backtest: {
-      initialCash: 10000000
-    },
     client: createMockClient(),
     strategy,
     journal: createMockWritable(),
@@ -132,9 +126,6 @@ test.cb('metrics and state are objects', t => {
   run({
     feeds: {
       example: ['event 1', 'event 2']
-    },
-    backtest: {
-      initialCash: 10000000
     },
     journal: createMockWritable(),
     strategy
@@ -166,9 +157,6 @@ test.cb('failing orders are dispatched', t => {
           push(null, 'event 1')
         }, 0)
       })
-    },
-    backtest: {
-      initialCash: 10000000
     },
     client: createMockClient(true),
     strategy,
@@ -210,9 +198,6 @@ test.cb('orders are cancellable', t => {
         }, 0)
       })
     },
-    backtest: {
-      initialCash: 10000000
-    },
     client: createMockClient(),
     strategy,
     journal: createMockWritable(),
@@ -242,9 +227,6 @@ test.cb('should not be able to cancel unknown orders', t => {
           push(null, 'event 1')
         }, 0)
       })
-    },
-    backtest: {
-      initialCash: 10000000
     },
     client: createMockClient(true),
     strategy,
