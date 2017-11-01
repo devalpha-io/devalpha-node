@@ -1,7 +1,7 @@
 {
   "name": "vester",
   "version": "0.0.0",
-  "main": "index.js",
+  "main": "dist/cjs/bundle.js",
   "license": "MIT",
   "dependencies": {
     "CBuffer": "^2.0.0",
@@ -38,9 +38,9 @@
     "sinon": "^3.2.1"
   },
   "scripts": {
-    "build:es6": "NODE_ENV=production babel lib -d dist",
+    "build:es": "NODE_ENV=production babel lib -d dist/es",
     "build:cjs": "NODE_ENV=production rollup --config",
-    "build": "NODE_ENV=production yarn build:es6 & yarn build:cjs",
+    "build": "NODE_ENV=production yarn build:es & yarn build:cjs",
     "start": "babel-node lib/index.js",
     "test": "NODE_ENV=test ava tests/**/*.spec.js",
     "test-only": "NODE_ENV=test ava",

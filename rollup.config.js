@@ -8,7 +8,7 @@ const env = process.env.NODE_ENV
 const config = {
   input: 'lib/index.js',
   output: {
-    file: 'bundle.js',
+    file: 'dist/cjs/bundle.js',
     format: 'cjs'
   },
   plugins: [
