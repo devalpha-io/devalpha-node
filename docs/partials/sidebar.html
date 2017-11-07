@@ -1,0 +1,27 @@
+<aside class="sidebar">
+  <ul class="nav">
+    {{#each collections}}
+    <li class="nav-item">
+      <span class="nav-heading">
+        {{@key}}
+      </span>
+      <ul class="nav">
+        {{#each this}}
+            {{#is title 'API'}}
+              {{#each headings}}
+                <li class="nav-item">
+                  <a href="/{{ ../path }}#{{id}}">{{ text }}</a>
+                </li>
+              {{/each}}
+            {{/is}}
+            {{#isnt title 'API'}}
+              <li class="nav-item{{#is ../../path path}} active{{/is}}">
+                <a href="/{{ path }}">{{ title }}</a>
+              </li>
+            {{/isnt}}
+          {{/each}}
+      </ul>
+    </li>
+    {{/each}}
+  </ul>
+</aside>

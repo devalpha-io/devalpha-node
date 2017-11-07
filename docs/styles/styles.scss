@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css?family=Abel|Montserrat:400,500|Open+Sans:400,400i');
+@import 'icons';
+@import 'prism';
+
+$blue: #1563FF;
+$primary-color: $blue;
+$navbar-height: 4rem;
+$sidebar-width: 14rem;
+
+@import '../../node_modules/spectre.css/src/spectre';
+
+:not(pre)>code[class*="language-"], 
+pre[class*="language-"] {
+  background: #EEEEEE;
+  border: 1px solid $border-color;
+}
+
+html {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: #F6F6F6;
+  font-family: 'Open Sans', sans-serif;
+  margin: 0;
+  line-height: 1.5;
+  padding-top: $navbar-height;
+  height: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+a.active {
+  color: $primary-color;
+}
+
+.container {
+  max-width: 40rem;
+}
+
+.navbar-top .navbar-brand {
+  text-transform: lowercase;
+  color: $light-color;
+  font-size: 1.2rem;
+  font-family: 'Abel';
+}
+
+.navbar-top a {
+  color: $light-color;
+}
+.navbar-top a:hover {
+  text-decoration: none
+}
+
+.navbar-brand span {
+  font-family: monospace;
+  opacity: .25;
+  font-size: .8rem;
+}
+
+.navbar-top {
+  background: $primary-color;
+  position: fixed;
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+  padding: 0 2rem;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  height: $navbar-height;
+}
+
+.sidebar {
+  border-right: 1px solid $border-color;
+  width: $sidebar-width;
+  position: fixed;
+  top: $navbar-height;
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+  padding: 2rem;
+  background: #EEEEEE;
+}
+
+.picture {
+  border: 1px solid $border-color;
+  padding: 1rem;
+  background: #EEEEEE;
+}
+.picture.float-right {
+  margin-left: 1rem;
+}
+
+.tile-card {
+  border: 1px solid rgba(0, 0, 0, .1);
+  border-radius: .1rem;
+  margin-bottom: .8rem;
+  padding: 1.6rem;
+  box-shadow: 0 .05rem .25rem rgba(0, 0, 0, .05);
+  background: $light-color;
+}
+
+.tile-card .tile-icon {
+  font-size: 1.6rem;
+  margin-right: .8rem;
+}
+
+.tile-title {
+  text-transform: uppercase;
+  font-family: 'Montserrat';
+}
+
+.tile-subtitle {
+  margin-top: .4rem;
+  font-size: .75rem;
+  opacity: .75;
+}
+
+.tile.tile-centered .tile-title, .tile.tile-centered .tile-subtitle {
+  overflow: visible;
+  white-space: normal;
+}
+
+.main {
+  margin-left: $sidebar-width;
+  overflow-x: hidden;
+}
+
+.content {
+  margin: 0 auto;
+  max-width: 80rem;
+  padding: 2rem 3.6rem;
+}
+
+.content h2[id] {
+  padding-top: 6rem;
+  margin-top: -4rem;
+}
+
+.navbar-content {
+  border-top: 1px solid $border-color;
+  margin-top: 1rem;
+  padding-top: 1rem;
+}

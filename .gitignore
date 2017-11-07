@@ -64,3 +64,9 @@ coverage
 
 # distribution files
 dist/
+
+# documentation
+.docs/
+
+# old
+old/
