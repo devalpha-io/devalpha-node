@@ -13,12 +13,12 @@ const sass = require('metalsmith-sass')
 const uglify = require('metalsmith-uglify')
 const watch = require('metalsmith-watch')
 
-let watching = false
+let watching = true
 if (
   process.argv.indexOf('-w') == -1 &&
   process.argv.indexOf('--watch') == -1
 ) {
-  watching = true
+  watching = false
 }
 
 let metadata = {
@@ -36,6 +36,8 @@ if (process.env.NODE_ENV !== 'development') {
     production: true
   })
 }
+
+const noop = (files, metalsmith, done) => done()
 
 function generateContent(done) {
   handlebars.registerHelper('is', function (a, b, options) {
@@ -58,12 +60,12 @@ function generateContent(done) {
         .source('./docs/content')
         .destination('./.docs')
         .use(drafts())
-        .use(watching ? undefined : watch({
+        .use(watching ? watch({
           paths: {
             '${source}/**/*': true,
             './docs/layouts/**/*': '**/*'
           }
-        }))
+        }) : noop)
         .use(collections({
           'Prologue': {
             pattern: '*.md',
@@ -118,7 +120,7 @@ function generateStatic(done) {
         .clean(true)
         .source('./docs/static')
         .destination('./.docs/assets/')
-        .use(watching ? undefined : watch())
+        .use(watching ? watch() : noop)
         .build((e) => {
           if (e) {
             reject(e)
@@ -135,9 +137,9 @@ function generateStyles(done) {
         .clean(true)
         .source('./docs/styles')
         .destination('./.docs/assets/styles')
-        .use(watching ? undefined : watch({
+        .use(watching ? watch({
           livereload: true
-        }))
+        }) : noop)
         .use(sass())
         .build((e) => {
           if (e) {
@@ -155,7 +157,7 @@ function generateScripts(done) {
         .clean(true)
         .source('./docs/scripts')
         .destination('./.docs/assets/scripts')
-        .use(watching ? undefined : watch())
+        .use(watching ? watch() : noop)
         .use(uglify({
           concat: {
             file: 'scripts.min.js'
@@ -180,10 +182,10 @@ Promise.all([
 ])
 .then(() => {
   const args = process.argv.slice(2)
-  if (watching) {
+  if (!watching) {
     process.exit()
   }
 })
 .catch((e) => {
-  console.error(e)
+  console.log(e)
 })
