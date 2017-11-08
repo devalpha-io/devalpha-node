@@ -6,13 +6,13 @@
   <title>{{ siteName }}</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/assets/styles/styles.css">
+  <link rel="stylesheet" href="{{ siteUrl }}/assets/styles/styles.css">
 </head>
 <body>
 
 <header class="navbar navbar-top">
   <section class="navbar-section">
-    <a href="#" class="navbar-brand mr-2">vester <span>{{ version }}</span></a>
+    <a href="{{ siteUrl }}" class="navbar-brand mr-2">vester <span>{{ version }}</span></a>
   </section>
   <section class="navbar-section">
     <a target="_blank" href="{{ githubUrl }}">

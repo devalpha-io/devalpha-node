@@ -10,13 +10,13 @@
             {{#is title 'API'}}
               {{#each headings}}
                 <li class="nav-item">
-                  <a href="/{{ ../path }}#{{id}}">{{ text }}</a>
+                  <a href="{{ siteUrl }}/{{ ../path }}#{{id}}">{{ text }}</a>
                 </li>
               {{/each}}
             {{/is}}
             {{#isnt title 'API'}}
               <li class="nav-item{{#is ../../path path}} active{{/is}}">
-                <a href="/{{ path }}">{{ title }}</a>
+                <a href="{{ siteUrl }}/{{ path }}">{{ title }}</a>
               </li>
             {{/isnt}}
           {{/each}}
