@@ -1,8 +1,8 @@
-# Vester
+# ![Vester](https://fhqvst.github.io/vester/assets/images/vester-splash.svg)
 
-Vester is a high-level Node.js framework for creating and running your own algorithmic trading systems.
-
-It is inspired by the [LMAX architecture](https://martinfowler.com/articles/lmax.html) and built using [Redux](http://redux.js.org/) and a bunch of custom middleware.
+Vester is a high-level Node.js framework for creating and running your own algorithmic trading systems. 
+  
+It is inspired by the [LMAX architecture](https://martinfowler.com/articles/lmax.html) and built using [Redux](http://redux.js.org/) and some custom middleware.
 
 ## Features
 - [x] Event sourced
