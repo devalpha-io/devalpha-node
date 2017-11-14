@@ -6,16 +6,20 @@ function buildApi() {
   return documentation.build([path.resolve(process.cwd(), 'lib', '**', '*')], {})
     .then(documentation.formats.md)
     .then(output => {
+      let content = ''
+
+      content += '---\n'
+      content += 'title: API\n'
+      content += '---\n\n'
+      content += '# API\n\n'
 
       /* remove documentation.js comment */
       output = output.substring(output.indexOf('\n') + 1)
 
       /* add metadata */
-      output = '--- \n' + output
-      output = 'title: API \n' + output
-      output = '--- \n' + output
+      content += output
 
-      fs.writeFileSync(path.resolve(process.cwd(), 'docs', 'content', 'api', 'API.md'), output)
+      fs.writeFileSync(path.resolve(process.cwd(), 'docs', 'source', 'prologue', 'api', 'index.md'), content)
     })
 }
 

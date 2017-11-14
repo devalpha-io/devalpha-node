@@ -1,6 +1,5 @@
 ---
 title: Home
-layout: layout.html
 ---
 
 # Algorithmic Trading for Everyone

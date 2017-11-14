@@ -1,6 +1,9 @@
---- 
-title: API 
---- 
+---
+title: API
+---
+
+# API
+
 
 ## applyMiddlewareBuffered
 

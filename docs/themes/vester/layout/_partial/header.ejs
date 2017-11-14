@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>{{ siteName }}</title>
-  <meta name="description" content="">
+  <title><%= config.title %> | <%= config.subtitle %></title>
+  <meta name="description" content="<%= config.description %>">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="{{ siteUrl }}/assets/styles/styles.css">
+  <link rel="stylesheet" href="<%- url_for('/styles/styles.css') %>">
 </head>
 <body>
 
 <header class="navbar navbar-top">
   <section class="navbar-section">
-    <a href="{{ siteUrl }}" class="navbar-brand mr-2">vester <span>{{ version }}</span></a>
+    <a href="<%- url_for() %>" class="navbar-brand mr-2">vester</a>
   </section>
   <section class="navbar-section">
-    <a target="_blank" href="{{ githubUrl }}">
+    <a target="_blank" href="#">
       <i class="icon-github"></i>
     </a>
   </section>

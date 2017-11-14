@@ -1,0 +1,20 @@
+<%- partial('_partial/header') %>
+<%- partial('_partial/sidebar') %>
+
+<main class="main">
+  <div class="content">
+    <div class="container">
+      <%- page.content %>
+      <% if (page.next) { %>
+        <footer class="navbar navbar-content">
+          <section class="navbar-center">
+            <a href="<%- url_for(page.next) %>" class="btn btn-primary">Next</a>
+          </section>
+        </footer>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- partial('_partial/footer') %>
+

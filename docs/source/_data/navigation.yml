@@ -1,0 +1,31 @@
+- title: Introduction
+  items:
+  - path: /
+    title: Home
+  - path: prologue/quickstart
+    title: Quickstart
+  - path: prologue/api
+    title: API Reference
+- title: Concepts
+  items:
+  - path: concepts/buffer
+    title: Buffer
+  - path: concepts/feeds
+    title: Feeds
+  - path: concepts/middleware
+    title: Middleware
+    items:
+    - path: concepts/middleware/notifier
+      title: Notifier
+    - path: concepts/middleware/logger
+      title: Logger
+    - path: concepts/middleware/journaler
+      title: Journaler
+    - path: concepts/middleware/risk-manager
+      title: Risk Manager
+    - path: concepts/middleware/broker
+      title: Broker
+  - path: concepts/store
+    title: Store
+  - path: concepts/strategy
+    title: Strategy

@@ -1,0 +1,17 @@
+{
+  "name": "vester-docs",
+  "version": "0.0.0",
+  "private": true,
+  "hexo": {
+    "version": "3.4.0"
+  },
+  "dependencies": {
+    "hexo": "^3.2.0",
+    "hexo-deployer-git": "^0.3.1",
+    "hexo-renderer-ejs": "^0.3.0",
+    "hexo-renderer-marked": "^0.3.0",
+    "hexo-renderer-sass": "^0.3.2",
+    "hexo-server": "^0.2.0",
+    "spectre.css": "^0.4.5"
+  }
+}
