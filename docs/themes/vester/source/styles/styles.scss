@@ -1,18 +1,37 @@
 // @import url('https://fonts.googleapis.com/css?family=Abel|Montserrat:400,500|Open+Sans:400,400i');
+@import url('https://fonts.googleapis.com/css?family=Barlow:300,400,400i,500,600');
+
 @import 'icons';
-@import 'prism';
 
 $blue: #1563FF;
 $primary-color: $blue;
-$navbar-height: 4rem;
+$navbar-height: 2.4rem;
 $sidebar-width: 10rem;
+$base-font-family: 'Barlow', sans-serif;
 
 @import '../../../../node_modules/spectre.css/src/spectre';
 
-:not(pre)>code[class*="language-"], 
-pre[class*="language-"] {
-  background: #EEEEEE;
-  border: 1px solid $border-color;
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 300;
+  letter-spacing: -.025em;
+}
+
+.lead {
+  font-size: 1.2rem;
+}
+
+:not(pre) > code[class*="language-"], pre[class*="language-"] {
+  background: #EEEEEE !important;
+  border: 1px solid $border-color !important;
+
+  .token.atrule, .token.attr-value, .token.keyword {
+    color: $blue;
+  }
+}
+
+code[class*="language-"] {
+  color: #333333 !important;
+  text-shadow: none !important;
 }
 
 html {
@@ -30,6 +49,20 @@ body {
   height: 100%;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+.btn.btn-primary {
+  color: #EEEEEE;
+}
+.btn.btn-lg {
+  padding: $unit-3 $unit-8;
+  height: 2.4rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  font-weight: 500;
+}
+.btn:active {
+  transform: scale(.95);
 }
 
 .nav .nav-item a.active {
@@ -64,7 +97,7 @@ body {
   background: $primary-color;
   position: fixed;
   border-bottom: 1px solid rgba(0, 0, 0, .1);
-  padding: 0 2rem;
+  padding: 0 .8rem;
   top: 0;
   left: 0;
   right: 0;
@@ -80,7 +113,7 @@ body {
   bottom: 0;
   left: 0;
   overflow-y: auto;
-  padding: 2 * .8rem;
+  padding: .6rem 1rem;
   background: #EEEEEE;
   font-size: .675rem;
 }
@@ -104,13 +137,17 @@ body {
   margin-left: 1rem;
 }
 
+.frontpage-button {
+  margin-top: $unit-16;
+}
+.frontpage-tiles {
+  margin-top: $unit-16;
+}
+
 .tile-card {
-  border: 1px solid rgba(0, 0, 0, .1);
-  border-radius: .1rem;
   margin-bottom: .8rem;
-  padding: 1.6rem;
-  box-shadow: 0 .05rem .25rem rgba(0, 0, 0, .05);
-  background: $light-color;
+  padding: $unit-4 0;
+  background: transparent;
 }
 
 .tile-card .tile-icon {
@@ -120,7 +157,8 @@ body {
 
 .tile-title {
   text-transform: uppercase;
-  // font-family: 'Montserrat';
+  font-weight: 600;
+  letter-spacing: .05em;
 }
 
 .tile-subtitle {
@@ -139,15 +177,28 @@ body {
   overflow-x: hidden;
 }
 
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(.4rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0rem);
+  }
+}
+
 .content {
   margin: 0 auto;
   max-width: 80rem;
-  padding: 2rem 3.6rem;
+  padding: $unit-16 $unit-16;
+  animation: fade-in .5s;
+  position: relative;
 }
 
 .content h2[id] {
-  padding-top: 6rem;
-  margin-top: -4rem;
+  padding-top: $navbar-height;
+  margin-top: -$navbar-height;
 }
 
 .navbar-content {

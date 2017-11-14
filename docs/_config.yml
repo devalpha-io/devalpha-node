@@ -38,11 +38,24 @@ post_asset_folder: false
 relative_link: false
 future: true
 highlight:
-  enable: true
-  line_number: true
-  auto_detect: false
-  tab_replace:
-  
+  enable: false
+
+marked:
+  gfm: true
+  pedantic: false
+  sanitize: false
+  tables: true
+  breaks: false
+  smartLists: true
+  smartypants: true
+  modifyAnchors: ''
+  autolink: true  
+
+prism_plugin:
+  mode: 'preprocess'
+  theme: 'default'
+  line_number: false
+
 # Category & Tag
 default_category: uncategorized
 category_map:
