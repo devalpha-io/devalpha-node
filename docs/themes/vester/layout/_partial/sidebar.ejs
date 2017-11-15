@@ -6,7 +6,7 @@
         <ul class="nav">
           <% section.items.forEach((item) => { %>
             <li class="nav-item">
-              <a class="<%- is_current(item.path, true) ? 'active' : '' %>" href="<%- url_for(item.path) %>"><%= item.title %></a>
+              <a class="<%- is_current(item.path) ? 'active' : '' %>" href="<%- url_for(item.path) %>"><%= item.title %></a>
               <% if (item.items) { %>
                 <ul class="nav">
                   <% item.items.forEach((subitem) => { %>
