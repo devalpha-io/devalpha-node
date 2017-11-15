@@ -8,10 +8,10 @@
     title: API Reference
 - title: Concepts
   items:
-  - path: concepts/buffer
-    title: Buffer
   - path: concepts/feeds
     title: Feeds
+  - path: concepts/buffer
+    title: Buffer
   - path: concepts/middleware
     title: Middleware
     items:

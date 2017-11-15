@@ -22,7 +22,7 @@ title: Home
       <div class="tile-icon"><i class="icon icon-slack"></i></div>
       <div class="tile-content">
         <div class="tile-title">Slack Notifications</div>
-        <p class="tile-subtitle">Don't let your gains come unnoticed. Simply add your Slack API endpoint and Vester will notify you whenever a new event occurs.</p>
+        <p class="tile-subtitle">Don't let your gains come unnoticed. Simply add your Slack API endpoint and Vester will notify you whenever a new event is dispatched.</p>
       </div>
     </div>
     <div class="tile tile-card tile-centered">

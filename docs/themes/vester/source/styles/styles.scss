@@ -197,7 +197,7 @@ body {
 }
 
 .content h2[id] {
-  padding-top: $navbar-height;
+  padding-top: $unit-10 + $navbar-height;
   margin-top: -$navbar-height;
 }
 
