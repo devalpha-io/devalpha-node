@@ -12,15 +12,12 @@ react to events. The events come from Feeds, which are supplied by the user of t
 
 A Feed can be just about any kind of iterable sequence, such as Array, Stream, Generator, Promise, EventEmitter, Iterator, Iterable, and so on. Check <a href="http://highlandjs.org/#_(source)" target="_blank">this page</a> for a full reference. 
 
-Vester also supports reading data directly from a CSV-file. If you supply the full path to the file, Vester will then parse each row into an event with the payload being and object with the following properties: `timestamp`, `open`, `high`, `low` and `close`.
-
 Below are some examples of valid feeds:
 
 ```javascript
 run({
   feeds: {
     sentimentData: [0.55, 0.6, ...],      /* Array */
-    someCSV: 'data/MSFT.csv',             /* CSV-file */
     myPromise: request('https://...')     /* Promise */
     dataStream: fs.createReadStream(...), /* Stream */
     ...
