@@ -10,7 +10,6 @@ It is inspired by the [LMAX architecture](https://martinfowler.com/articles/lmax
 - [x] Backtesting metrics
 - [x] Multiple order types*
 - [x] Slack notifications
-- [x] Built-in CSV parsing
 - [ ] Scheduling
 
 \*Supported in live-trading.

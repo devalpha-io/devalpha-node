@@ -35,10 +35,10 @@ title: Home
   </div>
   <div class="column col-6">
     <div class="tile tile-card tile-centered">
-      <div class="tile-icon"><i class="icon icon-file"></i></div>
+      <div class="tile-icon"><i class="icon icon-users"></i></div>
       <div class="tile-content">
-        <div class="tile-title">CSV Parsing</div>
-        <p class="tile-subtitle">Import data from your favourite source and parse it directly with Vester's CSV utilities.</p>
+        <div class="tile-title">Built for Developers</div>
+        <p class="tile-subtitle">Not everyone is a post-doc in quantitative finance, and with Vester  no one has to be.</p>
       </div>
     </div>
     <div class="tile tile-card tile-centered">
@@ -49,7 +49,7 @@ title: Home
       </div>
     </div>
     <div class="tile tile-card tile-centered">
-      <div class="tile-icon"><i class="icon icon-users"></i></div>
+      <div class="tile-icon"><i class="icon icon-message-circle"></i></div>
       <div class="tile-content">
         <div class="tile-title">Flourishing Community</div>
         <p class="tile-subtitle">Get the most out of your algorithmic trading by sharing your tips and ideas with others.</p>
