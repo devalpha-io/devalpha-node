@@ -1,4 +1,4 @@
-# ![Vester](https://fhqvst.github.io/vester/assets/images/vester-splash.svg)
+# ![Vester](https://fhqvst.github.io/vester/images/vester-splash.svg)
 
 Vester is a high-level Node.js framework for creating and running your own algorithmic trading systems. 
   
