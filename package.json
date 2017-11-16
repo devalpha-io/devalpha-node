@@ -6,7 +6,6 @@
   "dependencies": {
     "CBuffer": "^2.0.0",
     "babel-polyfill": "^6.26.0",
-    "babyparse": "^0.4.6",
     "fastpriorityqueue": "^0.3.1",
     "highland": "^2.11.1",
     "immutable": "^3.8.1",
