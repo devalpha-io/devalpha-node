@@ -14,7 +14,6 @@ test.cb('backtest event order', t => {
 
   const executions = []
   const strategy = ({ state, order, cancel }, action) => {
-    console.log(action.type)
     switch (action.type) {
     case 'example':
       executions.push('a')
