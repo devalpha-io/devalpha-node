@@ -15,7 +15,8 @@ test('return the initial state', (t) => {
   const expect = Map({
     cash: 0,
     commission: 0,
-    reservedCash: 0
+    reservedCash: 0,
+    total: 0
   })
   t.deepEqual(actual.toJS(), expect.toJS())
 })
@@ -29,7 +30,8 @@ test(`set initial values on ${INITIALIZED}`, (t) => {
         capital: {
           cash: 100,
           reservedCash: 101,
-          commission: 102
+          commission: 102,
+          total: 103
         }
       }
     }
@@ -39,7 +41,8 @@ test(`set initial values on ${INITIALIZED}`, (t) => {
   const expect = Map({
     cash: 100,
     reservedCash: 101,
-    commission: 102
+    commission: 102,
+    total: 103
   })
 
   t.true(is(actual, expect))
@@ -59,7 +62,8 @@ test(`${ORDER_PLACED} of a sell-side order correctly edits reservedCash`, (t) =>
   const expect = Map({
     reservedCash: 5.5,
     cash: -5.5,
-    commission: 0
+    commission: 0,
+    total: 0
   })
 
   t.true(is(actual, expect))
@@ -79,7 +83,8 @@ test(`${ORDER_PLACED} of a buy-side order correctly edits cash, commission and r
   const expect = reducer(undefined, {}).merge(Map({
     reservedCash: 10010,
     cash: -10010,
-    commission: 0
+    commission: 0,
+    total: 0
   }))
 
   t.true(is(actual, expect))
@@ -101,7 +106,7 @@ test(`${ORDER_CANCELLED} of a sell-side order does not modify anything`, (t) => 
   t.true(is(actual, expect))
 })
 
-test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reservedCash, also doesn't commission`, (t) => {
+test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reservedCash, also doesn't change commission or total`, (t) => {
   const order = {
     id: '0',
     identifier: 'MSFT',
@@ -113,7 +118,8 @@ test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reserved
   const initialState = Map({
     cash: 0,
     reservedCash: 10010,
-    commission: 0
+    commission: 0,
+    total: 0
   })
 
   const actual = reducer(initialState, action)
@@ -141,14 +147,16 @@ test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decre
   const initialState = Map({
     cash: -10,
     reservedCash: 10,
-    commission: 0
+    commission: 0,
+    total: 0
   })
 
   const actual = reducer(initialState, action)
   const expect = Map({
     cash: 9990,
     reservedCash: 0,
-    commission: 10
+    commission: 10,
+    total: 9990
   })
 
   t.true(is(actual, expect))
@@ -170,14 +178,16 @@ test(`${ORDER_FILLED}, buy-side, should increase commission and decrease reserve
   const initialState = Map({
     cash: 0,
     reservedCash: 10010,
-    commission: 0
+    commission: 0,
+    total: 10010
   })
 
   const actual = reducer(initialState, action)
   const expect = Map({
     cash: 0,
     reservedCash: 0,
-    commission: 10
+    commission: 10,
+    total: 0
   })
 
   t.true(is(actual, expect))
@@ -199,14 +209,16 @@ test(`${ORDER_FILLED}, buy-side, partial fill, should increase commission and de
   const initialState = Map({
     cash: 0,
     reservedCash: 10010,
-    commission: 0
+    commission: 0,
+    total: 10010
   })
 
   const actual = reducer(initialState, action)
   const expect = Map({
     cash: 0,
     reservedCash: 5005,
-    commission: 5
+    commission: 5,
+    total: 5005
   })
 
   t.true(is(actual, expect))
@@ -228,14 +240,16 @@ test(`${ORDER_FILLED}, sell-side, partial fill, increase cash and commission, an
   const initialState = Map({
     cash: -10,
     reservedCash: 10,
-    commission: 0
+    commission: 0,
+    total: 0
   })
 
   const actual = reducer(initialState, action)
   const expect = Map({
     cash: 4990,
     reservedCash: 5,
-    commission: 5
+    commission: 5,
+    total: 4995
   })
 
   t.true(is(actual, expect))
@@ -257,14 +271,16 @@ test(`${ORDER_FILLED}, buy-side, better price, should increase commission and de
   const initialState = Map({
     cash: 0,
     reservedCash: 10010,
-    commission: 0
+    commission: 0,
+    total: 10010
   })
 
   const actual = reducer(initialState, action)
   const expect = Map({
     cash: 0,
     reservedCash: 0,
-    commission: 9
+    commission: 9,
+    total: 0
   })
 
   t.true(is(actual, expect))
@@ -286,14 +302,16 @@ test(`${ORDER_FILLED}, sell-side, better price, increase cash and commission, an
   const initialState = Map({
     cash: -10,
     reservedCash: 10,
-    commission: 0
+    commission: 0,
+    total: 0
   })
 
   const actual = reducer(initialState, action)
   const expect = Map({
     cash: 10979,
     reservedCash: 0,
-    commission: 11
+    commission: 11,
+    total: 10979
   })
 
   t.true(is(actual, expect))
