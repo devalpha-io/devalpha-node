@@ -1,12 +1,16 @@
 import test from 'ava'
 import sinon from 'sinon'
-import { Map } from 'immutable'
+import { Map, List, fromJS } from 'immutable'
 import {
   ORDER_REQUESTED,
   ORDER_CANCEL
 } from '../lib/constants'
 
-import createMiddleware from '../lib/middleware/createStrategy'
+import createMiddleware, {
+  getReturns,
+  getDrawdown,
+  getSharpeRatio,
+} from '../lib/middleware/createStrategy'
 
 test.beforeEach((t) => {
   const store = {
@@ -25,15 +29,6 @@ test('pass the intercepted action to the next', async (t) => {
   const action = { type: 'FOO', payload: {} }
   await middleware(action)
   t.true(next.withArgs(action).calledOnce)
-})
-
-test.cb('state should be a plain object', (t) => {
-  const { store, next } = t.context
-  const action = { type: 'FOO', payload: {} }
-  createMiddleware(({ state }) => {
-    t.true(typeof state === 'object')
-    t.end()
-  }, () => {})(store)(next)(action)
 })
 
 test.cb('order() should synchronously dispatch order requested', (t) => {
@@ -60,4 +55,60 @@ test.cb('cancel() should synchronously dispatch order cancel', (t) => {
 
     t.end()
   }, () => {})(store)(next)(action)
+})
+
+test('getReturns correctly calculates returns', (t) => {
+  const history = fromJS([
+    {
+      positions: { total: 47 },
+      capital: { total: 31 }
+    },
+    {
+      positions: { total: 53 },
+      capital: { total: 51 }
+    }
+  ])
+
+  const actual = getReturns(history)
+  const expect = 0.3333333333333333
+  t.is(actual, expect)
+})
+
+test('getDrawdown correctly calculates drawdown', (t) => {
+  const history = fromJS([
+    {
+      positions: { total: 2801.38 },
+      capital: { total: 1768 }
+    },
+    {
+      positions: { total: 1001.38 },
+      capital: { total: 1788 }
+    }
+  ])
+
+  const actual = getDrawdown(history)
+  const expect = 0.3895495668996669
+  t.is(actual, expect)
+})
+
+test('getSharpeRatio correctly calculates Sharpe ratio', (t) => {
+  const history = fromJS([
+    {
+      positions: { total: 220 },
+      capital: { total: 0 }
+    },
+    {
+      positions: { total: 230 },
+      capital: { total: 0 }
+    },
+    {
+      positions: { total: 225 },
+      capital: { total: 0 }
+    },
+  ])
+
+  const actual = getSharpeRatio(history)
+  const expect = 0.24956709924231088
+
+  t.is(actual, expect)
 })

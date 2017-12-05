@@ -128,8 +128,26 @@ test.cb('live trading event order', t => {
 test.cb('metrics and state are objects', t => {
 
   const strategy = ({ state, metrics, order, cancel }, action) => {
-    t.is(typeof state, 'object')
-    t.is(typeof metrics, 'object')
+    t.is(typeof (state()), 'object')
+    t.is(typeof (metrics()), 'object')
+    t.end()
+  }
+
+  run({
+    feeds: {
+      example: ['event 1', 'event 2']
+    },
+    journal: createMockWritable(),
+    strategy
+  })
+})
+
+test.cb('metrics contains the correct properties', t => {
+
+  const strategy = ({ state, metrics, order, cancel }, action) => {
+    const actual = Object.keys(metrics())
+    const expected = ['returns', 'drawdown', 'alpha', 'beta', 'sharpe', 'sortino', 'volatility']
+    t.deepEqual(actual, expected)
     t.end()
   }
 
@@ -195,7 +213,7 @@ test.cb('orders are cancellable', t => {
       cancel('1')
       break
     case ORDER_CANCELLED:
-      const actual = state.orders
+      const actual = state().orders
       const expected = {}
       t.deepEqual(actual, expected)
       t.end()

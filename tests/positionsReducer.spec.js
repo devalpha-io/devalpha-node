@@ -1,5 +1,5 @@
 import test from 'ava'
-import { Map, List, is } from 'immutable'
+import { Map, List, is, fromJS } from 'immutable'
 
 import reducer from '../lib/reducers/positionsReducer'
 import {
@@ -12,23 +12,9 @@ test('return the initial state', (t) => {
   const actual = reducer(undefined, {})
   const expect = Map({
     instruments: Map(),
-    history: List()
+    total: 0
   })
   t.deepEqual(actual.toJS(), expect.toJS())
-})
-
-test(`add initial state to history on ${INITIALIZED}`, (t) => {
-  const initialState = reducer(undefined, {})
-  const action = { type: INITIALIZED, payload: { timestamp: 100, initialStates: {} } }
-
-  const actual = reducer(undefined, action).get('history')
-  const expect = List([
-    initialState
-      .set('timestamp', 100)
-      .delete('history')
-  ])
-
-  t.true(is(actual, expect))
 })
 
 test(`set initial values on ${INITIALIZED}`, (t) => {
@@ -39,7 +25,7 @@ test(`set initial values on ${INITIALIZED}`, (t) => {
       initialStates: {
         positions: {
           instruments: { foo: 'bar' },
-          history: ['foobar']
+          total: 10
         }
       }
     }
@@ -48,13 +34,7 @@ test(`set initial values on ${INITIALIZED}`, (t) => {
   const actual = reducer(undefined, action)
   const expect = Map({
     instruments: Map({ foo: 'bar' }),
-    history: List([
-      'foobar',
-      Map({
-        instruments: Map({ foo: 'bar' }),
-        timestamp: 50
-      })
-    ])
+    total: 10
   })
 
   t.true(is(actual, expect))
@@ -70,12 +50,17 @@ test(`${ORDER_FILLED}, new position: add position to the state`, (t) => {
   }
   const action = { type: ORDER_FILLED, payload: order }
 
-  const actual = reducer(undefined, action).get('instruments')
-  const expect = reducer(undefined, {}).setIn(['instruments', order.identifier], Map({
-    quantity: 50,
-    value: 5500,
-    price: 110
-  })).get('instruments')
+  const actual = reducer(undefined, action)
+  const expect = fromJS({
+    instruments: {
+      [order.identifier]: {
+        quantity: 50,
+        value: 5500,
+        price: 110
+      }
+    },
+    total: 5500
+  })
 
   t.true(is(actual, expect))
 })
@@ -97,14 +82,19 @@ test(`${ORDER_FILLED}, sell-side, existing position: only update quantity and va
         price: 100
       })
     }),
-    history: List()
+    total: 5000
   })
 
-  const actual = reducer(initialState, action).getIn(['instruments', order.identifier])
-  const expected = Map({
-    quantity: 25,
-    value: 2750,
-    price: 100
+  const actual = reducer(initialState, action)
+  const expected = fromJS({
+    instruments: {
+      [order.identifier]: {
+        quantity: 25,
+        value: 2750,
+        price: 100
+      }
+    },
+    total: 2750
   })
 
   t.true(is(actual, expected))
@@ -127,14 +117,19 @@ test(`${ORDER_FILLED}, buy-side, existing position: correctly update price, quan
         price: 100
       })
     }),
-    history: List()
+    total: 5000
   })
 
-  const actual = reducer(initialState, action).getIn(['instruments', order.identifier])
-  const expected = Map({
-    quantity: 100,
-    value: 11000,
-    price: 105
+  const actual = reducer(initialState, action)
+  const expected = fromJS({
+    instruments: {
+      [order.identifier]: {
+        quantity: 100,
+        value: 11000,
+        price: 105
+      }
+    },
+    total: 11000
   })
 
   t.true(is(actual, expected))
@@ -157,7 +152,7 @@ test(`${ORDER_FILLED}, sell-side, existing position: delete the position if quan
         price: 100
       })
     }),
-    history: List()
+    total: 5000
   })
 
   t.false(reducer(initialState, action).hasIn(['instruments', order.identifier]))
@@ -181,14 +176,19 @@ test(`${BAR_RECEIVED}: correctly update price, quantity and value`, (t) => {
         price: 50
       })
     }),
-    history: List()
+    total: 2500
   })
 
-  const actual = reducer(initialState, action).getIn(['instruments', bar.identifier])
-  const expected = Map({
-    quantity: 50,
-    value: 5000,
-    price: 50
+  const actual = reducer(initialState, action)
+  const expected = fromJS({
+    instruments: {
+      [bar.identifier]: {
+        quantity: 50,
+        value: 5000,
+        price: 50
+      }
+    },
+    total: 5000
   })
 
   t.true(is(actual, expected))
@@ -208,10 +208,7 @@ test(`${BAR_RECEIVED}: dont break if non-existent position`, (t) => {
   const actual = reducer(undefined, action)
   const expected = Map({
     instruments: Map(),
-    history: List([Map({
-      instruments: Map(),
-      timestamp: 0
-    })])
+    total: 0
   })
 
   t.true(is(actual, expected))
