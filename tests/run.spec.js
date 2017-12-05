@@ -2,7 +2,6 @@ import test from 'ava'
 import _ from 'highland'
 import run from '../lib'
 import createMockClient from './util/createMockClient'
-import createMockWritable from './util/createMockWritable'
 import {
   ORDER_PLACED,
   ORDER_FILLED,
@@ -10,7 +9,7 @@ import {
   ORDER_CANCELLED
 } from '../lib/constants'
 
-test.cb('backtest event order', t => {
+test.cb.serial('backtest event order', t => {
 
   const executions = []
   const strategy = ({ state, order, cancel }, action) => {
@@ -50,7 +49,6 @@ test.cb('backtest event order', t => {
         cash: 9999999
       }
     },
-    journal: createMockWritable(),
     strategy
   })
 
@@ -63,7 +61,7 @@ test.cb('backtest event order', t => {
 
 })
 
-test.cb('live trading event order', t => {
+test.cb.serial('live trading event order', t => {
 
   const executions = []
   const strategy = ({ order }, action) => {
@@ -112,7 +110,7 @@ test.cb('live trading event order', t => {
     },
     client: createMockClient(),
     strategy,
-    journal: createMockWritable(),
+    journal: '',
     backtesting: false
   })
 
@@ -125,7 +123,7 @@ test.cb('live trading event order', t => {
 
 })
 
-test.cb('metrics and state are objects', t => {
+test.cb.serial('metrics and state are objects', t => {
 
   const strategy = ({ state, metrics, order, cancel }, action) => {
     t.is(typeof (state()), 'object')
@@ -137,12 +135,12 @@ test.cb('metrics and state are objects', t => {
     feeds: {
       example: ['event 1', 'event 2']
     },
-    journal: createMockWritable(),
+    journal: '',
     strategy
   })
 })
 
-test.cb('metrics contains the correct properties', t => {
+test.cb.serial('metrics contains the correct properties', t => {
 
   const strategy = ({ state, metrics, order, cancel }, action) => {
     const actual = Object.keys(metrics())
@@ -155,12 +153,12 @@ test.cb('metrics contains the correct properties', t => {
     feeds: {
       example: ['event 1', 'event 2']
     },
-    journal: createMockWritable(),
+    journal: '',
     strategy
   })
 })
 
-test.cb('failing orders are dispatched', t => {
+test.cb.serial('failing orders are dispatched', t => {
   const strategy = ({ order }, action) => {
     switch (action.type) {
     case 'example':
@@ -193,13 +191,13 @@ test.cb('failing orders are dispatched', t => {
     },
     client: createMockClient(true),
     strategy,
-    journal: createMockWritable(),
+    journal: '',
     backtesting: false
   })
 
 })
 
-test.cb('orders are cancellable', t => {
+test.cb.serial('orders are cancellable', t => {
   const strategy = async ({ order, cancel, state }, action) => {
     switch (action.type) {
     case 'example':
@@ -238,13 +236,13 @@ test.cb('orders are cancellable', t => {
     },
     client: createMockClient(),
     strategy,
-    journal: createMockWritable(),
+    journal: '',
     backtesting: false
   })
 
 })
 
-test.cb('should not be able to cancel unknown orders', t => {
+test.cb.serial('should not be able to cancel unknown orders', t => {
   const strategy = async ({ order, cancel, state }, action) => {
     switch (action.type) {
     case 'example':
@@ -268,8 +266,54 @@ test.cb('should not be able to cancel unknown orders', t => {
     },
     client: createMockClient(true),
     strategy,
-    journal: createMockWritable(),
+    journal: '',
     backtesting: false
   })
+
+})
+
+test.cb.serial('correctly preloads stored state', t => {
+
+  run({
+    feeds: {
+      example: _((push, next) => {
+        setTimeout(() => {
+          push(null, 'event 1')
+        }, 0)
+        setTimeout(() => {
+          push(null, 'event 2')
+        }, 1)
+      })
+    },
+    initialStates: {
+      capital: {
+        cash: 999
+      }
+    },
+    client: createMockClient(),
+    strategy: () => {},
+    backtesting: false
+  })
+
+  setTimeout(() => {
+    run({
+      feeds: {
+        example: _((push, next) => {
+          setTimeout(() => {
+            push(null, 'event 1')
+          }, 0)
+        })
+      },
+      client: createMockClient(),
+      strategy: ({ state }) => {
+        const actual = state().capital.cash
+        const expected = 999
+
+        t.is(actual, expected)
+        t.end()
+      },
+      backtesting: false
+    })
+  }, 100)
 
 })

@@ -1,46 +1,56 @@
 import test from 'ava'
 import sinon from 'sinon'
 import os from 'os'
+import path from 'path'
+import fs from 'fs'
+import { Map } from 'immutable'
 
 import createMiddleware from '../lib/middleware/createJournaler'
-import createMockWriteable from './util/createMockWritable'
 
 test.beforeEach((t) => {
   t.context.store = {
-    getState: sinon.spy(),
+    getState: () => Map({ foo: 'bar' }),
     dispatch: sinon.spy()
   }
   t.context.next = sinon.spy()
-  t.context.stream = createMockWriteable()
+  t.context.filename = path.join(process.cwd(), 'createJournalerExample.json')
 })
 
 test('be aynchronous', (t) => {
-  const { store, next, stream } = t.context
+  const { store, next, filename } = t.context
   const action = { type: 'FOO', payload: {} }
 
-  createMiddleware(stream)(store)(next)(action)
+  createMiddleware(filename)(store)(next)(action)
 
   t.false(next.called)
 })
 
 test('pass the intercepted action to the next', async (t) => {
-  const { store, next, stream } = t.context
+  const { store, next, filename } = t.context
   const action = { type: 'FOO', payload: {} }
-  const middleware = createMiddleware(stream)(store)(next)
+  const middleware = createMiddleware(filename)(store)(next)
 
   await middleware(action)
 
   t.true(next.withArgs(action).calledOnce)
 })
 
-test('write the action to the stream', async (t) => {
-  const { store, next, stream } = t.context
+test.cb('write the current state to the file', (t) => {
+  const { store, next, filename } = t.context
   const action = { type: 'FOO', payload: {} }
-  const middleware = createMiddleware(stream)(store)(next)
+  const middleware = createMiddleware(filename)(store)(next)
 
-  const write = sinon.spy(t.context.stream, 'write')
-  await middleware(action)
+  middleware(action).then(() => {
+    fs.readFile(filename, 'utf8', (err, data) => {
+      if (err) throw err
 
-  t.true(write.calledOnce)
-  t.is(write.getCall(0).args[0], JSON.stringify(action) + os.EOL)
+      fs.unlinkSync(t.context.filename)
+
+      const expect = JSON.stringify(store.getState().toJS())
+      const actual = data
+
+      t.is(expect, actual)
+      t.end()
+    })
+  }).catch((e) => { throw e })
 })
