@@ -11,15 +11,15 @@ react to events. the Strategy function is called with two arguments: `context` a
 
 ### State
 
-The current state of your portfolio can be accessed at `context.state`.
+The current state of your portfolio can be accessed at `context.state()`.
 
 ### Metrics
 
-Your portfolio risk metrics can be found at `context.metrics`.
+Your portfolio risk metrics can be found at `context.metrics()`.
 
 ### Order and Cancel
 
-Call `order` to place and order, or `cancel` to cancel an order. The `order` function expects an object containing an `identifier`, a `quantity` and (optionally) a `price`. The `cancel` function expects a string denoting the ID of the order which to cancel.
+Call `order(config)` to place and order, or `cancel(id)` to cancel an order. The `order` function expects an object containing an `identifier`, a `quantity` and (optionally) a `price`. The `cancel` function expects a string denoting the ID of the order which to cancel.
 
 ## Event
 

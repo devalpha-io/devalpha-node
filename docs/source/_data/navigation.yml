@@ -2,10 +2,16 @@
   items:
   - path: /
     title: Home
+  - path: prologue/about
+    title: About
   - path: prologue/quickstart
     title: Quickstart
   - path: prologue/api
     title: API Reference
+- title: Guide
+  items:
+  - path: guide/introduction
+    title: Introduction
 - title: Concepts
   items:
   - path: concepts/feeds
@@ -17,23 +23,13 @@
     items:
     - path: concepts/middleware/notifier
       title: Notifier
-    - path: concepts/middleware/logger
-      title: Logger
     - path: concepts/middleware/journaler
       title: Journaler
-    - path: concepts/middleware/risk-manager
-      title: Risk Manager
+    - path: concepts/middleware/guard
+      title: Guard
     - path: concepts/middleware/broker
       title: Broker
   - path: concepts/store
     title: Store
   - path: concepts/strategy
     title: Strategy
-- title: Guides
-  items:
-  - path: guides/build-a-moving-averages-algorithm
-    title: Build a Moving Averages Algorithm
-  - path: guides/build-a-cryptocurrency-trader
-    title: Build a Cryptocurrency Trader
-  - path: guides/build-a-steam-market-bot
-    title: Build a Steam Market Bot

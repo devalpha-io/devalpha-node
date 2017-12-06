@@ -1,6 +1,6 @@
 ---
 title: Notifier
-next: concepts/middleware/logger
+next: concepts/middleware/journaler
 ---
 
 # Notifier
@@ -22,3 +22,7 @@ run({
 ```
 
 The Notifier middleware will then send a Slack notification each time an event passes through it.
+
+## Backtesting
+
+This middleware is not active when backtesting, as there is no point in receiving notifications during backtests.

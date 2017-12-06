@@ -1,11 +1,11 @@
 ---
 title: Journaler
-next: concepts/middleware/risk-manager
+next: concepts/middleware/guard
 ---
 
 # Journaler
 
-The Journaler middleware writes each event to a persistent storage. This makes it possible to simply replay all events so to end up in the same state as it was just before the crash.
+The Journaler middleware writes the state after each event to a persistent storage. This makes it possible to hydrate the state after a crash or shutdown.
 
 By default the journal file is stored as `journal.json` in the working directory, but you can change this by setting the `journal` property in your configuration.
 
@@ -16,3 +16,7 @@ run({
   ...
 })
 ```
+
+## Backtesting
+
+This middleware is not active when backtesting, since rehydrating the store between backtests is pointless.
