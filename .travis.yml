@@ -1,0 +1,7 @@
+language: node_js
+node_js:
+  - "6"
+before_install:
+after_success: npm run build
+notifications:
+  email: false
