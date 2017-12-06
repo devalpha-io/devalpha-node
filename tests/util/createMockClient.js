@@ -4,9 +4,9 @@ export default function createMockClient(fail = false) {
     executeOrder: async (order) => {
       orderIdCounter += 1
       const builtOrder = { ...order, commission: 0, id: orderIdCounter.toString() }
+      /* simulate network delay */
+      await new Promise(r => setTimeout(r, 10))
       if (fail) {
-        /* simulate network delay */
-        await new Promise(r => setTimeout(r, 10))
         throw new Error()
       } else {
         /* simulate market delay */
