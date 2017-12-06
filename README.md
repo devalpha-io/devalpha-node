@@ -1,9 +1,9 @@
 # ![Vester](https://fhqvst.github.io/vester/images/vester-splash.svg)
 
 <p align="center">
-  <img src="https://img.shields.io/travis/fhqvst/vester.svg">
-  <img src="https://img.shields.io/david/fhqvst/vester.svg">
-  <img src="https://img.shields.io/npm/v/vester.svg">
+  <a href="https://travis-ci.org/fhqvst/vester"><img src="https://img.shields.io/travis/fhqvst/vester.svg"></a>
+  <a href="https://david-dm.org/fhqvst/vester"><img src="https://img.shields.io/david/fhqvst/vester.svg"></a>
+  <a href="https://www.npmjs.com/package/vester"><img src="https://img.shields.io/npm/v/vester.svg"></a>
 </p>
 
 <p align="center">
