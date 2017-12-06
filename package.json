@@ -46,7 +46,7 @@
     "docs:watch": "cd docs && $(npm bin)/hexo server",
     "docs:publish": "npm run docs:build && cd docs && $(npm bin)/hexo deploy",
     "start": "npm run build",
-    "lint": "eslint lib/**/*",
+    "lint": "eslint lib",
     "test": "NODE_ENV=test ava tests/**/*.spec.js",
     "test-only": "NODE_ENV=test ava",
     "report": "nyc report --reporter=html",
