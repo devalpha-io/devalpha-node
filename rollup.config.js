@@ -25,6 +25,7 @@ const config = {
         immutable: ['Map', 'List', 'is', 'fromJS'],
         mathjs: [
           'add',
+          'abs',
           'bignumber',
           'chain',
           'max',
