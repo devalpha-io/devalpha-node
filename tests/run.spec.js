@@ -150,8 +150,8 @@ test.cb.serial('metrics and state are objects', t => {
 test.cb.serial('metrics contains the correct properties', t => {
 
   const strategy = ({ state, metrics, order, cancel }, action) => {
-    const actual = Object.keys(metrics())
-    const expected = ['returns', 'drawdown', 'alpha', 'beta', 'sharpe', 'sortino', 'volatility']
+    const actual = Object.keys(metrics()).sort()
+    const expected = ['returns', 'drawdown', 'alpha', 'beta', 'sharpe', 'sortino', 'volatility'].sort()
     t.deepEqual(actual, expected)
     t.end()
   }

@@ -14,9 +14,9 @@ the action. This should be the first store enhancer in the composition chain.
 **Parameters**
 
 -   `buffer`   (optional, default `[]`)
--   `middlewares` **...[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** The chain of middlewares to be applied. (optional, default `[]`)
+-   `middlewares` **...[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** The chain of middlewares to be applied. (optional, default `[]`)
 
-Returns **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** A store enhancer applying the middleware.
+Returns **[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** A store enhancer applying the middleware.
 
 ## index
 
@@ -24,7 +24,7 @@ The entry point to the whole system.
 
 **Parameters**
 
--   `config` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** The Vester configuration. (optional, default `{}`)
+-   `config` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** The Vester configuration. (optional, default `{}`)
 
 ## createBrokerBacktest
 
@@ -35,9 +35,9 @@ perform our transactions at the historical date and time.
 
 **Parameters**
 
--   `commission` **([number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) \| [function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function))** Calculate the commission based on price and quantity (optional, default `0`)
+-   `commission` **([number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number) \| [function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function))** Calculate the commission based on price and quantity (optional, default `0`)
 
-Returns **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** Middleware
+Returns **[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** Middleware
 
 ## createBrokerRealtime
 
@@ -48,19 +48,18 @@ it is executed synchronously.
 
 **Parameters**
 
--   `createClient` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** Factory function for building the client to be used when sending
+-   `createClient` **[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** Factory function for building the client to be used when sending
                                     requests to an _actual_ broker.
 
-Returns **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** Middleware
+Returns **[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** Middleware
 
-## createRiskManager
+## createGuard
 
-The risk manager middleware has the capability to alter orders or even prevent them from being
-requested in the first place. It should also warn the user when some risk metric is out of bounds.
+The guard middleware has the capability to alter orders or even prevent them from being
+requested in the first place.
 
 **Parameters**
 
--   `settings` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** A settings object.
--   `getMetrics`  
+-   `settings` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** A settings object.
 
-Returns **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** Middleware
+Returns **[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** Middleware

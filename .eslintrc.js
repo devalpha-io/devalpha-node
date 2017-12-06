@@ -23,7 +23,7 @@ module.exports = {
     "no-param-reassign": 0,
     "no-restricted-syntax": ["off", "BinaryExpression[operator='of']"],
     "no-underscore-dangle": 0,
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "next|reject" }],
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "next|reject|store|action" }],
     "no-use-before-define": ["error", { "functions": false }],
     "padded-blocks": 0,
     "semi": ["error", "never"]
