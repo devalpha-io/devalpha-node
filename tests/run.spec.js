@@ -1,5 +1,8 @@
 import test from 'ava'
 import _ from 'highland'
+import fs from 'fs'
+import path from 'path'
+
 import run from '../lib'
 import createMockClient from './util/createMockClient'
 import {
@@ -8,6 +11,10 @@ import {
   ORDER_FAILED,
   ORDER_CANCELLED
 } from '../lib/constants'
+
+test.beforeEach((t) => {
+  t.context.journal = path.join(process.cwd(), 'testJournal.json')
+})
 
 test.cb.serial('backtest event order', t => {
 
@@ -272,7 +279,7 @@ test.cb.serial('should not be able to cancel unknown orders', t => {
 
 })
 
-test.cb.serial('correctly preloads stored state', t => {
+test.cb.serial('correctly preloads stored state', (t) => {
 
   run({
     feeds: {
@@ -292,6 +299,7 @@ test.cb.serial('correctly preloads stored state', t => {
     },
     client: createMockClient(),
     strategy: () => {},
+    journal: t.context.journal,
     backtesting: false
   })
 
@@ -309,9 +317,12 @@ test.cb.serial('correctly preloads stored state', t => {
         const actual = state().capital.cash
         const expected = 999
 
+        fs.unlinkSync(t.context.journal)
+
         t.is(actual, expected)
         t.end()
       },
+      journal: t.context.journal,
       backtesting: false
     })
   }, 100)
