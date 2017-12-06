@@ -4,7 +4,9 @@ const documentation = require('documentation')
 
 function buildApi() {
   return documentation.build([path.resolve(process.cwd(), 'lib', '**', '*')], {})
-    .then(documentation.formats.md)
+    .then((comments) => documentation.formats.md(comments, {
+      markdownToc: true
+    }))
     .then(output => {
       let content = ''
 

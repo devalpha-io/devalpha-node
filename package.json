@@ -41,7 +41,7 @@
     "build:es": "NODE_ENV=production babel lib -d dist/es",
     "build:cjs": "NODE_ENV=production rollup --config",
     "build": "NODE_ENV=production npm run build:es & npm run build:cjs",
-    "docs:api": "documentation lint lib/**/* && node scripts/generateApi.js",
+    "docs:api": "documentation lint lib && node scripts/generateApi.js",
     "docs:build": "cd docs && $(npm bin)/hexo generate",
     "docs:watch": "cd docs && $(npm bin)/hexo server",
     "docs:publish": "npm run docs:build && cd docs && $(npm bin)/hexo deploy",

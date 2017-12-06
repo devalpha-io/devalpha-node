@@ -48,6 +48,32 @@ test(`set initial values on ${INITIALIZED}`, (t) => {
   t.true(is(actual, expect))
 })
 
+test(`set start capital on ${INITIALIZED}`, (t) => {
+  const action = {
+    type: INITIALIZED,
+    payload: {
+      timestamp: 50,
+      startCapital: 100,
+      initialStates: {
+        capital: {
+          reservedCash: 101,
+          commission: 102
+        }
+      }
+    }
+  }
+
+  const actual = reducer(undefined, action)
+  const expect = Map({
+    cash: 100,
+    reservedCash: 101,
+    commission: 102,
+    total: 100
+  })
+
+  t.true(is(actual, expect))
+})
+
 test(`${ORDER_PLACED} of a sell-side order correctly edits reservedCash`, (t) => {
   const order = {
     id: '1',
