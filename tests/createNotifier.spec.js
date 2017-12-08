@@ -44,11 +44,7 @@ test.cb(`fires notification on ${INITIALIZED}`, (t) => {
   const action = {
     type: INITIALIZED,
     payload: {
-      initialStates: {
-        capital: {
-          cash: 100
-        }
-      },
+      startCapital: 100,
       timestamp: 100
     }
   }
@@ -93,5 +89,49 @@ test.cb(`fires notification on ${ORDER_FILLED}`, (t) => {
     commission: 5.5
   }
   const action = { type: ORDER_FILLED, payload: order }
+  middleware(action)
+})
+
+test.cb(`fires notification on ${ORDER_CANCELLED}`, (t) => {
+  const { store, next } = t.context
+  const middleware = createMiddleware({
+    url: process.env.SLACK_WEBHOOK_URL,
+    onNotify: (response) => {
+      t.is(response, 'ok')
+      t.end()
+    }
+  })(store)(next)
+  const order = {
+    id: '0',
+    identifier: 'MSFT',
+    quantity: 100,
+    price: 100,
+    commission: 10
+  }
+  const action = { type: ORDER_CANCELLED, payload: order }
+  middleware(action)
+})
+
+test.cb('calls onError on auth error', (t) => {
+  const { store, next } = t.context
+  const middleware = createMiddleware({
+    url: 'https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX',
+    onError: (response) => {
+      t.end()
+    }
+  })(store)(next)
+  const action = { type: ORDER_CANCELLED, payload: {} }
+  middleware(action)
+})
+
+test.cb('calls onError on network error', (t) => {
+  const { store, next } = t.context
+  const middleware = createMiddleware({
+    url: 'faulty url',
+    onError: (response) => {
+      t.end()
+    }
+  })(store)(next)
+  const action = { type: ORDER_CANCELLED, payload: {} }
   middleware(action)
 })
