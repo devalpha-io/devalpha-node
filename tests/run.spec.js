@@ -151,7 +151,21 @@ test.cb.serial('metrics contains the correct properties', t => {
 
   const strategy = ({ metrics }, action) => {
     const actual = Object.keys(metrics()).sort()
-    const expected = ['returns', 'drawdown', 'alpha', 'beta', 'sharpe', 'sortino', 'volatility'].sort()
+    const expected = [
+      'alpha',
+      'beta',
+      'calmar',
+      'drawdown',
+      'kurtosis',
+      'omega',
+      'returns',
+      'sharpe',
+      'skew',
+      'sortino',
+      'stability',
+      'tail',
+      'volatility'
+    ].sort()
     t.deepEqual(actual, expected)
     t.end()
   }
@@ -325,6 +339,6 @@ test.cb.serial('correctly preloads stored state', (t) => {
       journal: t.context.journal,
       backtesting: false
     })
-  }, 100)
+  }, 500)
 
 })
