@@ -19,7 +19,7 @@ test.beforeEach((t) => {
 test.cb.serial('backtest event order', t => {
 
   const executions = []
-  const strategy = ({ state, order, cancel }, action) => {
+  const strategy = ({ order }, action) => {
     switch (action.type) {
     case 'example':
       executions.push('a')
@@ -132,7 +132,7 @@ test.cb.serial('live trading event order', t => {
 
 test.cb.serial('metrics and state are objects', t => {
 
-  const strategy = ({ state, metrics, order, cancel }, action) => {
+  const strategy = ({ state, metrics }, action) => {
     t.is(typeof (state()), 'object')
     t.is(typeof (metrics()), 'object')
     t.end()
@@ -149,7 +149,7 @@ test.cb.serial('metrics and state are objects', t => {
 
 test.cb.serial('metrics contains the correct properties', t => {
 
-  const strategy = ({ state, metrics, order, cancel }, action) => {
+  const strategy = ({ metrics }, action) => {
     const actual = Object.keys(metrics()).sort()
     const expected = ['returns', 'drawdown', 'alpha', 'beta', 'sharpe', 'sortino', 'volatility'].sort()
     t.deepEqual(actual, expected)
@@ -250,7 +250,7 @@ test.cb.serial('orders are cancellable', t => {
 })
 
 test.cb.serial('should not be able to cancel unknown orders', t => {
-  const strategy = async ({ order, cancel, state }, action) => {
+  const strategy = async ({ cancel }, action) => {
     switch (action.type) {
     case 'example':
       cancel('1')
