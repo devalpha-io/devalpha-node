@@ -21,10 +21,8 @@
 - [x] Slack notifications
 - [ ] Scheduling
 
-\*Supported in live-trading.
-
 ## Installation
-Coming soon.
+`npm install vester`
 
 ## Get Started
 
@@ -47,7 +45,7 @@ run({ strategy })
 
 ## License
 
-MIT license. See the LICENSE file for details.
+GNU GPL license. See the LICENSE.md file for details.
 
 ## Responsibilities
 
