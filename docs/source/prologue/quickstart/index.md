@@ -15,42 +15,150 @@ If Vester is not yet installed, we should start off by doing that.
 npm install vester
 ```
 
-Now, create a new file called `index.js`, and open up any editor of choice to start exploring Vester.
-
-## Hello World
-
-Now, let's assume we have gotten our hands on some magic sequence of numbers which potentially contains information on how to buy and sell Microsoft shares ([MSFT](https://finance.google.com/finance?q=NASDAQ:MSFT)) for maximum profit.
+Next, create a file named `index.js` and start editing. At the top of the file we import the `run` function from Vester, like so:
 
 ```javascript
-const numbers = [1, 3, 2, 5, 6, 3]
+import run from 'vester'
 ```
 
-More specifically we're suspecting that **if a number is larger than the previous number**, then the price has an upwards momentum, and the price is likely to increase in the near future. We're also suspecting the reverse: **if a number is not larger than the previous number**, then the price of the stock is probably to be trending downwards very soon.
+## Getting Started
 
-Having a somewhat concrete idea of what we want to do, we start implementing our strategy.
+Just as we're about to quit our year-long scavenge for the ultimate trading strategy, one member of the team finds an old dusty PDF written in a language we cannot fully understand.
+
+According to the author, the document contains clear instructions on how to buy and sell Microsoft shares ([MSFT](https://finance.google.com/finance?q=NASDAQ:MSFT)) for guaranteed profits.
+
+Auspiciously, we're very good friends with a translator who interprets the formula for us, and so we instantly get on [Google Finance](https://finance.google.com/finance?q=NASDAQ:MSFT) to collect the prices and timestamps for the last few days.
 
 ```javascript
-/* most recent number */
-let previous = null
+const prices = [
+  { timestamp: 946684800, price: 10 },
+  { timestamp: 946771200, price: 9 },
+  { timestamp: 946857600, price: 10 },
+  { timestamp: 946944000, price: 8 },
+  { timestamp: 947030400, price: 7 },
+  { timestamp: 947116800, price: 10 },
+  { timestamp: 947203200, price: 9 },
+]
+```
+
+Our translator friend explains that **if a price is higher than the previous price**, then the stock has an upwards momentum, and we can expect further increases in the near future. It also describes the reverse: **if a price is not higher than the previous price**, then the stock is probably to be trending downwards very soon.
+
+We now have a somewhat concrete idea of how the strategy might look, and it's about time we got our hands dirty. Below is the implemented strategy.
+
+```javascript
+/* previous price */
+let previous = Infinity
 
 /* have we bought the stock? */
 let entered = false
 
-function momentumStrategy(context, event) {
-  if (event.payload > previous) {
-    if (!entered) {
-      context.order({
-        identifier: 'MSFT',
-        quantity: 100
-      })
-    }
-  } else {
-    if (entered) {
-      context.order({
-        identifier: 'MSFT',
-        quantity: -100
-      })
-    }
+function magicFormula(context, event) {
+  switch (event.type) {
+
+    case 'prices':
+      const current = event.payload.price
+      if (current > previous && !entered) {
+        /* upwards momentum: buy! */
+        context.order({
+          identifier: 'MSFT',
+          quantity: 100,
+          price: current
+        })
+        entered = true
+      } else if (current <= previous && entered) {
+        /* downwards momentum: sell! */
+        context.order({
+          identifier: 'MSFT',
+          quantity: -100,
+          price: current
+        })
+        entered = false
+      }
+      previous = current
+      break
+
+    case 'finished':
+      console.log(context.metrics())
+      break
   }
 }
 ```
+
+Having implemented the strategy, we call the `run` function, supplying it with the price data and the magic formula.
+We also set a starting capital for the algorithm to use.
+
+```javascript
+run({
+  feeds: { prices },
+  strategy: magicFormula,
+  startCapital: 10000
+})
+```
+
+## Re-evaluating the formula
+
+Running the code above produces the following output:
+
+```javascript
+{
+  alpha: 0,
+  beta: 0,
+  calmar: 0,
+  drawdown: 0.01,
+  kurtosis: 0,
+  omega: 0,
+  returns: -0.01,
+  sharpe: -0.37796447300922725,
+  skew: 0,
+  sortino: 0,
+  stability: 0,
+  tail: 0,
+  volatility: 0
+}
+```
+
+A whole bunch of words and a whole bunch of numbers. Though, initially the only thing we really care about is the `returns` key. The number at that key denotes our profit in percents.
+
+Unfortunately our magic formula wasn't as magic as we initially might have thought. We actually lost money using it, and would be better off if we had just kept our money safe under a mattress.
+
+**Now, do not throw the code into the bin just yet!**
+
+Our translator friend had apparently made a mistake, we got it all backwards! The actual formula is defined as such: **if a price is lower than the previous price**, then the stock will bounce back up. Furthermore, **if a price is not lower than the previous price**, the stock is in for a movement south.
+
+We swiftly run back to the keyboard to rewrite the buying and selling criterions.
+
+```javascript
+if (current < previous && !entered) {
+  /* send buy order */
+} else if (current >= previous && entered) {
+  /* send sell order */
+}
+```
+
+Running a new backtest with our updated criterions results in the following metrics:
+
+```javascript
+{
+  alpha: 0,
+  beta: 0,
+  calmar: 0,
+  drawdown: 0,
+  kurtosis: 0,
+  omega: 0,
+  returns: 0.2,
+  sharpe: 0.37796447300922725,
+  skew: 0,
+  sortino: 0,
+  stability: 0,
+  tail: 0,
+  volatility: 0
+}
+```
+
+The odl dusty PDF was right! We've now built a wealth machine with merely 90 lines of code. Running the strategy for merely a week brought us a 20% gain – neat!
+
+## Conclusion
+
+While finding magic trading formulas on the corners of the internet might seem unlikely, this simple process, from initial idea to metrics, is actually a great way to get started with algorithmic trading. A lot of trading ideas are really simple and intuitive like this.
+
+Now, get out there and make some money!

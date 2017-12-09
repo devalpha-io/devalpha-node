@@ -16,6 +16,15 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -.025em;
 }
 
+h2, h3 {
+  margin-top: 2rem;
+}
+
+h2 {
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 1rem;
+}
+
 .lead {
   font-size: 1.2rem;
 }
@@ -32,6 +41,10 @@ h1, h2, h3, h4, h5, h6 {
 code[class*="language-"] {
   color: #333333 !important;
   text-shadow: none !important;
+}
+
+pre[class*="language-"] {
+  margin: 1rem 0 !important;
 }
 
 html {
