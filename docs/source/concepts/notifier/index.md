@@ -5,6 +5,15 @@ next: concepts/journaler
 
 # Notifier
 
+<div class="tile tile-centered tile-note tile-outside">
+  <div class="tile-icon">
+    <i class="icon icon-alert-triangle"></i>
+  </div>
+  <div class="tile-content">
+    <p class="tile-subtitle">This module is **not active** when backtesting, since there is no point in receiving notifications.</p>
+  </div>
+</div>
+
 ## Slack Notifications
 
 1. Visit `https://<YOUR-WORKSPACE>.slack.com/apps/manage`
@@ -22,7 +31,3 @@ run({
 ```
 
 The Notifier will then send a Slack notification each time an event passes through it.
-
-## Backtesting
-
-The Notifier is not active when backtesting, as there is no point in receiving notifications during backtests.

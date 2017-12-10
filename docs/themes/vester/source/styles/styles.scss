@@ -21,7 +21,7 @@ h2, h3 {
 }
 
 h2 {
-  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 2px solid $border-color;
   padding-bottom: 1rem;
 }
 
@@ -32,6 +32,7 @@ h2 {
 :not(pre) > code[class*="language-"], pre[class*="language-"] {
   background: #EEEEEE !important;
   border: 1px solid $border-color !important;
+  padding: $unit-4 !important;
 
   .token.atrule, .token.attr-value, .token.keyword {
     color: $blue;
@@ -168,15 +169,19 @@ body {
   margin-right: .8rem;
 }
 
-.tile-title {
+.tile-card .tile-title {
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: .05em;
+  margin-bottom: $unit-4;
 }
 
 .tile-subtitle {
-  margin-top: .4rem;
   font-size: .75rem;
+  margin-bottom: 0;
+}
+
+.tile-card .tile-subtitle {
   opacity: .75;
 }
 
@@ -217,4 +222,22 @@ body {
   margin-top: 1rem;
   padding-top: 1rem;
   justify-content: center;
+}
+
+.tile-note {
+  background: #EEEEEE;
+  border: 1px solid $border-color;
+  margin: 1rem 0;
+  padding: $unit-4;
+  border-left: 2px solid $warning-color;
+}
+
+.tile-outside {
+  position: relative
+}
+
+.tile-outside .tile-icon {
+  position: absolute;
+  left: -2 * $unit-5;
+  color: $warning-color;
 }

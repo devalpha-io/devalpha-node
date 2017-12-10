@@ -30,13 +30,13 @@ Auspiciously, we're very good friends with a translator who interprets the formu
 
 ```javascript
 const prices = [
-  { timestamp: 946684800, price: 10 },
-  { timestamp: 946771200, price: 9 },
-  { timestamp: 946857600, price: 10 },
-  { timestamp: 946944000, price: 8 },
-  { timestamp: 947030400, price: 7 },
-  { timestamp: 947116800, price: 10 },
-  { timestamp: 947203200, price: 9 },
+  { timestamp: 946684800000, price: 10 },
+  { timestamp: 946771200000, price: 9 },
+  { timestamp: 946857600000, price: 10 },
+  { timestamp: 946944000000, price: 8 },
+  { timestamp: 947030400000, price: 7 },
+  { timestamp: 947116800000, price: 10 },
+  { timestamp: 947203200000, price: 9 },
 ]
 ```
 
