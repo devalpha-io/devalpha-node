@@ -1,6 +1,6 @@
 {
   "name": "vester",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "repository": "https://github.com/fhqvst/vester",
   "main": "dist/cjs/bundle.js",
   "license": "MIT",
