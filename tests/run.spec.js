@@ -49,7 +49,16 @@ test.cb.serial('backtest event order', t => {
 
   run({
     feeds: {
-      example: ['event 1', 'event 2']
+      example: [
+        {
+          value: 'event 1',
+          timestamp: 100
+        },
+        {
+          value: 'event 2',
+          timestamp: 200
+        }
+      ]
     },
     initialStates: {
       capital: {
@@ -103,10 +112,10 @@ test.cb.serial('live trading event order', t => {
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
-          push(null, 'event 1')
+          push(null, { value: 'event 1', timestamp: 100 })
         }, 0)
         setTimeout(() => {
-          push(null, 'event 2')
+          push(null, { value: 'event 2', timestamp: 101 })
         }, 0)
       })
     },
@@ -140,7 +149,16 @@ test.cb.serial('metrics and state are objects', t => {
 
   run({
     feeds: {
-      example: ['event 1', 'event 2']
+      example: [
+        {
+          value: 'event 1',
+          timestamp: 100
+        },
+        {
+          value: 'event 2',
+          timestamp: 200
+        }
+      ]
     },
     journal: '',
     strategy
@@ -172,7 +190,16 @@ test.cb.serial('metrics contains the correct properties', t => {
 
   run({
     feeds: {
-      example: ['event 1', 'event 2']
+      example: [
+        {
+          value: 'event 1',
+          timestamp: 100
+        },
+        {
+          value: 'event 2',
+          timestamp: 200
+        }
+      ]
     },
     journal: '',
     strategy
@@ -201,7 +228,7 @@ test.cb.serial('failing orders are dispatched', t => {
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
-          push(null, 'event 1')
+          push(null, { value: 'event 1', timestamp: 100 })
         }, 0)
       })
     },
@@ -246,7 +273,7 @@ test.cb.serial('orders are cancellable', t => {
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
-          push(null, 'event 1')
+          push(null, { value: 'event 1', timestamp: 100 })
         }, 0)
       })
     },
@@ -281,7 +308,7 @@ test.cb.serial('should not be able to cancel unknown orders', t => {
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
-          push(null, 'event 1')
+          push(null, { value: 'event 1', timestamp: 100 })
         }, 0)
       })
     },
@@ -299,10 +326,10 @@ test.cb.serial('correctly preloads stored state', (t) => {
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
-          push(null, 'event 1')
+          push(null, { value: 'event 1', timestamp: 100 })
         }, 0)
         setTimeout(() => {
-          push(null, 'event 2')
+          push(null, { value: 'event 1', timestamp: 101 })
         }, 1)
       })
     },
@@ -322,7 +349,7 @@ test.cb.serial('correctly preloads stored state', (t) => {
       feeds: {
         example: _((push, next) => {
           setTimeout(() => {
-            push(null, 'event 1')
+            push(null, { value: 'event 1', timestamp: 503 })
           }, 0)
         })
       },
