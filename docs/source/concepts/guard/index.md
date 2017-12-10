@@ -1,6 +1,6 @@
 ---
-title: Guard
-next: concepts/middleware/broker
+title: Guarding
+next: concepts/broker
 ---
 
 # Guard

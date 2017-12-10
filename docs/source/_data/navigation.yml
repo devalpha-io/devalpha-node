@@ -2,34 +2,23 @@
   items:
   - path: /
     title: Home
-  - path: prologue/about
-    title: About
   - path: prologue/quickstart
     title: Quickstart
+  - path: prologue/about
+    title: About
   - path: prologue/api
     title: API Reference
-- title: Guide
-  items:
-  - path: guide/introduction
-    title: Introduction
 - title: Concepts
   items:
   - path: concepts/feeds
     title: Feeds
-  - path: concepts/buffer
-    title: Buffer
-  - path: concepts/middleware
-    title: Middleware
-    items:
-    - path: concepts/middleware/notifier
-      title: Notifier
-    - path: concepts/middleware/journaler
-      title: Journaler
-    - path: concepts/middleware/guard
-      title: Guard
-    - path: concepts/middleware/broker
-      title: Broker
-  - path: concepts/store
-    title: Store
+  - path: concepts/notifier
+    title: Notifications
+  - path: concepts/journaler
+    title: Journaling
+  - path: concepts/guard
+    title: Guards
+  - path: concepts/broker
+    title: Broker
   - path: concepts/strategy
     title: Strategy

@@ -1,6 +1,6 @@
 ---
 title: Broker
-next: concepts/store
+next: concepts/strategy
 ---
 
 # Broker

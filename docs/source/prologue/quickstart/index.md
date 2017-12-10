@@ -1,11 +1,10 @@
 ---
 title: Quickstart
+next: prologue/about
 date: 2017-11-14 11:13:21
 ---
 
 # Quickstart
-
-We can visualize Vester as a vintage [reel-to-reel tape recorder](https://www.google.com/search?tbm=isch&ei=1N8rWuuJItH7kwWy0oPADw&btnG=S%C3%B6k&q=reel+to+reel+tape+recorder). The left reel contains events, the recorder is our strategy, and the right reel contains all of the trading orders that our strategy comes up with. Below we'll see how Vester can help us in implementing these trading strategies.
 
 ## Setup
 

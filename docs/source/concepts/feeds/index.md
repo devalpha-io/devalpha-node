@@ -1,11 +1,9 @@
 ---
 title: Feeds
-next: concepts/buffer
+next: concepts/notifier
 ---
 
 # Feeds
-
-## First Things First
 
 One of the most fundamental concepts in Vester is that all strategies are simple functions that
 react to events. The events come from Feeds, which are supplied by the user of the framework (you).

@@ -1,6 +1,6 @@
 ---
 title: Journaler
-next: concepts/middleware/guard
+next: concepts/guard
 ---
 
 # Journaler
