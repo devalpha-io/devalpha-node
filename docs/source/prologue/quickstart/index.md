@@ -154,7 +154,7 @@ Running a new backtest with our updated criterions results in the following metr
 }
 ```
 
-The odl dusty PDF was right! We've now built a wealth machine with merely 90 lines of code. Running the strategy for merely a week brought us a 20% gain – neat!
+The old dusty PDF was right! We've now built a wealth machine with merely 90 lines of code. Running the strategy for merely a week brought us a 20% gain – neat!
 
 ## Conclusion
 
