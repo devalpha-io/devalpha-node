@@ -456,3 +456,10 @@ test.cb.serial('logs errors on skipped events during backtests', (t) => {
   }, 10)
 
 })
+
+test('throws if strategy is not a function', (t) => {
+  t.throws(() => run({
+    strategy: 'foobar',
+    journal: ''
+  }))
+})

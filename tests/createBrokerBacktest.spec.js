@@ -4,7 +4,8 @@ import {
   ORDER_REQUESTED,
   ORDER_CREATED,
   ORDER_PLACED,
-  ORDER_FILLED
+  ORDER_FILLED,
+  ORDER_FAILED
 } from '../lib/constants'
 
 import createMiddleware from '../lib/middleware/createBrokerBacktest'
@@ -52,4 +53,30 @@ test('synchronously dispatch order placed and order filled upon order created', 
   t.true(store.dispatch.calledTwice)
   t.true(store.dispatch.firstCall.args[0].type === ORDER_PLACED)
   t.true(store.dispatch.secondCall.args[0].type === ORDER_FILLED)
+})
+
+test(`dispatch ${ORDER_FAILED} if missing price`, async (t) => {
+  const { middleware, store } = t.context
+  const action = {
+    type: ORDER_REQUESTED,
+    payload: {
+      identifier: 'foo',
+      quantity: 100
+    }
+  }
+  middleware(action)
+  t.true(store.dispatch.lastCall.args[0].type === ORDER_FAILED)
+})
+
+test(`dispatch ${ORDER_FAILED} if missing quantity`, async (t) => {
+  const { middleware, store } = t.context
+  const action = {
+    type: ORDER_REQUESTED,
+    payload: {
+      identifier: 'foo',
+      price: 100
+    }
+  }
+  middleware(action)
+  t.true(store.dispatch.lastCall.args[0].type === ORDER_FAILED)
 })

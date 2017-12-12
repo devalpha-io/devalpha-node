@@ -54,3 +54,15 @@ test.cb('write the current state to the file', (t) => {
     })
   }).catch((e) => { throw e })
 })
+
+test('reject on faulty filename', async (t) => {
+  const { store, next } = t.context
+  const action = { type: 'FOO', payload: {} }
+  const middleware = createMiddleware(1337)(store)(next)
+
+  try {
+    await middleware(action)
+  } catch (e) {
+    t.pass()
+  }
+})

@@ -83,11 +83,29 @@ test('getSharpeRatio correctly calculates Sharpe ratio', (t) => {
     {
       positions: { total: 225 },
       capital: { total: 0 }
-    },
+    }
   ])
 
   const actual = getSharpeRatio(history)
   const expect = 0.24956709924231088
+
+  t.is(actual, expect)
+})
+
+test('getSharpeRatio returns 0 if history length is less than 3', (t) => {
+  const history = fromJS([
+    {
+      positions: { total: 220 },
+      capital: { total: 0 }
+    },
+    {
+      positions: { total: 230 },
+      capital: { total: 0 }
+    }
+  ])
+
+  const actual = getSharpeRatio(history)
+  const expect = 0
 
   t.is(actual, expect)
 })

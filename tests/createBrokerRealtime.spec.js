@@ -3,7 +3,8 @@ import sinon from 'sinon'
 import {
   ORDER_REQUESTED,
   ORDER_CREATED,
-  ORDER_PLACED
+  ORDER_PLACED,
+  ORDER_FAILED
 } from '../lib/constants'
 
 import createMockClient from './util/createMockClient'
@@ -73,4 +74,30 @@ test('build limit orders', async (t) => {
     commission: 0
   }
   t.deepEqual(actual, expect)
+})
+
+test(`dispatch ${ORDER_FAILED} if missing price`, async (t) => {
+  const { middleware, store } = t.context
+  const action = {
+    type: ORDER_REQUESTED,
+    payload: {
+      identifier: 'foo',
+      quantity: 100
+    }
+  }
+  middleware(action)
+  t.true(store.dispatch.lastCall.args[0].type === ORDER_FAILED)
+})
+
+test(`dispatch ${ORDER_FAILED} if missing quantity`, async (t) => {
+  const { middleware, store } = t.context
+  const action = {
+    type: ORDER_REQUESTED,
+    payload: {
+      identifier: 'foo',
+      price: 100
+    }
+  }
+  middleware(action)
+  t.true(store.dispatch.lastCall.args[0].type === ORDER_FAILED)
 })
