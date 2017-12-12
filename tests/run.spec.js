@@ -2,6 +2,7 @@ import test from 'ava'
 import _ from 'highland'
 import fs from 'fs'
 import path from 'path'
+import sinon from 'sinon'
 
 import run from '../lib'
 import createMockClient from './util/createMockClient'
@@ -14,6 +15,12 @@ import {
 
 test.beforeEach((t) => {
   t.context.journal = path.join(process.cwd(), 'testJournal.json')
+  t.context.error = console.error
+  console.error = sinon.spy()
+})
+
+test.afterEach((t) => {
+  console.error = t.context.error
 })
 
 test.cb.serial('backtest event order', t => {
@@ -367,5 +374,85 @@ test.cb.serial('correctly preloads stored state', (t) => {
       backtesting: false
     })
   }, 500)
+
+})
+test.cb.serial('should not be able to cancel unknown orders', t => {
+  const strategy = async ({ cancel }, action) => {
+    switch (action.type) {
+    case 'example':
+      cancel('1')
+      break
+    case ORDER_FAILED:
+      t.end()
+      break
+    default:
+      break
+    }
+  }
+
+  run({
+    feeds: {
+      example: _((push, next) => {
+        setTimeout(() => {
+          push(null, { value: 'event 1', timestamp: 100 })
+        }, 0)
+      })
+    },
+    client: createMockClient(true),
+    strategy,
+    journal: '',
+    backtesting: false
+  })
+
+})
+
+test.cb.serial('logs errors on skipped events during live trading', (t) => {
+
+  run({
+    feeds: {
+      example: _((push, next) => {
+        setTimeout(() => {
+          push(null, { value: 'event 1' })
+        }, 0)
+      })
+    },
+    client: createMockClient(),
+    strategy: () => {},
+    journal: '',
+    backtesting: false
+  })
+
+  setTimeout(() => {
+    t.true(console.error.calledOnce)
+
+    const actual = console.error.lastCall.args[0]
+    const expect = 'Skipped event from feed example due to missing timestamp property.'
+
+    t.is(actual, expect)
+    t.end()
+  }, 10)
+
+})
+
+test.cb.serial('logs errors on skipped events during backtests', (t) => {
+
+  run({
+    feeds: {
+      example: [{ value: 'event 1' }]
+    },
+    client: createMockClient(),
+    strategy: () => {},
+    journal: ''
+  })
+
+  setTimeout(() => {
+    t.true(console.error.calledOnce)
+
+    const actual = console.error.lastCall.args[0]
+    const expect = 'Skipped event from feed example due to missing timestamp property.'
+
+    t.is(actual, expect)
+    t.end()
+  }, 10)
 
 })
