@@ -15,7 +15,7 @@ The current state of your portfolio can be accessed at `context.state()`.
 
 ### Metrics
 
-Your portfolio risk metrics can be found at `context.metrics()`.
+Your portfolio risk metrics can be found at `context.metrics`.
 
 ### Order and Cancel
 

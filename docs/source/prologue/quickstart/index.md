@@ -77,7 +77,7 @@ function magicFormula(context, event) {
       break
 
     case 'finished':
-      console.log(context.metrics())
+      console.log(context.metrics)
       break
   }
 }

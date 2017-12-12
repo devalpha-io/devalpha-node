@@ -150,7 +150,7 @@ test.cb.serial('metrics and state are objects', t => {
 
   const strategy = ({ state, metrics }, action) => {
     t.is(typeof (state()), 'object')
-    t.is(typeof (metrics()), 'object')
+    t.is(typeof (metrics), 'object')
     t.end()
   }
 
@@ -175,7 +175,7 @@ test.cb.serial('metrics and state are objects', t => {
 test.cb.serial('metrics contains the correct properties', t => {
 
   const strategy = ({ metrics }, action) => {
-    const actual = Object.keys(metrics()).sort()
+    const actual = Object.keys(metrics).sort()
     const expected = [
       'alpha',
       'beta',
