@@ -26,10 +26,10 @@ title: Home
       </div>
     </div>
     <div class="tile tile-card tile-centered">
-      <div class="tile-icon"><i class="icon icon-menu"></i></div>
+      <div class="tile-icon"><i class="icon icon-layers"></i></div>
       <div class="tile-content">
-        <div class="tile-title">Multiple Order Types</div>
-        <p class="tile-subtitle">Be it limit orders, market orders or percentage orders, Vester makes order execution a breeze.</p>
+        <div class="tile-title">Easily Extensible</div>
+        <p class="tile-subtitle">If you're feeling limited by the simple interface Vester offers, extending the basic functionality is a piece of cake.</p>
       </div>
     </div>
   </div>
@@ -38,7 +38,7 @@ title: Home
       <div class="tile-icon"><i class="icon icon-users"></i></div>
       <div class="tile-content">
         <div class="tile-title">Built for Developers</div>
-        <p class="tile-subtitle">Not everyone is a post-doc in quantitative finance, and with Vester  no one has to be.</p>
+        <p class="tile-subtitle">Not everyone is a post-doc in quantitative finance, and with Vester no one has to be.</p>
       </div>
     </div>
     <div class="tile tile-card tile-centered">

@@ -39,7 +39,6 @@ run({
   client: ({ onFill }) => ({
     executeOrder: async (order) => {...},
     cancelOrder: async ({ id }) => {...},
-    getMarketPrice: async (identifier) => {...},
     calculateCommission: (order) => {...}
   }),
   ...

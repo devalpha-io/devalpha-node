@@ -74,24 +74,3 @@ test('build limit orders', async (t) => {
   }
   t.deepEqual(actual, expect)
 })
-
-test('build market orders', async (t) => {
-  const { middleware, store } = t.context
-  const action = {
-    type: ORDER_REQUESTED,
-    payload: {
-      identifier: 'MSFT',
-      quantity: 10
-    }
-  }
-  await middleware(action)
-
-  const actual = store.dispatch.firstCall.args[0].payload
-  const expect = {
-    identifier: 'MSFT',
-    quantity: 10,
-    price: 20,
-    commission: 0
-  }
-  t.deepEqual(actual, expect)
-})

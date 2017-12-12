@@ -17,7 +17,7 @@ The framework is inspired by the <a href="https://martinfowler.com/articles/lmax
 - [x] Event sourced
 - [x] Less than 900k bundle size
 - [x] Backtesting metrics
-- [x] Multiple order types*
+- [x] Functional architecture
 - [x] Slack notifications
 - [ ] Scheduling
 
