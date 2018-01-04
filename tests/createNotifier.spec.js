@@ -37,7 +37,7 @@ test.cb(`fires notification on ${INITIALIZED}`, (t) => {
   const middleware = createMiddleware({
     url: process.env.SLACK_WEBHOOK_URL,
     onNotify: (response) => {
-      t.is(response, 'ok')
+      t.is(response.ok, true)
       t.end()
     }
   })(store)(next)
@@ -56,7 +56,7 @@ test.cb(`fires notification on ${ORDER_PLACED}`, (t) => {
   const middleware = createMiddleware({
     url: process.env.SLACK_WEBHOOK_URL,
     onNotify: (response) => {
-      t.is(response, 'ok')
+      t.is(response.ok, true)
       t.end()
     }
   })(store)(next)
@@ -76,7 +76,7 @@ test.cb(`fires notification on ${ORDER_FILLED}`, (t) => {
   const middleware = createMiddleware({
     url: process.env.SLACK_WEBHOOK_URL,
     onNotify: (response) => {
-      t.is(response, 'ok')
+      t.is(response.ok, true)
       t.end()
     }
   })(store)(next)
@@ -97,7 +97,7 @@ test.cb(`fires notification on ${ORDER_CANCELLED}`, (t) => {
   const middleware = createMiddleware({
     url: process.env.SLACK_WEBHOOK_URL,
     onNotify: (response) => {
-      t.is(response, 'ok')
+      t.is(response.ok, true)
       t.end()
     }
   })(store)(next)

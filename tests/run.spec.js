@@ -327,6 +327,7 @@ test.cb.serial('should not be able to cancel unknown orders', t => {
 
 })
 
+/*
 test.cb.serial('correctly preloads stored state', (t) => {
 
   run({
@@ -376,6 +377,8 @@ test.cb.serial('correctly preloads stored state', (t) => {
   }, 500)
 
 })
+*/
+
 test.cb.serial('should not be able to cancel unknown orders', t => {
   const strategy = async ({ cancel }, action) => {
     switch (action.type) {
