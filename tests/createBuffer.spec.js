@@ -51,7 +51,7 @@ test('next() returns the next item and increases current pointer', (t) => {
 test('notifyListeners() actually notifies listeners', (t) => {
   const b = t.context.buffer
   const listener = sinon.spy()
-  b.subscribe(listener)
+  b.subscribe('foobar', listener)
   b.notifyListeners()
 
   t.true(listener.calledOnce)

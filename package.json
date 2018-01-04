@@ -9,7 +9,7 @@
     "babel-polyfill": "^6.26.0",
     "cross-fetch": "^1.1.1",
     "fastpriorityqueue": "^0.3.1",
-    "highland": "^2.11.1",
+    "highland": "^3.0.0-beta.5",
     "immutable": "^3.8.1",
     "mathjs": "^3.17.0",
     "moment": "^2.19.3",
