@@ -62,8 +62,8 @@ typings/
 .nyc_output
 coverage
 
-# distribution files
-dist/
+# build files
+build/
 
 # documentation
 .docs/

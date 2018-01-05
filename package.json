@@ -2,7 +2,8 @@
   "name": "vester",
   "version": "0.0.1",
   "repository": "https://github.com/fhqvst/vester",
-  "main": "dist/cjs/bundle.js",
+  "main": "build/umd/vester.js",
+  "module": "build/es/index.js",
   "license": "MIT",
   "dependencies": {
     "CBuffer": "^2.0.0",
@@ -36,10 +37,10 @@
     "webpack": "^3.10.0"
   },
   "scripts": {
-    "build:es": "NODE_ENV=production babel lib -d dist/es",
-    "build:cjs": "NODE_ENV=production rollup --config",
-    "build": "NODE_ENV=production npm run build:es & npm run build:cjs",
-    "build:wp": "webpack",
+    "dev": "NODE_ENV=development WEBPACK_ENV=development webpack --progress --colors --watch",
+    "build": "npm run build:es && npm run build:umd",
+    "build:umd": "NODE_ENV=production WEBPACK_ENV=production webpack",
+    "build:es": "NODE_ENV=production babel lib -d build/es",
     "docs:api": "documentation lint lib && node scripts/generateApi.js",
     "docs:build": "cd docs && $(npm bin)/hexo generate",
     "docs:watch": "cd docs && $(npm bin)/hexo server",
