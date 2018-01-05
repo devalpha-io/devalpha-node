@@ -25,7 +25,7 @@ test.cb.serial('applyMiddlewareBuffered logs error on a regular thrown Error', (
   setTimeout(() => {
     t.true(console.error.calledOnce)
 
-    const actual = console.error.firstCall.args[0]
+    const actual = console.error.firstCall.args[0].message
     const expected = 'An error occured.'
 
     t.is(actual, expected)
@@ -45,7 +45,7 @@ test.cb.serial('applyMiddlewareBuffered logs error on a thrown Error in an async
   setTimeout(() => {
     t.true(console.error.calledOnce)
 
-    const actual = console.error.firstCall.args[0]
+    const actual = console.error.firstCall.args[0].message
     const expected = 'An error occured.'
 
     t.is(actual, expected)
@@ -64,7 +64,7 @@ test.cb.serial('applyMiddlewareBuffered logs error on a rejected Promise', (t) =
   setTimeout(() => {
     t.true(console.error.calledOnce)
 
-    const actual = console.error.firstCall.args[0]
+    const actual = console.error.firstCall.args[0].message
     const expected = 'An error occured.'
 
     t.is(actual, expected)

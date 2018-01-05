@@ -7,7 +7,7 @@ import {
   createSortedStream
 } from '../lib/util/streams'
 
-test.cb('createMergedStream returns a merged stream Redux actions', (t) => {
+test.cb('createMergedStream returns a merged stream of Redux actions', (t) => {
   const streams = {
     foo: _(['FOO']),
     bar: _(['BAR'])
@@ -65,7 +65,7 @@ test.cb('createMergedStream runs event in arbitrary order', (t) => {
   merged.each((x) => actions.push(x))
 })
 
-test.cb('createSortedStream returns a sorted stream Redux actions', (t) => {
+test.cb('createSortedStream returns a sorted stream of Redux actions', (t) => {
   const streams = {
     foo: _([{ timestamp: 10 }]),
     bar: _([{ timestamp: 5 }]),
@@ -75,10 +75,10 @@ test.cb('createSortedStream returns a sorted stream Redux actions', (t) => {
     corge: _([{ timestamp: 10 }]),
     grault: _([{ timestamp: -Infinity }])
   }
-  const merged = createSortedStream(streams)
+  const sorted = createSortedStream(streams)
   const actions = []
 
-  merged
+  sorted
     .each((x) => actions.push(x.type))
     .done(() => {
       const actual = actions
