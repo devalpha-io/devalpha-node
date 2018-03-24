@@ -7,18 +7,18 @@ title: API
 
 ### Table of Contents
 
--   [run](#run)
+-   [vester](#vester)
 -   [strategy](#strategy)
 
-## run
+## vester
 
 The entry point to the whole system.
 
 **Parameters**
 
--   `config` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** The Vester configuration.
-    -   `config.journal` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `config` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** The Vester configuration. (optional, default `{}`)
     -   `config.backtesting` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
+    -   `config.capital` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
     -   `config.slackUrl` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** 
     -   `config.initialStates` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
     -   `config.feeds` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
@@ -29,11 +29,12 @@ The entry point to the whole system.
         -   `config.guard.shorting` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
         -   `config.guard.margin` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
         -   `config.guard.restricted` **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)** 
+    -   `config.onError` **[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** 
 
 **Examples**
 
 ```javascript
-import run from 'vester'
+import vester from 'vester'
 
 function strategy({ order }, action) {
   order({
@@ -43,7 +44,7 @@ function strategy({ order }, action) {
   })
 }
 
-run({
+vester({
   strategy,
   backtesting: false
 })
