@@ -1,6 +1,6 @@
 {
   "name": "vester",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": "https://github.com/fhqvst/vester",
   "main": "build/umd/vester.js",
   "module": "build/es/index.js",
