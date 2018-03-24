@@ -6,7 +6,6 @@
   "module": "build/es/index.js",
   "license": "MIT",
   "dependencies": {
-    "CBuffer": "^2.0.0",
     "babel-polyfill": "^6.26.0",
     "cross-fetch": "^1.1.1",
     "fastpriorityqueue": "^0.3.1",

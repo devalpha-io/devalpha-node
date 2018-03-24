@@ -155,20 +155,9 @@ test.cb.serial('metrics and state are objects', t => {
   }
 
   run({
-    feeds: {
-      example: [
-        {
-          value: 'event 1',
-          timestamp: 100
-        },
-        {
-          value: 'event 2',
-          timestamp: 200
-        }
-      ]
-    },
     journal: '',
-    strategy
+    strategy,
+    backtesting: false
   })
 })
 
@@ -196,20 +185,9 @@ test.cb.serial('metrics contains the correct properties', t => {
   }
 
   run({
-    feeds: {
-      example: [
-        {
-          value: 'event 1',
-          timestamp: 100
-        },
-        {
-          value: 'event 2',
-          timestamp: 200
-        }
-      ]
-    },
     journal: '',
-    strategy
+    strategy,
+    backtesting: false
   })
 })
 
@@ -253,7 +231,7 @@ test.cb.serial('failing orders are dispatched', t => {
 })
 
 test.cb.serial('orders are cancellable', t => {
-  const strategy = async ({ order, cancel, state }, action) => {
+  const strategy = ({ order, cancel, state }, action) => {
     switch (action.type) {
     case 'example':
       order({
@@ -298,7 +276,7 @@ test.cb.serial('orders are cancellable', t => {
 })
 
 test.cb.serial('should not be able to cancel unknown orders', t => {
-  const strategy = async ({ cancel }, action) => {
+  const strategy = ({ cancel }, action) => {
     switch (action.type) {
     case 'example':
       cancel('1')
@@ -380,7 +358,7 @@ test.cb.serial('correctly preloads stored state', (t) => {
 */
 
 test.cb.serial('should not be able to cancel unknown orders', t => {
-  const strategy = async ({ cancel }, action) => {
+  const strategy = ({ cancel }, action) => {
     switch (action.type) {
     case 'example':
       cancel('1')
@@ -410,7 +388,6 @@ test.cb.serial('should not be able to cancel unknown orders', t => {
 })
 
 test.cb.serial('logs errors on skipped events during live trading', (t) => {
-
   run({
     feeds: {
       example: _((push, next) => {
@@ -422,19 +399,15 @@ test.cb.serial('logs errors on skipped events during live trading', (t) => {
     client: createMockClient(),
     strategy: () => {},
     journal: '',
-    backtesting: false
+    backtesting: false,
+    onError: (err) => {
+      const actual = err.message
+      const expect = 'Skipped event from feed example due to missing timestamp property.'
+
+      t.is(actual, expect)
+      t.end()
+    }
   })
-
-  setTimeout(() => {
-    t.true(console.error.calledOnce)
-
-    const actual = console.error.lastCall.args[0]
-    const expect = 'Skipped event from feed example due to missing timestamp property.'
-
-    t.is(actual, expect)
-    t.end()
-  }, 10)
-
 })
 
 test.cb.serial('logs errors on skipped events during backtests', (t) => {
@@ -445,18 +418,15 @@ test.cb.serial('logs errors on skipped events during backtests', (t) => {
     },
     client: createMockClient(),
     strategy: () => {},
-    journal: ''
+    journal: '',
+    onError: (err) => {
+      const actual = err.message
+      const expect = 'Skipped event from feed example due to missing timestamp property.'
+
+      t.is(actual, expect)
+      t.end()
+    }
   })
-
-  setTimeout(() => {
-    t.true(console.error.calledOnce)
-
-    const actual = console.error.lastCall.args[0]
-    const expect = 'Skipped event from feed example due to missing timestamp property.'
-
-    t.is(actual, expect)
-    t.end()
-  }, 10)
 
 })
 

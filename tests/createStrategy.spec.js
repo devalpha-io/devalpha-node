@@ -23,10 +23,10 @@ test.beforeEach((t) => {
   t.context.middleware = createMiddleware(() => {}, () => {})(store)(next)
 })
 
-test('pass the intercepted action to the next', async (t) => {
+test('pass the intercepted action to the next', (t) => {
   const { middleware, next } = t.context
   const action = { type: 'FOO', payload: {} }
-  await middleware(action)
+  middleware(action)
   t.true(next.withArgs(action).calledOnce)
 })
 
@@ -56,14 +56,14 @@ test.cb('cancel() should synchronously dispatch order cancel', (t) => {
   }, () => {})(store)(next)(action)
 })
 
-test('pass the intercepted action to the next', async (t) => {
+test('pass the intercepted action to the next', (t) => {
   const { middleware, next } = t.context
   const action = { type: 'FOO', payload: {} }
-  await middleware(action)
+  middleware(action)
   t.true(next.withArgs(action).calledOnce)
 })
 
-test('updateHistory pushes state to history if history is empty', async (t) => {
+test('updateHistory pushes state to history if history is empty', (t) => {
   const timestamp = parseInt(moment('2000-01-01 04:00').format('X'), 10)
   const action = {
     type: 'FOO',
@@ -78,7 +78,7 @@ test('updateHistory pushes state to history if history is empty', async (t) => {
   t.true(is(actual, expect))
 })
 
-test('updateHistory pushes state to history the day differs', async (t) => {
+test('updateHistory pushes state to history the day differs', (t) => {
   const t1 = parseInt(moment('2000-01-01 04:00').format('X'), 10)
   const t2 = parseInt(moment('2000-01-02 04:00').format('X'), 10)
 
@@ -100,7 +100,7 @@ test('updateHistory pushes state to history the day differs', async (t) => {
   t.true(is(actual, expect))
 })
 
-test('updateHistory updates most recent if days are the same', async (t) => {
+test('updateHistory updates most recent if days are the same', (t) => {
   const t1 = parseInt(moment('2001-01-01 02:00').format('X'), 10)
   const t2 = parseInt(moment('2001-01-01 02:00').format('X'), 10)
 
