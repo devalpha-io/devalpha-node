@@ -22,14 +22,14 @@ test.beforeEach((t) => {
   t.context.middleware = createMiddleware()(store)(next)
 })
 
-test('pass the intercepted action to the next', async (t) => {
+test('pass the intercepted action to the next', (t) => {
   const { middleware, next } = t.context
   const action = { type: 'FOO', payload: {} }
-  await middleware(action)
+  middleware(action)
   t.true(next.withArgs(action).calledOnce)
 })
 
-test('synchronously dispatch order created upon order requested', async (t) => {
+test('synchronously dispatch order created upon order requested', (t) => {
   const { middleware, store } = t.context
   const action = {
     type: ORDER_REQUESTED,
@@ -45,7 +45,7 @@ test('synchronously dispatch order created upon order requested', async (t) => {
   t.true(store.dispatch.firstCall.args[0].type === ORDER_CREATED)
 })
 
-test('synchronously dispatch order placed and order filled upon order created', async (t) => {
+test('synchronously dispatch order placed and order filled upon order created', (t) => {
   const { middleware, store } = t.context
   const action = { type: ORDER_CREATED, payload: {} }
   middleware(action)
@@ -55,7 +55,7 @@ test('synchronously dispatch order placed and order filled upon order created', 
   t.true(store.dispatch.secondCall.args[0].type === ORDER_FILLED)
 })
 
-test(`dispatch ${ORDER_FAILED} if missing price`, async (t) => {
+test(`dispatch ${ORDER_FAILED} if missing price`, (t) => {
   const { middleware, store } = t.context
   const action = {
     type: ORDER_REQUESTED,
@@ -68,7 +68,7 @@ test(`dispatch ${ORDER_FAILED} if missing price`, async (t) => {
   t.true(store.dispatch.lastCall.args[0].type === ORDER_FAILED)
 })
 
-test(`dispatch ${ORDER_FAILED} if missing quantity`, async (t) => {
+test(`dispatch ${ORDER_FAILED} if missing quantity`, (t) => {
   const { middleware, store } = t.context
   const action = {
     type: ORDER_REQUESTED,

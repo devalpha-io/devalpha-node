@@ -21,17 +21,17 @@ test.beforeEach((t) => {
   }
 })
 
-test('pass the intercepted action to the next', async (t) => {
+test('pass the intercepted action to the next', (t) => {
   const { store, next } = t.context
   const action = { type: 'FOO', payload: {} }
   const middleware = createMiddleware()(store)(next)
 
-  await middleware(action)
+  middleware(action)
 
   t.true(next.withArgs(action).calledOnce)
 })
 
-test('reject order if placed on restricted asset', async (t) => {
+test('reject order if placed on restricted asset', (t) => {
   const { store, next } = t.context
   const order = {
     identifier: '123',
@@ -45,7 +45,7 @@ test('reject order if placed on restricted asset', async (t) => {
     restricted: ['123', '456']
   })(store)(next)
 
-  await middleware(action)
+  middleware(action)
 
   const actual = next.lastCall.args[0]
   const expect = {

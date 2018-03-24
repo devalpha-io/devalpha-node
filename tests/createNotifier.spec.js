@@ -22,13 +22,13 @@ test.beforeEach((t) => {
   t.context.next = next
 })
 
-test('pass the intercepted action to the next', async (t) => {
+test('pass the intercepted action to the next', (t) => {
   const { store, next } = t.context
   const middleware = createMiddleware({
     url: process.env.SLACK_WEBHOOK_URL
   })(store)(next)
   const action = { type: 'FOO', payload: {} }
-  await middleware(action)
+  middleware(action)
   t.true(next.withArgs(action).calledOnce)
 })
 

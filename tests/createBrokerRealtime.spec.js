@@ -22,14 +22,14 @@ test.beforeEach((t) => {
   t.context.middleware = createMiddleware(createMockClient())(store)(next)
 })
 
-test('pass the intercepted action to the next', async (t) => {
+test('pass the intercepted action to the next', (t) => {
   const { middleware, next } = t.context
   const action = { type: 'FOO', payload: {} }
-  await middleware(action)
+  middleware(action)
   t.true(next.withArgs(action).calledOnce)
 })
 
-test('synchronously dispatch order created upon order requested', async (t) => {
+test('synchronously dispatch order created upon order requested', (t) => {
   const { middleware, store } = t.context
   const action = {
     type: ORDER_REQUESTED,
@@ -45,16 +45,19 @@ test('synchronously dispatch order created upon order requested', async (t) => {
   t.true(store.dispatch.firstCall.args[0].type === ORDER_CREATED)
 })
 
-test('asynchronously dispatch order placed upon order created', async (t) => {
+test.cb('asynchronously dispatch order placed upon order created', (t) => {
   const { middleware, store } = t.context
   const action = { type: ORDER_CREATED, payload: {} }
-  await middleware(action)
+  middleware(action)
 
-  t.true(store.dispatch.calledOnce)
-  t.true(store.dispatch.firstCall.args[0].type === ORDER_PLACED)
+  t.true(store.dispatch.firstCall === null)
+  setTimeout(() => {
+    t.true(store.dispatch.firstCall.args[0].type === ORDER_PLACED)
+    t.end()
+  }, 20)
 })
 
-test('build limit orders', async (t) => {
+test('build limit orders', (t) => {
   const { middleware, store } = t.context
   const action = {
     type: ORDER_REQUESTED,
@@ -64,7 +67,7 @@ test('build limit orders', async (t) => {
       price: 20
     }
   }
-  await middleware(action)
+  middleware(action)
 
   const actual = store.dispatch.firstCall.args[0].payload
   const expect = {
@@ -76,7 +79,7 @@ test('build limit orders', async (t) => {
   t.deepEqual(actual, expect)
 })
 
-test(`dispatch ${ORDER_FAILED} if missing price`, async (t) => {
+test(`dispatch ${ORDER_FAILED} if missing price`, (t) => {
   const { middleware, store } = t.context
   const action = {
     type: ORDER_REQUESTED,
@@ -89,7 +92,7 @@ test(`dispatch ${ORDER_FAILED} if missing price`, async (t) => {
   t.true(store.dispatch.lastCall.args[0].type === ORDER_FAILED)
 })
 
-test(`dispatch ${ORDER_FAILED} if missing quantity`, async (t) => {
+test(`dispatch ${ORDER_FAILED} if missing quantity`, (t) => {
   const { middleware, store } = t.context
   const action = {
     type: ORDER_REQUESTED,
