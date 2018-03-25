@@ -9,7 +9,9 @@ import {
   ORDER_PLACED,
   ORDER_FILLED,
   ORDER_FAILED,
-  ORDER_CANCELLED
+  ORDER_CANCELLED,
+  INITIALIZED,
+  FINISHED
 } from '../lib/constants'
 
 test.beforeEach((t) => {
@@ -428,12 +430,47 @@ test('throws if strategy is not a function', (t) => {
   }))
 })
 
+test.cb.serial('stream returns items containing action and state during live trading', (t) => {
+  const strat = vester({
+    feeds: {},
+    backtesting: false
+  }, () => {})
+
+  strat.each(({ state, action }) => {
+    t.is(typeof state.capital, 'object')
+    t.is(typeof state.orders, 'object')
+    t.is(typeof state.positions, 'object')
+    t.is(typeof state.timestamp, 'number')
+    t.is(action.type, INITIALIZED)
+  }).done(() => {
+    t.end()
+  })
+})
+
+test.cb.serial('stream returns items containing action and state during backtests', (t) => {
+  const strat = vester({
+    feeds: {}
+  }, () => {})
+
+  const events = []
+  strat.each(({ state, action }) => {
+    t.is(typeof state.capital, 'object')
+    t.is(typeof state.orders, 'object')
+    t.is(typeof state.positions, 'object')
+    t.is(typeof state.timestamp, 'number')
+    events.push(action.type)
+  }).done(() => {
+    t.deepEqual(events, [INITIALIZED, FINISHED])
+    t.end()
+  })
+})
+
 test.cb.serial('errors can be extracted from the stream', (t) => {
   const strat = vester({
     feeds: {
       events: [{ timestamp: 0 }]
     }
-  }, (context, item) => {
+  }, () => {
     throw new Error('strat')
   })
 
