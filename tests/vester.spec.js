@@ -1,20 +1,20 @@
 import test from 'ava'
 import _ from 'highland'
-import fs from 'fs'
 import path from 'path'
 import sinon from 'sinon'
 
-import run from '../lib'
+import vester from '../lib'
 import createMockClient from './util/createMockClient'
 import {
   ORDER_PLACED,
   ORDER_FILLED,
   ORDER_FAILED,
-  ORDER_CANCELLED
+  ORDER_CANCELLED,
+  INITIALIZED,
+  FINISHED
 } from '../lib/constants'
 
 test.beforeEach((t) => {
-  t.context.journal = path.join(process.cwd(), 'testJournal.json')
   t.context.error = console.error
   console.error = sinon.spy()
 })
@@ -54,7 +54,7 @@ test.cb.serial('backtest event order', t => {
     }
   }
 
-  run({
+  vester({
     feeds: {
       example: [
         {
@@ -72,8 +72,8 @@ test.cb.serial('backtest event order', t => {
         cash: 9999999
       }
     },
-    strategy
-  })
+    resume: true
+  }, strategy)
 
   setTimeout(() => {
     const expected = 'abcdedeabcdede'
@@ -115,7 +115,7 @@ test.cb.serial('live trading event order', t => {
     }
   }
 
-  run({
+  vester({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -132,10 +132,9 @@ test.cb.serial('live trading event order', t => {
       }
     },
     client: createMockClient(),
-    strategy,
-    journal: '',
+    resume: true,
     backtesting: false
-  })
+  }, strategy)
 
   setTimeout(() => {
     const expected = 'abcabcddddeeee'
@@ -154,11 +153,10 @@ test.cb.serial('metrics and state are objects', t => {
     t.end()
   }
 
-  run({
-    journal: '',
-    strategy,
+  vester({
+    resume: true,
     backtesting: false
-  })
+  }, strategy)
 })
 
 test.cb.serial('metrics contains the correct properties', t => {
@@ -184,11 +182,10 @@ test.cb.serial('metrics contains the correct properties', t => {
     t.end()
   }
 
-  run({
-    journal: '',
-    strategy,
+  vester({
+    resume: true,
     backtesting: false
-  })
+  }, strategy)
 })
 
 test.cb.serial('failing orders are dispatched', t => {
@@ -209,7 +206,7 @@ test.cb.serial('failing orders are dispatched', t => {
     }
   }
 
-  run({
+  vester({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -223,10 +220,9 @@ test.cb.serial('failing orders are dispatched', t => {
       }
     },
     client: createMockClient(true),
-    strategy,
-    journal: '',
+    resume: true,
     backtesting: false
-  })
+  }, strategy)
 
 })
 
@@ -254,7 +250,7 @@ test.cb.serial('orders are cancellable', t => {
     }
   }
 
-  run({
+  vester({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -268,10 +264,9 @@ test.cb.serial('orders are cancellable', t => {
       }
     },
     client: createMockClient(),
-    strategy,
-    journal: '',
+    resume: true,
     backtesting: false
-  })
+  }, strategy)
 
 })
 
@@ -289,7 +284,7 @@ test.cb.serial('should not be able to cancel unknown orders', t => {
     }
   }
 
-  run({
+  vester({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -298,17 +293,16 @@ test.cb.serial('should not be able to cancel unknown orders', t => {
       })
     },
     client: createMockClient(true),
-    strategy,
-    journal: '',
+    resume: true,
     backtesting: false
-  })
+  }, strategy)
 
 })
 
 /*
 test.cb.serial('correctly preloads stored state', (t) => {
 
-  run({
+  vester({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -331,7 +325,7 @@ test.cb.serial('correctly preloads stored state', (t) => {
   })
 
   setTimeout(() => {
-    run({
+    vester({
       feeds: {
         example: _((push, next) => {
           setTimeout(() => {
@@ -371,7 +365,7 @@ test.cb.serial('should not be able to cancel unknown orders', t => {
     }
   }
 
-  run({
+  vester({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -380,59 +374,184 @@ test.cb.serial('should not be able to cancel unknown orders', t => {
       })
     },
     client: createMockClient(true),
-    strategy,
-    journal: '',
-    backtesting: false
-  })
-
-})
-
-test.cb.serial('logs errors on skipped events during live trading', (t) => {
-  run({
-    feeds: {
-      example: _((push, next) => {
-        setTimeout(() => {
-          push(null, { value: 'event 1' })
-        }, 0)
-      })
-    },
-    client: createMockClient(),
-    strategy: () => {},
-    journal: '',
     backtesting: false,
-    onError: (err) => {
-      const actual = err.message
-      const expect = 'Skipped event from feed example due to missing timestamp property.'
-
-      t.is(actual, expect)
-      t.end()
-    }
-  })
-})
-
-test.cb.serial('logs errors on skipped events during backtests', (t) => {
-
-  run({
-    feeds: {
-      example: [{ value: 'event 1' }]
-    },
-    client: createMockClient(),
-    strategy: () => {},
-    journal: '',
-    onError: (err) => {
-      const actual = err.message
-      const expect = 'Skipped event from feed example due to missing timestamp property.'
-
-      t.is(actual, expect)
-      t.end()
-    }
-  })
+    resume: true
+  }, strategy)
 
 })
+
+// test.cb.serial('logs errors on skipped events during live trading', (t) => {
+//   vester({
+//     feeds: {
+//       example: _((push, next) => {
+//         setTimeout(() => {
+//           push(null, { value: 'event 1' })
+//         }, 0)
+//       })
+//     },
+//     client: createMockClient(),
+//     strategy: () => {},
+//     resume: true,
+//     backtesting: false,
+//     onError: (err) => {
+//       const actual = err.message
+//       const expect = 'Skipped event from feed example due to missing timestamp property.'
+
+//       t.is(actual, expect)
+//       t.end()
+//     }
+//   })
+// })
+
+// test.cb.serial('logs errors on skipped events during backtests', (t) => {
+
+//   vester({
+//     feeds: {
+//       example: [{ value: 'event 1' }]
+//     },
+//     client: createMockClient(),
+//     strategy: () => {},
+//     resume: true,
+//     onError: (err) => {
+//       const actual = err.message
+//       const expect = 'Skipped event from feed example due to missing timestamp property.'
+
+//       t.is(actual, expect)
+//       t.end()
+//     }
+//   })
+
+// })
 
 test('throws if strategy is not a function', (t) => {
-  t.throws(() => run({
+  t.throws(() => vester({
     strategy: 'foobar',
-    journal: ''
+    resume: true
   }))
+})
+
+test.cb.serial('stream returns items containing action and state during live trading', (t) => {
+  const strat = vester({
+    feeds: {},
+    backtesting: false
+  }, () => {})
+
+  strat.each(({ state, action }) => {
+    t.is(typeof state.capital, 'object')
+    t.is(typeof state.orders, 'object')
+    t.is(typeof state.positions, 'object')
+    t.is(typeof state.timestamp, 'number')
+    t.is(action.type, INITIALIZED)
+  }).done(() => {
+    t.end()
+  })
+})
+
+test.cb.serial('stream returns items containing action and state during backtests', (t) => {
+  const strat = vester({
+    feeds: {}
+  }, () => {})
+
+  const events = []
+  strat.each(({ state, action }) => {
+    t.is(typeof state.capital, 'object')
+    t.is(typeof state.orders, 'object')
+    t.is(typeof state.positions, 'object')
+    t.is(typeof state.timestamp, 'number')
+    events.push(action.type)
+  }).done(() => {
+    t.deepEqual(events, [INITIALIZED, FINISHED])
+    t.end()
+  })
+})
+
+test.cb.serial('errors can be extracted from the stream', (t) => {
+  const strat = vester({
+    feeds: {
+      events: [{ timestamp: 0 }]
+    }
+  }, () => {
+    throw new Error('strat')
+  })
+
+  strat.errors((err) => {
+    t.is(err.message, 'strat')
+  }).done(() => {
+    t.end()
+  })
+})
+
+test.cb.serial('errors can be extracted from merged streams', (t) => {
+  const strat1 = vester({
+    feeds: {
+      events: [{ timestamp: 0 }]
+    }
+  }, () => { throw new Error('strat1') })
+
+  const strat2 = vester({
+    feeds: {
+      events: [{ timestamp: 0 }]
+    }
+  }, () => { throw new Error('strat2') })
+
+  const errors = []
+  _.merge([strat1, strat2]).errors((err) => {
+    errors.push(err)
+  }).done(() => {
+    t.is(errors[0].message, 'strat1')
+    t.is(errors[1].message, 'strat2')
+    t.end()
+  })
+})
+
+test.cb.serial('stream consumers recieve all events in the right order', (t) => {
+  const events = []
+  const strat = vester({
+    feeds: {
+      events: [{ timestamp: 0 }, { timestamp: 1 }]
+    }
+  }, () => {
+    events.push('a')
+  })
+
+  strat.map((item) => {
+    events.push('b')
+    return item
+  }).done(() => {
+    t.deepEqual(events.join(''), 'abababab')
+    t.end()
+  })
+})
+
+test.cb.serial('stream consumers can apply backpressure', (t) => {
+  const events = []
+  const strat = vester({
+    feeds: {
+      events: [{ timestamp: 0 }, { timestamp: 1 }]
+    }
+  }, () => {
+    events.push('a')
+  })
+
+  const fork1 = strat.fork().map((item) => {
+    // eslint-disable-next-line no-empty
+    for (let i = 0; i < 5000000; i += 1) {}
+    events.push('b')
+    return item
+  })
+
+  const fork2 = strat.fork().map((item) => {
+    // eslint-disable-next-line no-empty
+    for (let i = 0; i < 100; i += 1) {}
+    events.push('c')
+    return item
+  })
+
+  strat.fork().done(() => {
+    t.deepEqual(events.join(''), 'abcabcabcabc')
+    t.end()
+  })
+
+  fork1.resume()
+  fork2.resume()
 })
