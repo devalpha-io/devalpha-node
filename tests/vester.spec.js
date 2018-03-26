@@ -145,40 +145,10 @@ test.cb.serial('live trading event order', t => {
 
 })
 
-test.cb.serial('metrics and state are objects', t => {
+test.cb.serial('state() returns an object', t => {
 
-  const strategy = ({ state, metrics }, action) => {
+  const strategy = ({ state }, action) => {
     t.is(typeof (state()), 'object')
-    t.is(typeof (metrics), 'object')
-    t.end()
-  }
-
-  vester({
-    resume: true,
-    backtesting: false
-  }, strategy)
-})
-
-test.cb.serial('metrics contains the correct properties', t => {
-
-  const strategy = ({ metrics }, action) => {
-    const actual = Object.keys(metrics).sort()
-    const expected = [
-      'alpha',
-      'beta',
-      'calmar',
-      'drawdown',
-      'kurtosis',
-      'omega',
-      'returns',
-      'sharpe',
-      'skew',
-      'sortino',
-      'stability',
-      'tail',
-      'volatility'
-    ].sort()
-    t.deepEqual(actual, expected)
     t.end()
   }
 
