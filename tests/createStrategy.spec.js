@@ -1,15 +1,12 @@
 import test from 'ava'
 import sinon from 'sinon'
-import { Map, List, fromJS, is } from 'immutable'
-import moment from 'moment'
+import { Map } from 'immutable'
 import {
   ORDER_REQUESTED,
   ORDER_CANCEL
 } from '../lib/constants'
 
-import createMiddleware, {
-  updateHistory
-} from '../lib/middleware/createStrategy'
+import createMiddleware from '../lib/middleware/createStrategy'
 
 test.beforeEach((t) => {
   const store = {
@@ -61,62 +58,4 @@ test('pass the intercepted action to the next', (t) => {
   const action = { type: 'FOO', payload: {} }
   middleware(action)
   t.true(next.withArgs(action).calledOnce)
-})
-
-test('updateHistory pushes state to history if history is empty', (t) => {
-  const timestamp = parseInt(moment('2000-01-01 04:00').format('X'), 10)
-  const action = {
-    type: 'FOO',
-    payload: { timestamp }
-  }
-  const state = Map({ timestamp })
-  const history = List()
-
-  const actual = updateHistory(state, history, action)
-  const expect = fromJS([state])
-
-  t.true(is(actual, expect))
-})
-
-test('updateHistory pushes state to history the day differs', (t) => {
-  const t1 = parseInt(moment('2000-01-01 04:00').format('X'), 10)
-  const t2 = parseInt(moment('2000-01-02 04:00').format('X'), 10)
-
-  const action = {
-    type: 'FOO',
-    payload: { timestamp: t2 }
-  }
-  const state = Map({ timestamp: t2 })
-  const history = List([
-    Map({ timestamp: t1 })
-  ])
-
-  const actual = updateHistory(state, history, action)
-  const expect = List([
-    Map({ timestamp: t1 }),
-    Map({ timestamp: t2 })
-  ])
-
-  t.true(is(actual, expect))
-})
-
-test('updateHistory updates most recent if days are the same', (t) => {
-  const t1 = parseInt(moment('2001-01-01 02:00').format('X'), 10)
-  const t2 = parseInt(moment('2001-01-01 02:00').format('X'), 10)
-
-  const action = {
-    type: 'FOO',
-    payload: { timestamp: t2 }
-  }
-  const state = Map({ timestamp: t2 })
-  const history = List([
-    Map({ timestamp: t1 })
-  ])
-
-  const actual = updateHistory(state, history, action)
-  const expect = List([
-    Map({ timestamp: t2 })
-  ])
-
-  t.true(is(actual, expect))
 })
