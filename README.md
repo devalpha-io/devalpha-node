@@ -15,11 +15,8 @@ The framework is inspired by the <a href="https://martinfowler.com/articles/lmax
 
 ## Features
 - [x] Event sourced
-- [x] Less than 900k bundle size
-- [x] Backtesting metrics
+- [x] Small codebase
 - [x] Functional architecture
-- [x] Slack notifications
-- [ ] Scheduling
 
 ## Installation
 Install using NPM:
