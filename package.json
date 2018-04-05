@@ -6,7 +6,6 @@
   "module": "build/es/index.js",
   "license": "MIT",
   "dependencies": {
-    "babel-polyfill": "^6.26.0",
     "cross-fetch": "^1.1.1",
     "fastpriorityqueue": "^0.3.1",
     "highland": "^3.0.0-beta.6",
@@ -14,30 +13,28 @@
     "mathjs": "^3.17.0",
     "moment": "^2.19.3",
     "redux": "^3.7.2",
-    "redux-immutable": "^4.0.0"
+    "redux-immutable": "^4.0.0",
+    "socket.io": "^2.1.0"
   },
   "devDependencies": {
-    "ava": "^0.24.0",
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.2",
-    "babel-plugin-external-helpers": "^6.22.0",
-    "babel-plugin-transform-async-to-generator": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.0",
-    "babel-register": "^6.26.0",
+    "@babel/cli": "^7.0.0-beta.44",
+    "@babel/core": "^7.0.0-beta.44",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.44",
+    "@babel/polyfill": "^7.0.0-beta.44",
+    "@babel/preset-env": "^7.0.0-beta.44",
+    "@babel/register": "^7.0.0-beta.44",
+    "ava": "^1.0.0-beta.3",
     "documentation": "^5.3.3",
     "dotenv": "^4.0.0",
     "eslint": "^4.5.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.7.0",
     "nyc": "^11.1.0",
-    "sinon": "^4.1.2",
-    "webpack": "^3.10.0"
+    "sinon": "^4.1.2"
   },
   "scripts": {
     "dev": "NODE_ENV=development WEBPACK_ENV=development webpack --progress --colors --watch",
-    "build": "npm run build:es && npm run build:umd",
+    "build": "npm run build:es",
     "build:umd": "NODE_ENV=production WEBPACK_ENV=production webpack",
     "build:es": "NODE_ENV=production babel lib -d build/es",
     "docs:api": "documentation lint lib && node scripts/generateApi.js",
@@ -51,47 +48,41 @@
     "report": "nyc report --reporter=html",
     "coverage": "NODE_ENV=test nyc ava tests/**/*.spec.js"
   },
-  "ava": {
-    "require": [
-      "babel-register",
-      "babel-polyfill"
-    ]
-  },
   "babel": {
     "presets": [
       [
-        "env",
+        "@babel/preset-env",
         {
           "targets": {
             "browsers": [
               "last 2 versions",
               "safari >= 7"
-            ],
-            "node": "8"
-          },
-          "modules": false
+            ]
+          }
         }
       ]
     ],
     "plugins": [
-      "transform-async-to-generator",
-      [
-        "transform-object-rest-spread",
-        {
-          "useBuildIns": true
-        }
-      ]
-    ],
-    "ignore": [
-      "*.spec.js"
-    ],
-    "env": {
-      "test": {
+      "@babel/plugin-proposal-object-rest-spread"
+    ]
+  },
+  "ava": {
+    "babel": {
+      "testOptions": {
         "presets": [
-          "@ava/stage-4"
+          [
+            "@babel/preset-env"
+          ]
+        ],
+        "plugins": [
+          "@babel/plugin-proposal-object-rest-spread"
         ]
       }
-    }
+    },
+    "require": [
+      "@babel/register",
+      "@babel/polyfill"
+    ]
   },
   "nyc": {
     "exclude": [

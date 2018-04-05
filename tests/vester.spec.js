@@ -23,8 +23,7 @@ test.afterEach((t) => {
   console.error = t.context.error
 })
 
-test.cb.serial('backtest event order', t => {
-
+test.serial.cb('backtest event order', t => {
   const executions = []
   const strategy = ({ order }, action) => {
     switch (action.type) {
@@ -73,7 +72,7 @@ test.cb.serial('backtest event order', t => {
       }
     },
     resume: true
-  }, strategy)
+  }, strategy).resume()
 
   setTimeout(() => {
     const expected = 'abcdedeabcdede'
@@ -84,7 +83,7 @@ test.cb.serial('backtest event order', t => {
 
 })
 
-test.cb.serial('live trading event order', t => {
+test.serial.cb('live trading event order', t => {
 
   const executions = []
   const strategy = ({ order }, action) => {
@@ -132,9 +131,8 @@ test.cb.serial('live trading event order', t => {
       }
     },
     client: createMockClient(),
-    resume: true,
     backtesting: false
-  }, strategy)
+  }, strategy).resume()
 
   setTimeout(() => {
     const expected = 'abcabcddddeeee'
@@ -145,7 +143,7 @@ test.cb.serial('live trading event order', t => {
 
 })
 
-test.cb.serial('state() returns an object', t => {
+test.serial.cb('state() returns an object', t => {
 
   const strategy = ({ state }, action) => {
     t.is(typeof (state()), 'object')
@@ -153,12 +151,11 @@ test.cb.serial('state() returns an object', t => {
   }
 
   vester({
-    resume: true,
     backtesting: false
-  }, strategy)
+  }, strategy).resume()
 })
 
-test.cb.serial('failing orders are dispatched', t => {
+test.serial.cb('failing orders are dispatched', t => {
   const strategy = ({ order }, action) => {
     switch (action.type) {
     case 'example':
@@ -190,13 +187,12 @@ test.cb.serial('failing orders are dispatched', t => {
       }
     },
     client: createMockClient(true),
-    resume: true,
     backtesting: false
-  }, strategy)
+  }, strategy).resume()
 
 })
 
-test.cb.serial('orders are cancellable', t => {
+test.serial.cb('orders are cancellable', t => {
   const strategy = ({ order, cancel, state }, action) => {
     switch (action.type) {
     case 'example':
@@ -234,13 +230,12 @@ test.cb.serial('orders are cancellable', t => {
       }
     },
     client: createMockClient(),
-    resume: true,
     backtesting: false
-  }, strategy)
+  }, strategy).resume()
 
 })
 
-test.cb.serial('should not be able to cancel unknown orders', t => {
+test.serial.cb('should not be able to cancel unknown orders', t => {
   const strategy = ({ cancel }, action) => {
     switch (action.type) {
     case 'example':
@@ -263,14 +258,13 @@ test.cb.serial('should not be able to cancel unknown orders', t => {
       })
     },
     client: createMockClient(true),
-    resume: true,
     backtesting: false
-  }, strategy)
+  }, strategy).resume()
 
 })
 
 /*
-test.cb.serial('correctly preloads stored state', (t) => {
+test.serial.cb('correctly preloads stored state', (t) => {
 
   vester({
     feeds: {
@@ -321,36 +315,7 @@ test.cb.serial('correctly preloads stored state', (t) => {
 })
 */
 
-test.cb.serial('should not be able to cancel unknown orders', t => {
-  const strategy = ({ cancel }, action) => {
-    switch (action.type) {
-    case 'example':
-      cancel('1')
-      break
-    case ORDER_FAILED:
-      t.end()
-      break
-    default:
-      break
-    }
-  }
-
-  vester({
-    feeds: {
-      example: _((push, next) => {
-        setTimeout(() => {
-          push(null, { value: 'event 1', timestamp: 100 })
-        }, 0)
-      })
-    },
-    client: createMockClient(true),
-    backtesting: false,
-    resume: true
-  }, strategy)
-
-})
-
-// test.cb.serial('logs errors on skipped events during live trading', (t) => {
+// test.serial.cb('logs errors on skipped events during live trading', (t) => {
 //   vester({
 //     feeds: {
 //       example: _((push, next) => {
@@ -373,7 +338,7 @@ test.cb.serial('should not be able to cancel unknown orders', t => {
 //   })
 // })
 
-// test.cb.serial('logs errors on skipped events during backtests', (t) => {
+// test.serial.cb('logs errors on skipped events during backtests', (t) => {
 
 //   vester({
 //     feeds: {
@@ -395,12 +360,11 @@ test.cb.serial('should not be able to cancel unknown orders', t => {
 
 test('throws if strategy is not a function', (t) => {
   t.throws(() => vester({
-    strategy: 'foobar',
-    resume: true
-  }))
+    strategy: 'foobar'
+  }).resume())
 })
 
-test.cb.serial('stream returns items containing action and state during live trading', (t) => {
+test.serial.cb('stream returns items containing action and state during live trading', (t) => {
   const strat = vester({
     feeds: {},
     backtesting: false
@@ -417,7 +381,7 @@ test.cb.serial('stream returns items containing action and state during live tra
   })
 })
 
-test.cb.serial('stream returns items containing action and state during backtests', (t) => {
+test.serial.cb('stream returns items containing action and state during backtests', (t) => {
   const strat = vester({
     feeds: {}
   }, () => {})
@@ -435,7 +399,7 @@ test.cb.serial('stream returns items containing action and state during backtest
   })
 })
 
-test.cb.serial('errors can be extracted from the stream', (t) => {
+test.serial.cb('errors can be extracted from the stream', (t) => {
   const strat = vester({
     feeds: {
       events: [{ timestamp: 0 }]
@@ -451,7 +415,7 @@ test.cb.serial('errors can be extracted from the stream', (t) => {
   })
 })
 
-test.cb.serial('errors can be extracted from merged streams', (t) => {
+test.serial.cb('errors can be extracted from merged streams', (t) => {
   const strat1 = vester({
     feeds: {
       events: [{ timestamp: 0 }]
@@ -474,7 +438,7 @@ test.cb.serial('errors can be extracted from merged streams', (t) => {
   })
 })
 
-test.cb.serial('stream consumers recieve all events in the right order', (t) => {
+test.serial.cb('stream consumers recieve all events in the right order', (t) => {
   const events = []
   const strat = vester({
     feeds: {
@@ -493,7 +457,7 @@ test.cb.serial('stream consumers recieve all events in the right order', (t) => 
   })
 })
 
-test.cb.serial('stream consumers can apply backpressure', (t) => {
+test.serial.cb('stream consumers can apply backpressure', (t) => {
   const events = []
   const strat = vester({
     feeds: {

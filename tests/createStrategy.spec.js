@@ -52,10 +52,3 @@ test.cb('cancel() should synchronously dispatch order cancel', (t) => {
     t.end()
   }, () => {})(store)(next)(action)
 })
-
-test('pass the intercepted action to the next', (t) => {
-  const { middleware, next } = t.context
-  const action = { type: 'FOO', payload: {} }
-  middleware(action)
-  t.true(next.withArgs(action).calledOnce)
-})
