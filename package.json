@@ -34,9 +34,7 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development WEBPACK_ENV=development webpack --progress --colors --watch",
-    "build": "npm run build:es",
-    "build:umd": "NODE_ENV=production WEBPACK_ENV=production webpack",
-    "build:es": "NODE_ENV=production babel lib -d build/es",
+    "build": "NODE_ENV=production babel lib -d build/",
     "docs:api": "documentation lint lib && node scripts/generateApi.js",
     "docs:build": "cd docs && $(npm bin)/hexo generate",
     "docs:watch": "cd docs && $(npm bin)/hexo server",
