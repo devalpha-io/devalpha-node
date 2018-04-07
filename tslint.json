@@ -1,0 +1,9 @@
+{
+    "extends": "tslint-config-airbnb",
+    "rules": {
+      "import-name": false,
+      "semicolon": [true, "never"],
+      "trailing-comma": [true, "never"],
+      "typedef": true
+    }
+}

@@ -1,8 +1,8 @@
-import _ from 'highland'
+import * as _ from 'highland'
 import { createStore } from 'redux'
 import { combineReducers } from 'redux-immutable'
-import http from 'http'
-import socket from 'socket.io'
+import * as http from 'http'
+import * as socket from 'socket.io'
 
 // Middleware
 import createBrokerRealtime from './middleware/createBrokerRealtime'
@@ -28,6 +28,8 @@ import {
   SOCKETIO_BACKTESTER_EVENTS,
   SOCKETIO_BACKTESTER_DONE
 } from './constants'
+
+export * from './constants'
 
 /**
  * The entry point to the whole system.
@@ -64,7 +66,7 @@ import {
  *   backtesting: false
  * })
  */
-function vester(config = {}, strategy) {
+export function vester(config = {}, strategy) {
   config = {
     backtesting: true,
     startCapital: 0,
@@ -228,5 +230,3 @@ function vester(config = {}, strategy) {
 
   return consumed
 }
-
-module.exports = vester

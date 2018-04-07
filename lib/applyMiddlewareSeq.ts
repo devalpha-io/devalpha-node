@@ -9,7 +9,7 @@ import { compose } from 'redux'
  * @param {...function} middlewares The chain of middlewares to be applied.
  * @returns {function} A store enhancer applying the middleware.
  */
-export default function applyMiddlewareSeq(stream, middlewares = []) {
+export default function applyMiddlewareSeq(stream: Highland.Stream<FeedItem>, middlewares = []) {
   return (createStore) => (reducer, preloadedState, enhancer) => {
     let running = false
 
