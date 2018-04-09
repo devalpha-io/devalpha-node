@@ -1,33 +1,37 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var immutable_1 = require("immutable");
-var constants_1 = require("../constants");
-var initialState = immutable_1.Map();
-exports.default = (function (state, action) {
-    if (state === void 0) { state = initialState; }
+const constants_1 = require("../constants");
+const initialState = {};
+function ordersReducer(state = initialState, action) {
     switch (action.type) {
         case constants_1.INITIALIZED: {
             // TODO validate supplied data
             if (action.payload.initialStates.orders) {
-                state = state.merge(initialState, action.payload.initialStates.orders);
+                const initial = action.payload.initialStates.orders;
+                state = Object.assign({}, state, initial);
             }
-            return state;
+            break;
         }
         case constants_1.ORDER_PLACED: {
-            var order = action.payload;
-            return state.set(order.id, order);
+            const order = action.payload;
+            state[order.id] = order;
+            break;
         }
         case constants_1.ORDER_FILLED: {
-            var order = action.payload;
+            const order = action.payload;
             // @todo: Check if partially filled as well
-            return state.delete(order.id);
+            delete state[order.id];
+            break;
         }
         case constants_1.ORDER_CANCELLED: {
-            var id = action.payload.id;
-            return state.delete(id);
+            const { id } = action.payload;
+            delete state[id];
+            break;
         }
         default: {
-            return state;
+            break;
         }
     }
-});
+    return Object.assign({}, state);
+}
+exports.ordersReducer = ordersReducer;

@@ -1,3 +1,5 @@
+import * as Redux from 'redux';
+import { StreamAction, RootState } from '../typings';
 /**
  * Creates a broker middleware to be used when running backtests.
  * In contrast to the realtime broker middleware, this middleware both places and fills an order
@@ -8,4 +10,4 @@
  * @param  {number|function} commission Calculate the commission based on price and quantity
  * @return {function} Middleware
  */
-export default function createBrokerBacktest(commission?: number): (store: any) => (next: any) => (action: any) => any;
+export default function createBrokerBacktest(commission?: number | Function): (store: Redux.Store<RootState>) => (next: Function) => (action: StreamAction) => any;

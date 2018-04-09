@@ -1,5 +1,7 @@
-import { Map } from 'immutable'
-import { add, subtract, chain, number as n, bignumber as b, sign } from 'mathjs'
+import Decimal from 'decimal.js'
+import {
+  StreamAction
+} from '../typings'
 
 import {
   INITIALIZED,
@@ -8,145 +10,134 @@ import {
   ORDER_CANCELLED
 } from '../constants'
 
-const initialState = Map({
-  cash: 0,
-  commission: 0,
-  reservedCash: 0,
-  total: 0
-})
+export type CapitalState = {
+  cash: Decimal,
+  commission: Decimal,
+  reservedCash: Decimal,
+  total: Decimal
+}
 
-export default (state = initialState, action) => {
+const initialState = {
+  cash: new Decimal(0),
+  commission: new Decimal(0),
+  reservedCash: new Decimal(0),
+  total: new Decimal(0)
+}
+
+export function capitalReducer (state: CapitalState = initialState, action: StreamAction) {
   switch (action.type) {
   case INITIALIZED: {
     if (action.payload.startCapital) {
-      state = state.set('cash', action.payload.startCapital)
-      state = state.set('total', action.payload.startCapital)
+      state.cash = action.payload.startCapital
+      state.total = action.payload.startCapital
     }
     if (action.payload.initialStates.capital) {
       // TODO validate supplied data
       // TODO check that total = cash + reservedCash
       const initial = action.payload.initialStates.capital
-      for (const key of initialState.keys()) {
-        if (typeof initial[key] !== 'undefined') {
-          state = state.mergeIn([key], initial[key])
-        }
-      }
+      state = { ...state, ...initial }
     }
-    return state
+    return { ...state }
   }
   case ORDER_PLACED: {
     const order = action.payload
     let cash
     let reservedCash
 
-    if (sign(order.quantity) === 1) {
+    if (Decimal.sign(order.quantity).eq(1)) {
       /* cost = |price * quantity| */
-      const cost = chain(b(order.price)).multiply(b(order.quantity)).abs().done()
+      const cost = new Decimal(order.price).mul(order.quantity).abs()
 
       /* reservedCash = reservedCash + cost + commission */
-      reservedCash = n(chain(b(state.get('reservedCash'))).add(b(cost)).add(b(order.commission)).done())
+      reservedCash = new Decimal(state.reservedCash).add(cost).add(order.commission)
 
       /* cash = cash - cost - commission */
-      cash = n(chain(b(state.get('cash'))).subtract(b(cost)).subtract(b(order.commission)).done())
+      cash = new Decimal(state.cash).sub(cost).sub(order.commission)
     } else {
       /* reservedCash = reservedCash + commission */
-      reservedCash = n(chain(b(state.get('reservedCash'))).add(b(order.commission)).done())
+      reservedCash = new Decimal(state.reservedCash).add(order.commission)
 
       /* cash = cash - commission */
-      cash = n(chain(b(state.get('cash'))).subtract(b(order.commission)).done())
+      cash = new Decimal(state.cash).sub(order.commission)
     }
 
-    state = state.set('reservedCash', reservedCash)
-    state = state.set('cash', cash)
+    state.reservedCash = reservedCash
+    state.cash = cash
 
-    state = state.set('total', n(add(
-      b(state.get('cash')),
-      b(state.get('reservedCash'))
-    )))
+    state.total = Decimal.add(state.cash, state.reservedCash)
 
-    return state
+    return { ...state }
   }
 
   case ORDER_FILLED: {
     const order = action.payload
-    const direction = sign(order.quantity)
+    const direction = Decimal.sign(order.quantity)
 
     /* adjust commission for partially filled orders */
     /* adjustedCommission = expectedCommission * quantity / expectedQuantity */
-    const adjustedCommission = chain(b(order.expectedCommission))
-      .multiply(b(order.quantity))
-      .divide(b(order.expectedQuantity))
-      .done()
+    const adjustedCommission = new Decimal(order.expectedCommission)
+      .mul(order.quantity)
+      .div(order.expectedQuantity)
 
-    if (direction === 1) {
+    if (direction.eq(1)) {
       /* order.expectedQuantity not used as we can be partially filled as well. */
       /* cost = quantity * expectedPrice + adjustedCommission */
-      const cost = n(chain(b(order.quantity))
-        .multiply(b(order.expectedPrice))
-        .add(b(adjustedCommission))
-        .done())
+      const cost = new Decimal(order.quantity)
+        .mul(order.expectedPrice)
+        .add(adjustedCommission)
 
       /* reservedCash = reservedCash - cost */
-      const reservedCash = n(subtract(b(state.get('reservedCash')), b(cost)))
+      const reservedCash = Decimal.sub(state.reservedCash, cost)
 
-      state = state.set('reservedCash', reservedCash)
+      state.reservedCash = reservedCash
     } else {
       /* we might get filled at a higher price than expected, and thus pay higher commission */
       /* extraCommission = max(0, (commission - expectedCommission) * quantity) */
-      const extraCommission = chain(order.commission)
-        .subtract(order.expectedCommission)
-        .multiply(b(order.commission))
-        .max(0)
-        .done()
+      const extraCommission = Decimal.max(0, 
+        Decimal.sub(order.commission, order.expectedCommission).mul(order.commission)
+      )
 
       /* receivedCash = |quantity * price| - extraCommission */
-      const receivedCash = chain(b(order.quantity))
-        .multiply(b(order.price))
+      const receivedCash = Decimal.mul(order.quantity, order.price)
         .abs()
-        .subtract(extraCommission)
-        .done()
+        .sub(extraCommission)
 
       /* cash = cash + receivedCash */
-      const cash = n(add(b(state.get('cash')), b(receivedCash)))
+      const cash = Decimal.add(state.cash, receivedCash)
 
       /* reservedCash = reservedCash - adjustedCommission */
-      const reservedCash = n(subtract(b(state.get('reservedCash')), adjustedCommission))
+      const reservedCash = Decimal.sub(state.reservedCash, adjustedCommission)
 
-      state = state.set('cash', cash)
-      state = state.set('reservedCash', reservedCash)
+      state.cash = cash
+      state.reservedCash = reservedCash
     }
 
     /* adjust commission */
-    state = state.set('commission', n(add(b(state.get('commission')), b(order.commission))))
+    state.commission = Decimal.add(state.commission, order.commission)
 
-    state = state.set('total', n(add(
-      b(state.get('cash')),
-      b(state.get('reservedCash'))
-    )))
+    state.total = Decimal.add(state.cash, state.reservedCash)
 
-    return state
+    return { ...state }
   }
 
   case ORDER_CANCELLED: {
     const cancelledOrder = action.payload
 
     /* buy-side order */
-    if (sign(cancelledOrder.quantity) === 1) {
+    if (Decimal.sign(cancelledOrder.quantity).eq(1)) {
       /* cost = |price * quantity| */
-      const cost = chain(b(cancelledOrder.price)).multiply(b(cancelledOrder.quantity)).abs().done()
+      const cost = Decimal.mul(cancelledOrder.price, cancelledOrder.quantity).abs()
 
       /* reservedCash = reservedCash - cost - commission */
-      const reservedCash = n(chain(b(state.get('reservedCash')))
-        .subtract(b(cost)).subtract(b(cancelledOrder.commission)).done())
+      const reservedCash = Decimal.sub(state.reservedCash, cost).sub(cancelledOrder.commission)
 
       /* cash = cash + cost + commission */
-      const cash = n(chain(b(state.get('cash')))
-        .add(b(cost)).add(b(cancelledOrder.commission)).done())
+      const cash = Decimal.add(state.cash, cost).add(cancelledOrder.commission)
 
-      state = state.set('reservedCash', reservedCash)
-      state = state.set('cash', cash)
+      state.reservedCash = reservedCash
+      state.cash = cash
     }
-    return state
+    return { ...state }
   }
 
   default: {

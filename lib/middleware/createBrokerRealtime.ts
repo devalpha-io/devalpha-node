@@ -1,3 +1,9 @@
+import * as Redux from 'redux'
+import {
+  StreamAction,
+  RootState,
+  Order
+} from '../typings'
 import {
   ORDER_REQUESTED,
   ORDER_CREATED,
@@ -19,14 +25,14 @@ import {
  * requests to an _actual_ broker.
  * @return {function} Middleware
  */
-export default function createBrokerRealtime(createClient) {
-  return (store) => {
+export default function createBrokerRealtime(createClient: Function) {
+  return (store: Redux.Store<RootState>) => {
 
     const client = createClient({
-      onFill: order => store.dispatch({ type: ORDER_FILLED, payload: order })
+      onFill: (order: Order) => store.dispatch({ type: ORDER_FILLED, payload: order })
     })
 
-    return (next) => (action) => {
+    return (next: Function) => (action: StreamAction) => {
       switch (action.type) {
       case ORDER_REQUESTED: {
         const requestedOrder = { ...action.payload }
@@ -46,20 +52,20 @@ export default function createBrokerRealtime(createClient) {
         break
       }
       case ORDER_CREATED: {
-        client.executeOrder({ ...action.payload }).then((res) => {
+        client.executeOrder({ ...action.payload }).then((res: Order) => {
           const executedOrder = res
           store.dispatch({ type: ORDER_PLACED, payload: { ...executedOrder } })
-        }).catch((error) => {
+        }).catch((error: Error) => {
           store.dispatch({ type: ORDER_FAILED, payload: error })
         })
         break
       }
       case ORDER_CANCEL: {
-        client.cancelOrder({ ...action.payload }).then((res) => {
+        client.cancelOrder({ ...action.payload }).then((res: string) => {
           const id = res
-          const cancelledOrder = store.getState().getIn(['orders', id])
+          const cancelledOrder = store.getState().orders[id]
           store.dispatch({ type: ORDER_CANCELLED, payload: { ...cancelledOrder } })
-        }).catch((error) => {
+        }).catch((error: Error) => {
           store.dispatch({ type: ORDER_FAILED, payload: error })
         })
         break

@@ -1,14 +1,6 @@
 "use strict";
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var constants_1 = require("../constants");
+const constants_1 = require("../constants");
 /**
  * Creates a broker middleware to be used running backtests.
  * In contrast to the backtest broker middleware, this middleware builds an order, then dispatches
@@ -21,14 +13,14 @@ var constants_1 = require("../constants");
  * @return {function} Middleware
  */
 function createBrokerRealtime(createClient) {
-    return function (store) {
-        var client = createClient({
-            onFill: function (order) { return store.dispatch({ type: constants_1.ORDER_FILLED, payload: order }); }
+    return (store) => {
+        const client = createClient({
+            onFill: (order) => store.dispatch({ type: constants_1.ORDER_FILLED, payload: order })
         });
-        return function (next) { return function (action) {
+        return (next) => (action) => {
             switch (action.type) {
                 case constants_1.ORDER_REQUESTED: {
-                    var requestedOrder = __assign({}, action.payload);
+                    const requestedOrder = Object.assign({}, action.payload);
                     if (typeof requestedOrder.price === 'undefined') {
                         store.dispatch({ type: constants_1.ORDER_FAILED, payload: new Error('missing order price') });
                         break;
@@ -42,20 +34,20 @@ function createBrokerRealtime(createClient) {
                     break;
                 }
                 case constants_1.ORDER_CREATED: {
-                    client.executeOrder(__assign({}, action.payload)).then(function (res) {
-                        var executedOrder = res;
-                        store.dispatch({ type: constants_1.ORDER_PLACED, payload: __assign({}, executedOrder) });
-                    }).catch(function (error) {
+                    client.executeOrder(Object.assign({}, action.payload)).then((res) => {
+                        const executedOrder = res;
+                        store.dispatch({ type: constants_1.ORDER_PLACED, payload: Object.assign({}, executedOrder) });
+                    }).catch((error) => {
                         store.dispatch({ type: constants_1.ORDER_FAILED, payload: error });
                     });
                     break;
                 }
                 case constants_1.ORDER_CANCEL: {
-                    client.cancelOrder(__assign({}, action.payload)).then(function (res) {
-                        var id = res;
-                        var cancelledOrder = store.getState().getIn(['orders', id]);
-                        store.dispatch({ type: constants_1.ORDER_CANCELLED, payload: __assign({}, cancelledOrder) });
-                    }).catch(function (error) {
+                    client.cancelOrder(Object.assign({}, action.payload)).then((res) => {
+                        const id = res;
+                        const cancelledOrder = store.getState().orders[id];
+                        store.dispatch({ type: constants_1.ORDER_CANCELLED, payload: Object.assign({}, cancelledOrder) });
+                    }).catch((error) => {
                         store.dispatch({ type: constants_1.ORDER_FAILED, payload: error });
                     });
                     break;
@@ -64,7 +56,7 @@ function createBrokerRealtime(createClient) {
                     break;
             }
             next(action);
-        }; };
+        };
     };
 }
 exports.default = createBrokerRealtime;

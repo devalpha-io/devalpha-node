@@ -1,3 +1,9 @@
-import { Map } from 'immutable';
-declare const _default: (state: Map<string, number> | undefined, action: any) => Map<string, number>;
-export default _default;
+import Decimal from 'decimal.js';
+import { StreamAction } from '../typings';
+export declare type CapitalState = {
+    cash: Decimal;
+    commission: Decimal;
+    reservedCash: Decimal;
+    total: Decimal;
+};
+export declare function capitalReducer(state: CapitalState, action: StreamAction): CapitalState;

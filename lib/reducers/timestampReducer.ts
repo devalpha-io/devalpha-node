@@ -1,11 +1,16 @@
-import moment from 'moment'
+import Decimal from 'decimal.js'
+import {
+  isValid,
+  getTime
+} from 'date-fns'
+import {
+  StreamAction
+} from '../typings'
 
-export default (state = 0, action) => {
-  if (action.payload && typeof action.payload.timestamp !== 'undefined') {
-    const timestamp = moment.unix(action.payload.timestamp)
-    if (timestamp.isValid()) {
-      return parseInt(timestamp.format('X'), 10)
-    }
-  }
-  return state
+export type TimestampState = Decimal
+
+const initialState = new Decimal(0)
+
+export function timestampReducer (state: TimestampState = initialState, action: StreamAction) {
+  return new Decimal(action.payload.timestamp)
 }

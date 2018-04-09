@@ -5,14 +5,13 @@
   "main": "dist/vester.js",
   "license": "MIT",
   "dependencies": {
-    "cross-fetch": "^1.1.1",
-    "fastpriorityqueue": "^0.3.1",
+    "date-fns": "^1.29.0",
+    "decimal.js": "^10.0.0",
+    "fastpriorityqueue.ts": "^0.1.2",
     "highland": "^3.0.0-beta.6",
-    "immutable": "^3.8.1",
+    "lodash": "^4.17.5",
     "mathjs": "^3.17.0",
-    "moment": "^2.19.3",
     "redux": "^3.7.2",
-    "redux-immutable": "^4.0.0",
     "socket.io": "^2.1.0"
   },
   "devDependencies": {
@@ -23,8 +22,8 @@
     "@babel/preset-env": "^7.0.0-beta.44",
     "@babel/register": "^7.0.0-beta.44",
     "@types/highland": "^2.10.8",
+    "@types/mathjs": "0.0.39",
     "@types/node": "^9.6.2",
-    "@types/redux-immutable": "^3.0.38",
     "@types/socket.io": "^1.4.33",
     "ava": "^1.0.0-beta.3",
     "documentation": "^5.3.3",
@@ -39,7 +38,7 @@
   },
   "scripts": {
     "build": "NODE_ENV=production tsc",
-    "dev": "NODE_ENV=development WEBPACK_ENV=development webpack --progress --colors --watch",
+    "dev": "NODE_ENV=development tsc --watch",
     "docs:api": "documentation lint lib && node scripts/generateApi.js",
     "docs:build": "cd docs && $(npm bin)/hexo generate",
     "docs:watch": "cd docs && $(npm bin)/hexo server",

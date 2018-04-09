@@ -3,9 +3,9 @@
       "outDir": "dist",
       "module": "commonjs",
       "moduleResolution": "node",
-      "target": "es5",
+      "target": "es6",
       "jsx": "preserve",
-      "declaration": false,
+      "declaration": true,
       "lib": [
         "es2017",
         "dom"
@@ -15,12 +15,11 @@
       "noUnusedParameters": false,
       "noImplicitReturns": false,
       "noFallthroughCasesInSwitch": false,
-      "noImplicitAny": false,
-      "allowJs": true
+      "noImplicitAny": true,
+      "allowJs": false
     },
     "include": [
-      "lib/**/*",
-      "index.d.ts"
+      "lib/**/*"
     ],
     "exclude": [
       "node_modules",

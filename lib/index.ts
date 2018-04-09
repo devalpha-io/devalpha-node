@@ -1,6 +1,11 @@
+import {
+  VesterOptions,
+  StreamAction,
+  Strategy
+} from './typings'
+
 import * as _ from 'highland'
-import { createStore } from 'redux'
-import { combineReducers } from 'redux-immutable'
+import { createStore, combineReducers } from 'redux'
 import * as http from 'http'
 import * as socket from 'socket.io'
 
@@ -11,10 +16,10 @@ import createGuard from './middleware/createGuard'
 import createStrategy from './middleware/createStrategy'
 
 // Reducers
-import capitalReducer from './reducers/capitalReducer'
-import positionsReducer from './reducers/positionsReducer'
-import ordersReducer from './reducers/ordersReducer'
-import timestampReducer from './reducers/timestampReducer'
+import { capitalReducer } from './reducers/capitalReducer'
+import { positionsReducer } from './reducers/positionsReducer'
+import { ordersReducer } from './reducers/ordersReducer'
+import { timestampReducer } from './reducers/timestampReducer'
 
 // Other
 import { createMergedStream, createSortedStream } from './util/streams'
@@ -37,7 +42,6 @@ export * from './constants'
  * @param {Object} config The Vester configuration.
  * @param {boolean} config.backtesting
  * @param {number} config.capital
- * @param {string} config.slackUrl
  * @param {Object} config.initialStates
  * @param {Object} feeds
  * @param {Object} config.backtest
@@ -66,11 +70,11 @@ export * from './constants'
  *   backtesting: false
  * })
  */
-export function vester(config = {}, strategy) {
+export function vester(config: VesterOptions = {}, strategy: Strategy) {
   config = {
     backtesting: true,
+    client: null,
     startCapital: 0,
-    slackUrl: '',
     ...config,
     initialStates: {
       ...config.initialStates
@@ -116,7 +120,7 @@ export function vester(config = {}, strategy) {
   const guardMiddleware = createGuard(config.guard)
 
   let brokerMiddleware
-  if (config.backtesting !== false || typeof config.client === 'undefined') {
+  if (config.backtesting !== false || !config.client) {
     brokerMiddleware = createBrokerBacktest(config.backtest.commission)
   } else {
     brokerMiddleware = createBrokerRealtime(config.client)
@@ -131,29 +135,28 @@ export function vester(config = {}, strategy) {
 
   const middlewares = [guardMiddleware, brokerMiddleware, strategyMiddleware]
 
-  let stream
-  if (config.backtesting === false) {
-    stream = createMergedStream(config.feeds)
-    stream.write({
-      type: INITIALIZED,
-      payload: {
-        timestamp: Date.now(),
-        initialStates: config.initialStates,
-        startCapital: config.startCapital
-      }
-    })
-  } else {
-    stream = createSortedStream(config.feeds)
-    stream.write({
-      type: INITIALIZED,
-      payload: {
-        timestamp: config.backtest.timestamp,
-        initialStates: config.initialStates,
-        startCapital: config.startCapital
-      }
-    })
+  let stream: Highland.Stream<StreamAction>
+  let startedAt: number
+  let finishedAt: number
 
+  if (config.backtesting === false) {
+    startedAt = Date.now()
+    finishedAt = Date.now()
+    stream = createMergedStream(config.feeds)
+  } else {
+    startedAt = config.backtest.timestamp
+    finishedAt = config.backtest.timestamp
+    stream = createSortedStream(config.feeds)
   }
+
+  stream.write({
+    type: INITIALIZED,
+    payload: {
+      timestamp: startedAt,
+      initialStates: config.initialStates,
+      startCapital: config.startCapital
+    }
+  })
 
   const store = createStore(reducer, applyMiddlewareSeq(stream, middlewares))
 
@@ -161,16 +164,18 @@ export function vester(config = {}, strategy) {
     if (err) {
       push(err, null)
       next()
-    } else if (item === _.nil) {
+    } else if (<Highland.Nil>item) {
       if (config.backtesting !== false) {
         try {
           const finished = {
             type: FINISHED,
-            payload: {}
+            payload: {
+              timestamp: finishedAt
+            }
           }
           store.dispatch(finished)
           push(null, {
-            state: store.getState().toJS(),
+            state: store.getState(),
             action: finished
           })
         } catch (e) {
@@ -178,14 +183,15 @@ export function vester(config = {}, strategy) {
         }
       }
       push(null, _.nil)
-    } else if (typeof item.payload.timestamp === 'undefined') {
-      push(new Error(`Skipped event from feed "${item.type}" due to missing timestamp property.`), null)
+    } else if (typeof (<StreamAction>item).payload.timestamp === 'undefined') {
+      push(new Error(`Skipped event from feed "${(<StreamAction>item).type}" due to missing timestamp property.`), null)
       next()
     } else {
+      finishedAt = (<StreamAction>item).payload.timestamp
       try {
-        store.dispatch(item)
+        store.dispatch(<StreamAction>item)
         push(null, {
-          state: store.getState().toJS(),
+          state: store.getState(),
           action: item
         })
       } catch (e) {
@@ -208,19 +214,17 @@ export function vester(config = {}, strategy) {
     consumed = consumed.fork()
 
     io.on(SOCKETIO_CONNECTION, (client) => {
-      let tick
-      let tock
 
       client.on(SOCKETIO_BACKTESTER_RUN, () => {
-        tick = Date.now()
+        startedAt = Date.now()
         socketStream
           .batchWithTimeOrCount(500, 1000)
           .each((events) => {
             io.emit(SOCKETIO_BACKTESTER_EVENTS, { events })
           })
           .done(() => {
-            tock = Date.now()
-            io.emit(SOCKETIO_BACKTESTER_DONE, { tick, tock })
+            finishedAt = Date.now()
+            io.emit(SOCKETIO_BACKTESTER_DONE, { startedAt, finishedAt })
             client.disconnect(true)
             io.close()
           })

@@ -1,13 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var moment_1 = require("moment");
-exports.default = (function (state, action) {
-    if (state === void 0) { state = 0; }
-    if (action.payload && typeof action.payload.timestamp !== 'undefined') {
-        var timestamp = moment_1.default.unix(action.payload.timestamp);
-        if (timestamp.isValid()) {
-            return parseInt(timestamp.format('X'), 10);
-        }
-    }
-    return state;
-});
+const decimal_js_1 = require("decimal.js");
+const initialState = new decimal_js_1.default(0);
+function timestampReducer(state = initialState, action) {
+    return new decimal_js_1.default(action.payload.timestamp);
+}
+exports.timestampReducer = timestampReducer;

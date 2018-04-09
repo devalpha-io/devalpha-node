@@ -1,51 +1,60 @@
-import _ from 'highland'
-import Heap from 'fastpriorityqueue'
+import {
+  StreamAction,
+  Feeds,
+  FeedItem
+} from '../typings'
 
-function createStreams(feeds) {
-  const streams = {}
+import * as _ from 'highland'
+import { FastPriorityQueue } from 'fastpriorityqueue.ts'
+
+function createStreams<FeedItem>(feeds: Feeds<FeedItem>): Feeds<FeedItem> {
+  const streams: Feeds<FeedItem> = {}
   Object.keys(feeds).forEach(key => {
     const feed = feeds[key]
-    if (!_.isStream(feed)) {
-      streams[key] = _(feed)
+    if (<Highland.Stream<FeedItem>> feed) {
+      streams[key] = <Highland.Stream<FeedItem>> feed
     } else {
-      streams[key] = feed
+      streams[key] = _(feed)
     }
   })
   return streams
 }
 
-export function createMergedStream(feeds) {
-  const streams = createStreams(feeds)
-  return _.merge(Object.keys(streams)
-    .map(key => streams[key].map(item => ({
+export function createMergedStream(feeds: Feeds<FeedItem>): Highland.Stream<StreamAction> {
+  const streams: Feeds<Highland.Stream<FeedItem>> = createStreams(feeds)
+  return _(Object.keys(streams)
+    .map(key => streams[key].map((item: FeedItem) => ({
       type: key,
       payload: item
-    }))))
+    })))).merge()
 }
 
-export function createSortedStream(feeds) {
-  const streams = createStreams(feeds)
+export function createSortedStream(feeds: Feeds<FeedItem>): Highland.Stream<StreamAction> {
+  const streams: Feeds<Highland.Stream<FeedItem>> = createStreams(feeds)
   // eslint-disable-next-line no-unused-vars
-  const heap = new Heap(([k1, v1], [k2, v2]) => {
-    if (typeof v2.timestamp === 'undefined') {
-      if (typeof v1.timestamp === 'undefined') {
+  const heap = new FastPriorityQueue<StreamAction>((t1, t2) => {
+    if (typeof t1 === 'undefined') {
+      if (typeof t2 === 'undefined') {
         return false
       }
       return true
     }
 
-    if (typeof v1.timestamp === 'undefined') {
+    if (typeof t1 === 'undefined') {
       return false
     }
 
-    return v1.timestamp < v2.timestamp
+    return t1 < t2
   })
 
-  Object.keys(streams).forEach((key) => {
-    const stream = streams[key]
-    stream.pull((err, item) => {
-      if (!err && item !== _.nil) {
-        heap.add([key, item])
+  Object.keys(streams).forEach((type) => {
+    const stream = streams[type]
+    stream.pull((err: Error, item: FeedItem | Highland.Nil) => {
+      if (!err && (<FeedItem>item)) {
+        heap.add({
+          type: type,
+          payload: (<FeedItem>item)
+        }, (<FeedItem>item).timestamp)
       }
     })
   })
@@ -54,11 +63,16 @@ export function createSortedStream(feeds) {
     if (this._outgoing.length > 0) {
       next()
     } else if (!heap.isEmpty()) {
-      const [key, item] = heap.poll()
-      push(null, { type: key, payload: item })
-      streams[key].pull((err, nextItem) => {
-        if (!err && nextItem !== _.nil) {
-          heap.add([key, nextItem])
+      const streamItem = heap.poll().object
+
+      push(null, streamItem)
+
+      streams[streamItem.type].pull((err: Error, nextItem: FeedItem | Highland.Nil) => {
+        if (!err && (<FeedItem>nextItem)) {
+          heap.add({
+            type: streamItem.type,
+            payload: (<FeedItem>nextItem)
+          }, (<FeedItem>nextItem).timestamp)
         }
         next()
       })

@@ -1,5 +1,8 @@
-import { Map } from 'immutable'
-import { chain, number as n, bignumber as b, sign, add, multiply, subtract } from 'mathjs'
+import Decimal from 'decimal.js'
+import {
+  Position,
+  StreamAction
+} from '../typings'
 
 import {
   INITIALIZED,
@@ -7,124 +10,115 @@ import {
   BAR_RECEIVED
 } from '../constants'
 
-const initialState = Map({
-  instruments: Map(),
-  total: 0
-})
+export type PositionsState = {
+  instruments: {
+    [key: string]: Position
+  },
+  total: Decimal
+}
 
-export default (state = initialState, action) => {
+const initialState = {
+  instruments: {},
+  total: new Decimal(0)
+}
+
+export function positionsReducer (state: PositionsState = initialState, action: StreamAction) {
   switch (action.type) {
 
   case INITIALIZED: {
     if (action.payload.initialStates.positions) {
       // TODO validate supplied data
       const initial = action.payload.initialStates.positions
-      for (const key of initialState.keys()) {
-        if (typeof initial[key] !== 'undefined') {
-          state = state.mergeIn([key], initial[key])
-        }
-      }
+      state = { ...state, ...initial }
     }
-    return state
+    break
   }
 
   case ORDER_FILLED: {
     const order = action.payload
     const { identifier } = order
-    const direction = sign(order.quantity)
+    const direction = Decimal.sign(order.quantity)
 
     /* this is a new instrument, so add it and exit early */
-    if (!state.hasIn(['instruments', identifier])) {
+    if (!state.instruments[identifier]) {
       /* value = quantity * price */
-      const value = n(multiply(b(order.quantity), b(order.price)))
+      const value = Decimal.mul(order.quantity, order.price)
 
-      state = state.setIn(['instruments', identifier], Map({
+      state.instruments[identifier] = {
         quantity: order.quantity,
         value,
         price: order.price
-      }))
+      }
 
-      return state.set('total', n(add(b(state.get('total')), b(value))))
+      return state.total = Decimal.add(state.total, value)
     }
 
-    let instrument = state.getIn(['instruments', identifier])
+    let instrument = state.instruments[identifier]
 
     /* update average aquired price if buying */
-    if (direction === 1) {
+    if (direction.eq(1)) {
       /* price =
        *   (order.price * order.quantity + (instrument.quantity * instrument.price)) /
        *   (instrument.quantity + order.quantity) */
-      const price = n(chain(b(order.price))
-        .multiply(b(order.quantity))
-        .add(multiply(b(instrument.get('quantity')), b(instrument.get('price'))))
-        .divide(add(b(instrument.get('quantity')), b(order.quantity)))
-        .done())
+      const price = Decimal.mul(order.price, order.quantity)
+        .add(Decimal.mul(instrument.quantity, instrument.price))
+        .div(Decimal.add(instrument.quantity, order.quantity))
 
-      instrument = instrument.set('price', price)
+      instrument.price = price
     }
 
     /* update quantity */
     /* quantity = instrument.quantity + order.quantity */
-    const quantity = n(add(b(instrument.get('quantity')), b(order.quantity)))
+    const quantity = Decimal.add(instrument.quantity, order.quantity)
 
     /* update value */
     /* value = order.price * (instrument.quantity + order.quantity) */
-    const value = n(chain(b(order.price))
-      .multiply(add(b(instrument.get('quantity')), b(order.quantity)))
-      .done())
+    const value = Decimal.mul(order.price, Decimal.add(instrument.quantity, order.quantity))
+      
+    const oldValue = instrument.value
 
-    const oldValue = instrument.get('value')
-
-    instrument = instrument.merge({ quantity, value })
+    instrument = { ...instrument, quantity, value }
 
     /* delete position and exit early if quantity is now 0 */
-    if (instrument.get('quantity') === 0) {
-      state = state.deleteIn(['instruments', identifier])
-      return state.set('total', n(subtract(b(state.get('total')), b(oldValue))))
+    if (instrument.quantity.eq(0)) {
+      delete state.instruments[identifier]
+      state.total = Decimal.sub(state.total, oldValue)
+      break
     }
 
-    state = state.setIn(['instruments', identifier], instrument)
+    state.instruments[identifier] = instrument
 
-    state = state.set('total', n(chain(b(state.get('total')))
-      .add(subtract(
-        b(value),
-        b(oldValue)
-      ))
-      .done()))
-
-    return state
+    state.total = Decimal.add(state.total, Decimal.sub(value, oldValue))
+      
+    break
   }
 
   case BAR_RECEIVED: {
     const bar = action.payload
     const { identifier } = bar
 
-    if (state.hasIn(['instruments', identifier])) {
+    if (state.instruments[identifier]) {
       /* create a zero-value position if non-existent, then do nothing more */
-      const quantity = state.getIn(['instruments', identifier, 'quantity'])
+      const quantity = state.instruments[identifier].quantity
       const marketPrice = bar.close
-      const oldValue = state.getIn(['instruments', identifier, 'value'])
+      const oldValue = state.instruments[identifier].value
 
       /* calculate the new the value of the position */
       /* value = quantity * marketPrice */
-      const value = n(chain(b(quantity)).multiply(b(marketPrice)).done())
-
+      const value = Decimal.mul(quantity, marketPrice)
       /* assign the new position */
-      state = state.setIn(['instruments', identifier, 'value'], value)
+      state.instruments[identifier].value = value
 
-      state = state.set('total', n(chain(b(state.get('total')))
-        .add(subtract(
-          b(value),
-          b(oldValue)
-        ))
-        .done()))
+      state.total = Decimal.add(state.total, Decimal.sub(value, oldValue))
     }
 
-    return state
+    break
   }
 
   default: {
-    return state
+    break
   }
   }
+  
+  return { ...state }
 }

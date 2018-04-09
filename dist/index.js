@@ -1,35 +1,26 @@
 "use strict";
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-var _ = require("highland");
-var redux_1 = require("redux");
-var redux_immutable_1 = require("redux-immutable");
-var http = require("http");
-var socket = require("socket.io");
+const _ = require("highland");
+const redux_1 = require("redux");
+const http = require("http");
+const socket = require("socket.io");
 // Middleware
-var createBrokerRealtime_1 = require("./middleware/createBrokerRealtime");
-var createBrokerBacktest_1 = require("./middleware/createBrokerBacktest");
-var createGuard_1 = require("./middleware/createGuard");
-var createStrategy_1 = require("./middleware/createStrategy");
+const createBrokerRealtime_1 = require("./middleware/createBrokerRealtime");
+const createBrokerBacktest_1 = require("./middleware/createBrokerBacktest");
+const createGuard_1 = require("./middleware/createGuard");
+const createStrategy_1 = require("./middleware/createStrategy");
 // Reducers
-var capitalReducer_1 = require("./reducers/capitalReducer");
-var positionsReducer_1 = require("./reducers/positionsReducer");
-var ordersReducer_1 = require("./reducers/ordersReducer");
-var timestampReducer_1 = require("./reducers/timestampReducer");
+const capitalReducer_1 = require("./reducers/capitalReducer");
+const positionsReducer_1 = require("./reducers/positionsReducer");
+const ordersReducer_1 = require("./reducers/ordersReducer");
+const timestampReducer_1 = require("./reducers/timestampReducer");
 // Other
-var streams_1 = require("./util/streams");
-var applyMiddlewareSeq_1 = require("./applyMiddlewareSeq");
-var constants_1 = require("./constants");
+const streams_1 = require("./util/streams");
+const applyMiddlewareSeq_1 = require("./applyMiddlewareSeq");
+const constants_1 = require("./constants");
 __export(require("./constants"));
 /**
  * The entry point to the whole system.
@@ -37,7 +28,6 @@ __export(require("./constants"));
  * @param {Object} config The Vester configuration.
  * @param {boolean} config.backtesting
  * @param {number} config.capital
- * @param {string} config.slackUrl
  * @param {Object} config.initialStates
  * @param {Object} feeds
  * @param {Object} config.backtest
@@ -66,9 +56,8 @@ __export(require("./constants"));
  *   backtesting: false
  * })
  */
-function vester(config, strategy) {
-    if (config === void 0) { config = {}; }
-    config = __assign({ backtesting: true, startCapital: 0, slackUrl: '' }, config, { initialStates: __assign({}, config.initialStates), feeds: __assign({}, config.feeds), backtest: __assign({ timestamp: 0, commission: 0 }, config.backtest), guard: __assign({ shorting: false, margin: false, restricted: [] }, config.guard), dashboard: __assign({ active: false, port: 4449 }, config.dashboard) });
+function vester(config = {}, strategy) {
+    config = Object.assign({ backtesting: true, client: null, startCapital: 0 }, config, { initialStates: Object.assign({}, config.initialStates), feeds: Object.assign({}, config.feeds), backtest: Object.assign({ timestamp: 0, commission: 0 }, config.backtest), guard: Object.assign({ shorting: false, margin: false, restricted: [] }, config.guard), dashboard: Object.assign({ active: false, port: 4449 }, config.dashboard) });
     if (typeof strategy !== 'function') {
         throw new Error('Expected strategy to be a function.');
     }
@@ -83,61 +72,61 @@ function vester(config, strategy) {
      * @param {function} context.order Place an order.
      * @param {function} context.cancel Cancel an order.
      */
-    var strategyMiddleware = createStrategy_1.default(strategy);
-    var guardMiddleware = createGuard_1.default(config.guard);
-    var brokerMiddleware;
-    if (config.backtesting !== false || typeof config.client === 'undefined') {
+    const strategyMiddleware = createStrategy_1.default(strategy);
+    const guardMiddleware = createGuard_1.default(config.guard);
+    let brokerMiddleware;
+    if (config.backtesting !== false || !config.client) {
         brokerMiddleware = createBrokerBacktest_1.default(config.backtest.commission);
     }
     else {
         brokerMiddleware = createBrokerRealtime_1.default(config.client);
     }
-    var reducer = redux_immutable_1.combineReducers({
-        capital: capitalReducer_1.default,
-        positions: positionsReducer_1.default,
-        orders: ordersReducer_1.default,
-        timestamp: timestampReducer_1.default
+    const reducer = redux_1.combineReducers({
+        capital: capitalReducer_1.capitalReducer,
+        positions: positionsReducer_1.positionsReducer,
+        orders: ordersReducer_1.ordersReducer,
+        timestamp: timestampReducer_1.timestampReducer
     });
-    var middlewares = [guardMiddleware, brokerMiddleware, strategyMiddleware];
-    var stream;
+    const middlewares = [guardMiddleware, brokerMiddleware, strategyMiddleware];
+    let stream;
+    let startedAt;
+    let finishedAt;
     if (config.backtesting === false) {
+        startedAt = Date.now();
+        finishedAt = Date.now();
         stream = streams_1.createMergedStream(config.feeds);
-        stream.write({
-            type: constants_1.INITIALIZED,
-            payload: {
-                timestamp: Date.now(),
-                initialStates: config.initialStates,
-                startCapital: config.startCapital
-            }
-        });
     }
     else {
+        startedAt = config.backtest.timestamp;
+        finishedAt = config.backtest.timestamp;
         stream = streams_1.createSortedStream(config.feeds);
-        stream.write({
-            type: constants_1.INITIALIZED,
-            payload: {
-                timestamp: config.backtest.timestamp,
-                initialStates: config.initialStates,
-                startCapital: config.startCapital
-            }
-        });
     }
-    var store = redux_1.createStore(reducer, applyMiddlewareSeq_1.default(stream, middlewares));
-    var consumed = stream.consume(function (err, item, push, next) {
+    stream.write({
+        type: constants_1.INITIALIZED,
+        payload: {
+            timestamp: startedAt,
+            initialStates: config.initialStates,
+            startCapital: config.startCapital
+        }
+    });
+    const store = redux_1.createStore(reducer, applyMiddlewareSeq_1.default(stream, middlewares));
+    let consumed = stream.consume((err, item, push, next) => {
         if (err) {
             push(err, null);
             next();
         }
-        else if (item === _.nil) {
+        else if (item) {
             if (config.backtesting !== false) {
                 try {
-                    var finished = {
+                    const finished = {
                         type: constants_1.FINISHED,
-                        payload: {}
+                        payload: {
+                            timestamp: finishedAt
+                        }
                     };
                     store.dispatch(finished);
                     push(null, {
-                        state: store.getState().toJS(),
+                        state: store.getState(),
                         action: finished
                     });
                 }
@@ -148,14 +137,15 @@ function vester(config, strategy) {
             push(null, _.nil);
         }
         else if (typeof item.payload.timestamp === 'undefined') {
-            push(new Error("Skipped event from feed \"" + item.type + "\" due to missing timestamp property."), null);
+            push(new Error(`Skipped event from feed "${item.type}" due to missing timestamp property.`), null);
             next();
         }
         else {
+            finishedAt = item.payload.timestamp;
             try {
                 store.dispatch(item);
                 push(null, {
-                    state: store.getState().toJS(),
+                    state: store.getState(),
                     action: item
                 });
             }
@@ -166,29 +156,27 @@ function vester(config, strategy) {
         }
     });
     if (config.dashboard.active) {
-        var app = http.createServer(function (req, res) {
+        const app = http.createServer((req, res) => {
             res.writeHead(200);
             res.end();
         });
-        var io_1 = socket(app);
+        const io = socket(app);
         app.listen(config.dashboard.port);
-        var socketStream_1 = consumed.fork();
+        const socketStream = consumed.fork();
         consumed = consumed.fork();
-        io_1.on(constants_1.SOCKETIO_CONNECTION, function (client) {
-            var tick;
-            var tock;
-            client.on(constants_1.SOCKETIO_BACKTESTER_RUN, function () {
-                tick = Date.now();
-                socketStream_1
+        io.on(constants_1.SOCKETIO_CONNECTION, (client) => {
+            client.on(constants_1.SOCKETIO_BACKTESTER_RUN, () => {
+                startedAt = Date.now();
+                socketStream
                     .batchWithTimeOrCount(500, 1000)
-                    .each(function (events) {
-                    io_1.emit(constants_1.SOCKETIO_BACKTESTER_EVENTS, { events: events });
+                    .each((events) => {
+                    io.emit(constants_1.SOCKETIO_BACKTESTER_EVENTS, { events });
                 })
-                    .done(function () {
-                    tock = Date.now();
-                    io_1.emit(constants_1.SOCKETIO_BACKTESTER_DONE, { tick: tick, tock: tock });
+                    .done(() => {
+                    finishedAt = Date.now();
+                    io.emit(constants_1.SOCKETIO_BACKTESTER_DONE, { startedAt, finishedAt });
                     client.disconnect(true);
-                    io_1.close();
+                    io.close();
                 });
             });
         });

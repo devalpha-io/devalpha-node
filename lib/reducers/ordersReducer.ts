@@ -1,4 +1,7 @@
-import { Map } from 'immutable'
+import {
+  ExecutedOrder,
+  StreamAction
+} from '../typings'
 
 import {
   ORDER_PLACED,
@@ -7,37 +10,47 @@ import {
   INITIALIZED
 } from '../constants'
 
-const initialState = Map()
+export type OrdersState = {
+  [key: string]: ExecutedOrder
+}
 
-export default (state = initialState, action) => {
+const initialState = {}
+
+export function ordersReducer (state: OrdersState = initialState, action: StreamAction) {
   switch (action.type) {
 
   case INITIALIZED: {
     // TODO validate supplied data
     if (action.payload.initialStates.orders) {
-      state = state.merge(initialState, action.payload.initialStates.orders)
+      const initial = action.payload.initialStates.orders
+      state = { ...state, ...initial }
     }
-    return state
+    break
   }
 
   case ORDER_PLACED: {
-    const order = action.payload
-    return state.set(order.id, order)
+    const order: ExecutedOrder = <ExecutedOrder> action.payload
+    state[order.id] = order
+    break
   }
 
   case ORDER_FILLED: {
-    const order = action.payload
+    const order: ExecutedOrder = <ExecutedOrder> action.payload
     // @todo: Check if partially filled as well
-    return state.delete(order.id)
+    delete state[order.id]
+    break
   }
 
   case ORDER_CANCELLED: {
     const { id } = action.payload
-    return state.delete(id)
+    delete state[id]
+    break
   }
 
   default: {
-    return state
+    break
   }
   }
+
+  return { ...state }
 }

@@ -1,3 +1,5 @@
+import * as Redux from 'redux';
+import { StreamAction, RootState } from '../typings';
 /**
  * Creates a broker middleware to be used running backtests.
  * In contrast to the backtest broker middleware, this middleware builds an order, then dispatches
@@ -9,4 +11,4 @@
  * requests to an _actual_ broker.
  * @return {function} Middleware
  */
-export default function createBrokerRealtime(createClient: any): (store: any) => (next: any) => (action: any) => void;
+export default function createBrokerRealtime(createClient: Function): (store: Redux.Store<RootState>) => (next: Function) => (action: StreamAction) => void;
