@@ -10,13 +10,12 @@
         "es2017",
         "dom"
       ],
-      "strict": false,
-      "noUnusedLocals": false,
-      "noUnusedParameters": false,
-      "noImplicitReturns": false,
-      "noFallthroughCasesInSwitch": false,
-      "noImplicitAny": true,
-      "allowJs": false
+      "strict": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true,
+      "noImplicitAny": true
     },
     "include": [
       "lib/**/*"

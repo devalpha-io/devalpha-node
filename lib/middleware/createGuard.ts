@@ -18,13 +18,13 @@ import {
  * requested in the first place.
  *
  * @private
- * @param  {Object} settings A settings object.
+ * @param  {Object} options A options object.
  * @return {function} Middleware
  */
-export default function createGuard(settings: GuardOptions) {
+export default function createGuard(options: GuardOptions) {
   return (store: Redux.Store<RootState>) => {
     const isRestrictedAsset = (order: CreatedOrder) => {
-      if (settings.restricted.indexOf(order.identifier) > -1) {
+      if (options.restricted && options.restricted.indexOf(order.identifier) > -1) {
         return true
       }
       return false
@@ -32,7 +32,7 @@ export default function createGuard(settings: GuardOptions) {
 
     const isDisallowedShort = (order: CreatedOrder) => {
       const { quantity, identifier } = order
-      if ((!settings.shorting) && quantity < 0) {
+      if ((!options.shorting) && quantity < 0) {
 
         const instrument = store.getState().positions.instruments[identifier]
 
@@ -48,7 +48,7 @@ export default function createGuard(settings: GuardOptions) {
     }
 
     const isDisallowedMargin = (order: CreatedOrder) => {
-      if (!settings.margin) {
+      if (!options.margin) {
         const { quantity, price, commission } = order
         const cash = store.getState().capital.cash
         const cost = Decimal.mul(quantity, price).add(commission)

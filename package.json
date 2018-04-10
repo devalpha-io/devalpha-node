@@ -9,8 +9,6 @@
     "decimal.js": "^10.0.0",
     "fastpriorityqueue.ts": "^0.1.2",
     "highland": "^3.0.0-beta.6",
-    "lodash": "^4.17.5",
-    "mathjs": "^3.17.0",
     "redux": "^3.7.2",
     "socket.io": "^2.1.0"
   },
@@ -45,7 +43,7 @@
     "docs:publish": "npm run docs:build && cd docs && $(npm bin)/hexo deploy",
     "start": "npm run build",
     "lint": "eslint lib",
-    "test": "NODE_ENV=test ava tests/**/*.spec.js",
+    "test": "npm run build && NODE_ENV=test ava tests/**/*.spec.js",
     "test-only": "NODE_ENV=test ava",
     "report": "nyc report --reporter=html",
     "coverage": "NODE_ENV=test nyc ava tests/**/*.spec.js"

@@ -23,7 +23,7 @@ let orderIdCounter = 0
  * @param  {number|function} commission Calculate the commission based on price and quantity
  * @return {function} Middleware
  */
-export default function createBrokerBacktest(commission: number | Function = 0) {
+export default function createBrokerBacktest(commission: number | Function) {
   return (store: Redux.Store<RootState>) => {
 
     const calculateCommission = typeof commission === 'function' ? commission : () => commission

@@ -63,7 +63,7 @@ typings/
 coverage
 
 # build files
-build/
+dist/
 
 # documentation
 .docs/

@@ -1,10 +1,8 @@
-import * as Redux from 'redux'
 import {
   StreamAction
 } from './typings'
 
-import * as highland from 'highland'
-import { compose, Reducer, StoreEnhancer } from 'redux'
+import { compose, Reducer } from 'redux'
 
 /**
  * Creates a store enhancer that applies middleware to the dispatch method

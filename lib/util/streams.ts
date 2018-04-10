@@ -59,7 +59,8 @@ export function createSortedStream(feeds: Feeds<FeedItem>): Highland.Stream<Stre
     })
   })
 
-  return _(function (push, next) {
+  return _(function(push, next) {
+    // @ts-ignore TS2683 This implicitly any
     if (this._outgoing.length > 0) {
       next()
     } else if (!heap.isEmpty()) {

@@ -1,24 +1,22 @@
 import test from 'ava'
-import { Map, List, is } from 'immutable'
 
-import reducer from '../lib/reducers/capitalReducer'
+import { capitalReducer as reducer } from '../dist/reducers/capitalReducer'
 import {
   INITIALIZED,
   ORDER_PLACED,
   ORDER_FILLED,
-  ORDER_CANCELLED,
-  BAR_RECEIVED
-} from '../lib/constants'
+  ORDER_CANCELLED
+} from '../dist/constants'
 
 test('return the initial state', (t) => {
   const actual = reducer(undefined, {})
-  const expect = Map({
+  const expect = {
     cash: 0,
     commission: 0,
     reservedCash: 0,
     total: 0
-  })
-  t.deepEqual(actual.toJS(), expect.toJS())
+  }
+  t.deepEqual(actual, expect)
 })
 
 test(`set initial values on ${INITIALIZED}`, (t) => {
@@ -38,14 +36,14 @@ test(`set initial values on ${INITIALIZED}`, (t) => {
   }
 
   const actual = reducer(undefined, action)
-  const expect = Map({
+  const expect = {
     cash: 100,
     reservedCash: 101,
     commission: 102,
     total: 103
-  })
+  }
 
-  t.true(is(actual, expect))
+  t.deepEqial(actual, expect)
 })
 
 test(`set start capital on ${INITIALIZED}`, (t) => {
@@ -64,14 +62,14 @@ test(`set start capital on ${INITIALIZED}`, (t) => {
   }
 
   const actual = reducer(undefined, action)
-  const expect = Map({
+  const expect = {
     cash: 100,
     reservedCash: 101,
     commission: 102,
     total: 100
-  })
+  }
 
-  t.true(is(actual, expect))
+  t.deepEqual(actual, expect)
 })
 
 test(`${ORDER_PLACED} of a sell-side order correctly edits reservedCash`, (t) => {
@@ -85,14 +83,14 @@ test(`${ORDER_PLACED} of a sell-side order correctly edits reservedCash`, (t) =>
   const action = { type: ORDER_PLACED, payload: order }
 
   const actual = reducer(undefined, action)
-  const expect = Map({
+  const expect = {
     reservedCash: 5.5,
     cash: -5.5,
     commission: 0,
     total: 0
-  })
+  }
 
-  t.true(is(actual, expect))
+  t.deepEqual(actual, expect)
 })
 
 test(`${ORDER_PLACED} of a buy-side order correctly edits cash, commission and reservedCash`, (t) => {
@@ -106,14 +104,14 @@ test(`${ORDER_PLACED} of a buy-side order correctly edits cash, commission and r
   const action = { type: ORDER_PLACED, payload: order }
 
   const actual = reducer(undefined, action)
-  const expect = reducer(undefined, {}).merge(Map({
+  const expect = Object.assign(reducer(undefined, {}), {
     reservedCash: 10010,
     cash: -10010,
     commission: 0,
     total: 0
-  }))
+  })
 
-  t.true(is(actual, expect))
+  t.deepEqual(actual, expect)
 })
 
 test(`${ORDER_CANCELLED} of a sell-side order does not modify anything`, (t) => {
@@ -129,7 +127,7 @@ test(`${ORDER_CANCELLED} of a sell-side order does not modify anything`, (t) => 
   const actual = reducer(undefined, action)
   const expect = reducer(undefined, {})
 
-  t.true(is(actual, expect))
+  t.deepEqual(actual, expect)
 })
 
 test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reservedCash, also doesn't change commission or total`, (t) => {
@@ -141,20 +139,20 @@ test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reserved
     commission: 10
   }
   const action = { type: ORDER_CANCELLED, payload: order }
-  const initialState = Map({
+  const initialState = {
     cash: 0,
     reservedCash: 10010,
     commission: 0,
     total: 0
-  })
+  }
 
   const actual = reducer(initialState, action)
-  const expect = reducer(initialState, {}).merge(Map({
+  const expect = Object.assign(reducer(initialState, {}), {
     cash: 10010,
     reservedCash: 0
-  }))
+  })
 
-  t.true(is(actual, expect))
+  t.deepEqual(actual, expect)
 })
 
 test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decrease reservedCash`, (t) => {
@@ -170,22 +168,22 @@ test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decre
     timestamp: 100
   }
   const action = { type: ORDER_FILLED, payload: order }
-  const initialState = Map({
+  const initialState = {
     cash: -10,
     reservedCash: 10,
     commission: 0,
     total: 0
-  })
+  }
 
   const actual = reducer(initialState, action)
-  const expect = Map({
+  const expect = {
     cash: 9990,
     reservedCash: 0,
     commission: 10,
     total: 9990
-  })
+  }
 
-  t.true(is(actual, expect))
+  t.deepEqual(actual, expect)
 })
 
 test(`${ORDER_FILLED}, buy-side, should increase commission and decrease reservedCash`, (t) => {
@@ -201,22 +199,22 @@ test(`${ORDER_FILLED}, buy-side, should increase commission and decrease reserve
     timestamp: 100
   }
   const action = { type: ORDER_FILLED, payload: order }
-  const initialState = Map({
+  const initialState = {
     cash: 0,
     reservedCash: 10010,
     commission: 0,
     total: 10010
-  })
+  }
 
   const actual = reducer(initialState, action)
-  const expect = Map({
+  const expect = {
     cash: 0,
     reservedCash: 0,
     commission: 10,
     total: 0
-  })
+  }
 
-  t.true(is(actual, expect))
+  t.deepEqual(actual, expect)
 })
 
 test(`${ORDER_FILLED}, buy-side, partial fill, should increase commission and decrease reservedCash`, (t) => {
@@ -232,22 +230,22 @@ test(`${ORDER_FILLED}, buy-side, partial fill, should increase commission and de
     timestamp: 100
   }
   const action = { type: ORDER_FILLED, payload: order }
-  const initialState = Map({
+  const initialState = {
     cash: 0,
     reservedCash: 10010,
     commission: 0,
     total: 10010
-  })
+  }
 
   const actual = reducer(initialState, action)
-  const expect = Map({
+  const expect = {
     cash: 0,
     reservedCash: 5005,
     commission: 5,
     total: 5005
-  })
+  }
 
-  t.true(is(actual, expect))
+  t.deepEqual(actual, expect)
 })
 
 test(`${ORDER_FILLED}, sell-side, partial fill, increase cash and commission, and decrease reservedCash`, (t) => {
@@ -263,22 +261,22 @@ test(`${ORDER_FILLED}, sell-side, partial fill, increase cash and commission, an
     timestamp: 100
   }
   const action = { type: ORDER_FILLED, payload: order }
-  const initialState = Map({
+  const initialState = {
     cash: -10,
     reservedCash: 10,
     commission: 0,
     total: 0
-  })
+  }
 
   const actual = reducer(initialState, action)
-  const expect = Map({
+  const expect = {
     cash: 4990,
     reservedCash: 5,
     commission: 5,
     total: 4995
-  })
+  }
 
-  t.true(is(actual, expect))
+  t.deepEqual(actual, expect)
 })
 
 test(`${ORDER_FILLED}, buy-side, better price, should increase commission and decrease reservedCash`, (t) => {
@@ -294,22 +292,22 @@ test(`${ORDER_FILLED}, buy-side, better price, should increase commission and de
     timestamp: 100
   }
   const action = { type: ORDER_FILLED, payload: order }
-  const initialState = Map({
+  const initialState = {
     cash: 0,
     reservedCash: 10010,
     commission: 0,
     total: 10010
-  })
+  }
 
   const actual = reducer(initialState, action)
-  const expect = Map({
+  const expect = {
     cash: 0,
     reservedCash: 0,
     commission: 9,
     total: 0
-  })
+  }
 
-  t.true(is(actual, expect))
+  t.deepEqual(actual, expect)
 })
 
 test(`${ORDER_FILLED}, sell-side, better price, increase cash and commission, and decrease reservedCash`, (t) => {
@@ -325,20 +323,20 @@ test(`${ORDER_FILLED}, sell-side, better price, increase cash and commission, an
     timestamp: 100
   }
   const action = { type: ORDER_FILLED, payload: order }
-  const initialState = Map({
+  const initialState = {
     cash: -10,
     reservedCash: 10,
     commission: 0,
     total: 0
-  })
+  }
 
   const actual = reducer(initialState, action)
-  const expect = Map({
+  const expect = {
     cash: 10979,
     reservedCash: 0,
     commission: 11,
     total: 10979
-  })
+  }
 
-  t.true(is(actual, expect))
+  t.deepEqual(actual, expect)
 })

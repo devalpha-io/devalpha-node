@@ -17,7 +17,7 @@ export type CapitalState = {
   total: Decimal
 }
 
-const initialState = {
+const initialState: CapitalState = {
   cash: new Decimal(0),
   commission: new Decimal(0),
   reservedCash: new Decimal(0),

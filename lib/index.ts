@@ -1,5 +1,4 @@
 import {
-  VesterOptions,
   StreamAction,
   Strategy
 } from './typings'
@@ -29,30 +28,15 @@ import {
   INITIALIZED,
   FINISHED,
   SOCKETIO_CONNECTION,
-  SOCKETIO_BACKTESTER_RUN,
-  SOCKETIO_BACKTESTER_EVENTS,
-  SOCKETIO_BACKTESTER_DONE
+  DASHBOARD_INITIALIZE,
+  DASHBOARD_EVENTS,
+  DASHBOARD_FINISHED
 } from './constants'
 
 export * from './constants'
 
 /**
  * The entry point to the whole system.
- *
- * @param {Object} config The Vester configuration.
- * @param {boolean} config.backtesting
- * @param {number} config.capital
- * @param {Object} config.initialStates
- * @param {Object} feeds
- * @param {Object} config.backtest
- * @param {string} config.backtest.timestamp
- * @param {function|number} config.commission
- * @param {Object} config.guard
- * @param {boolean} config.guard.shorting
- * @param {boolean} config.guard.margin
- * @param {Array} config.guard.restricted
- * @param {function} strategy
- * @return {Stream}
  *
  * @example
  * import vester from 'vester'
@@ -70,7 +54,7 @@ export * from './constants'
  *   backtesting: false
  * })
  */
-export function vester(config: VesterOptions = {}, strategy: Strategy) {
+export function vester(config: any, strategy: Strategy) {
   config = {
     backtesting: true,
     client: null,
@@ -131,7 +115,7 @@ export function vester(config: VesterOptions = {}, strategy: Strategy) {
     positions: positionsReducer,
     orders: ordersReducer,
     timestamp: timestampReducer
-  })
+  } as any)
 
   const middlewares = [guardMiddleware, brokerMiddleware, strategyMiddleware]
 
@@ -162,7 +146,7 @@ export function vester(config: VesterOptions = {}, strategy: Strategy) {
 
   let consumed = stream.consume((err, item, push, next) => {
     if (err) {
-      push(err, null)
+      push(err)
       next()
     } else if (<Highland.Nil>item) {
       if (config.backtesting !== false) {
@@ -179,12 +163,12 @@ export function vester(config: VesterOptions = {}, strategy: Strategy) {
             action: finished
           })
         } catch (e) {
-          push(e, null)
+          push(e)
         }
       }
       push(null, _.nil)
     } else if (typeof (<StreamAction>item).payload.timestamp === 'undefined') {
-      push(new Error(`Skipped event from feed "${(<StreamAction>item).type}" due to missing timestamp property.`), null)
+      push(new Error(`Skipped event from feed "${(<StreamAction>item).type}" due to missing timestamp property.`))
       next()
     } else {
       finishedAt = (<StreamAction>item).payload.timestamp
@@ -195,14 +179,14 @@ export function vester(config: VesterOptions = {}, strategy: Strategy) {
           action: item
         })
       } catch (e) {
-        push(e, null)
+        push(e)
       }
       next()
     }
   })
 
   if (config.dashboard.active) {
-    const app = http.createServer((req, res) => {
+    const app = http.createServer((_, res) => {
       res.writeHead(200)
       res.end()
     })
@@ -214,17 +198,21 @@ export function vester(config: VesterOptions = {}, strategy: Strategy) {
     consumed = consumed.fork()
 
     io.on(SOCKETIO_CONNECTION, (client) => {
-
-      client.on(SOCKETIO_BACKTESTER_RUN, () => {
+      client.on(DASHBOARD_INITIALIZE, () => {
         startedAt = Date.now()
         socketStream
           .batchWithTimeOrCount(500, 1000)
           .each((events) => {
-            io.emit(SOCKETIO_BACKTESTER_EVENTS, { events })
+            io.emit(DASHBOARD_EVENTS, { events })
           })
           .done(() => {
             finishedAt = Date.now()
-            io.emit(SOCKETIO_BACKTESTER_DONE, { startedAt, finishedAt })
+
+            io.emit(DASHBOARD_FINISHED, {
+              startedAt,
+              finishedAt
+            })
+
             client.disconnect(true)
             io.close()
           })

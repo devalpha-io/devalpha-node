@@ -2,8 +2,7 @@ import * as Redux from 'redux'
 import {
   Strategy,
   RootState,
-  StreamAction,
-  Order
+  StreamAction
 } from '../typings'
 
 import {
