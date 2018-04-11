@@ -1,18 +1,17 @@
 import test from 'ava'
 import _ from 'highland'
-import path from 'path'
 import sinon from 'sinon'
 
-import vester from '../lib'
-import createMockClient from './util/createMockClient'
 import {
+  vester,
   ORDER_PLACED,
   ORDER_FILLED,
   ORDER_FAILED,
   ORDER_CANCELLED,
   INITIALIZED,
   FINISHED
-} from '../lib/constants'
+} from '../dist'
+import createMockClient from './util/createMockClient'
 
 test.beforeEach((t) => {
   t.context.error = console.error
@@ -70,8 +69,7 @@ test.serial.cb('backtest event order', t => {
       capital: {
         cash: 9999999
       }
-    },
-    resume: true
+    }
   }, strategy).resume()
 
   setTimeout(() => {

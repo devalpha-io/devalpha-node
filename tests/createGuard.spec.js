@@ -4,9 +4,9 @@ import sinon from 'sinon'
 import {
   ORDER_CREATED,
   ORDER_REJECTED
-} from '../lib/constants'
+} from '../dist/constants'
 
-import createMiddleware from '../lib/middleware/createGuard'
+import createMiddleware from '../dist/middleware/createGuard'
 
 test.beforeEach((t) => {
   t.context.store = {

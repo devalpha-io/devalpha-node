@@ -1,13 +1,15 @@
-import Decimal from 'decimal.js'
 import {
   StreamAction
 } from '../typings'
 
-export type TimestampState = Decimal
+export type TimestampState = number
 
-const initialState = new Decimal(0)
+const initialState = 0
 
 // @ts-ignore: TS6133 Unused local
 export function timestampReducer (state: TimestampState = initialState, action: StreamAction) {
-  return new Decimal(action.payload.timestamp)
+  if (action.payload && typeof action.payload.timestamp !== 'undefined') {
+    return action.payload.timestamp
+  }
+  return state
 }

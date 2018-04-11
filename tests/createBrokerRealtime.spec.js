@@ -5,11 +5,11 @@ import {
   ORDER_CREATED,
   ORDER_PLACED,
   ORDER_FAILED
-} from '../lib/constants'
+} from '../dist/constants'
 
 import createMockClient from './util/createMockClient'
 
-import createMiddleware from '../lib/middleware/createBrokerRealtime'
+import createMiddleware from '../dist/middleware/createBrokerRealtime'
 
 test.beforeEach((t) => {
   const store = {

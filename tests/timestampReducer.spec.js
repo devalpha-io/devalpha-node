@@ -1,9 +1,17 @@
 import test from 'ava'
+import {
+  INITIALIZED
+} from '../dist'
 
-import reducer from '../lib/reducers/timestampReducer'
+import { timestampReducer as reducer } from '../dist/reducers/timestampReducer'
 
 test('return the initial state', (t) => {
-  const actual = reducer(undefined, {})
+  const actual = reducer(undefined, {
+    type: INITIALIZED,
+    payload: {
+      timestamp: 0
+    }
+  })
   const expect = 0
   t.is(actual, expect)
 })
@@ -16,25 +24,5 @@ test('update timestamp if valid value in payload', t => {
     }
   })
   const expect = 100
-  t.is(actual, expect)
-})
-
-test('do not update timestamp if invalid value in payload', t => {
-  const actual = reducer(50, {
-    type: 'FOO',
-    payload: {
-      timestamp: 'foobar'
-    }
-  })
-  const expect = 50
-  t.is(actual, expect)
-})
-
-test('do not update timestamp if no timestamp in payload', t => {
-  const actual = reducer(50, {
-    type: 'FOO',
-    payload: {}
-  })
-  const expect = 50
   t.is(actual, expect)
 })

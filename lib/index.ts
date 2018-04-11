@@ -148,7 +148,7 @@ export function vester(config: any, strategy: Strategy) {
     if (err) {
       push(err)
       next()
-    } else if (<Highland.Nil>item) {
+    } else if (item === _.nil) {
       if (config.backtesting !== false) {
         try {
           const finished = {

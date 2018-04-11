@@ -1,16 +1,15 @@
 import test from 'ava'
 import sinon from 'sinon'
-import { Map } from 'immutable'
 import {
   ORDER_REQUESTED,
   ORDER_CANCEL
-} from '../lib/constants'
+} from '../dist/constants'
 
-import createMiddleware from '../lib/middleware/createStrategy'
+import createMiddleware from '../dist/middleware/createStrategy'
 
 test.beforeEach((t) => {
   const store = {
-    getState: sinon.spy(() => Map()),
+    getState: sinon.spy(() => {}),
     dispatch: sinon.spy()
   }
   const next = sinon.spy()

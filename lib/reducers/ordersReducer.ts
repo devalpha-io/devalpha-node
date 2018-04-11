@@ -17,39 +17,40 @@ export type OrdersState = {
 const initialState = {}
 
 export function ordersReducer (state: OrdersState = initialState, action: StreamAction) {
+  state = { ...state }
+
   switch (action.type) {
-
-  case INITIALIZED: {
-    // TODO validate supplied data
-    if (action.payload.initialStates.orders) {
-      const initial = action.payload.initialStates.orders
-      state = { ...state, ...initial }
+    case INITIALIZED: {
+      // TODO validate supplied data
+      if (action.payload.initialStates.orders) {
+        const initial = action.payload.initialStates.orders
+        state = { ...state, ...initial }
+      }
+      break
     }
-    break
-  }
 
-  case ORDER_PLACED: {
-    const order: ExecutedOrder = <ExecutedOrder> action.payload
-    state[order.id] = order
-    break
-  }
+    case ORDER_PLACED: {
+      const order: ExecutedOrder = <ExecutedOrder> action.payload
+      state[order.id] = order
+      break
+    }
 
-  case ORDER_FILLED: {
-    const order: ExecutedOrder = <ExecutedOrder> action.payload
-    // @todo: Check if partially filled as well
-    delete state[order.id]
-    break
-  }
+    case ORDER_FILLED: {
+      const order: ExecutedOrder = <ExecutedOrder> action.payload
+      // @todo: Check if partially filled as well
+      delete state[order.id]
+      break
+    }
 
-  case ORDER_CANCELLED: {
-    const { id } = action.payload
-    delete state[id]
-    break
-  }
+    case ORDER_CANCELLED: {
+      const { id } = action.payload
+      delete state[id]
+      break
+    }
 
-  default: {
-    break
-  }
+    default: {
+      break
+    }
   }
 
   return { ...state }

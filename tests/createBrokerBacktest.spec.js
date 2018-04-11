@@ -6,9 +6,9 @@ import {
   ORDER_PLACED,
   ORDER_FILLED,
   ORDER_FAILED
-} from '../lib/constants'
+} from '../dist/constants'
 
-import createMiddleware from '../lib/middleware/createBrokerBacktest'
+import createMiddleware from '../dist/middleware/createBrokerBacktest'
 
 test.beforeEach((t) => {
   const store = {

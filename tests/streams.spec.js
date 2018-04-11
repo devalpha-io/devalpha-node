@@ -1,11 +1,10 @@
 import test from 'ava'
 import _ from 'highland'
-import path from 'path'
 
 import {
   createMergedStream,
   createSortedStream
-} from '../lib/util/streams'
+} from '../dist/util/streams'
 
 test.cb('createMergedStream returns a merged stream of Redux actions', (t) => {
   const streams = {

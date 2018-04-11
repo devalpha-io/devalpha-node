@@ -1,46 +1,48 @@
 import test from 'ava'
-import { Map, List, is, fromJS } from 'immutable'
 
-import reducer from '../lib/reducers/positionsReducer'
+import Decimal from 'decimal.js'
+import { positionsReducer as reducer } from '../dist/reducers/positionsReducer'
 import {
   INITIALIZED,
   ORDER_FILLED,
   BAR_RECEIVED
-} from '../lib/constants'
+} from '../dist/constants'
 
 test('return the initial state', (t) => {
   const actual = reducer(undefined, {})
-  const expect = Map({
-    instruments: Map(),
-    total: 0
-  })
-  t.deepEqual(actual.toJS(), expect.toJS())
+  const expect = {
+    instruments: {},
+    total: new Decimal(0)
+  }
+  t.deepEqual(actual, expect)
 })
 
 test(`set initial values on ${INITIALIZED}`, (t) => {
   const action = {
     type: INITIALIZED,
     payload: {
-      timestamp: 50,
+      timestamp: new Decimal(50),
       initialStates: {
         positions: {
           instruments: { foo: 'bar' },
-          total: 10
+          total: new Decimal(10)
         }
       }
     }
   }
 
   const actual = reducer(undefined, action)
-  const expect = Map({
-    instruments: Map({ foo: 'bar' }),
-    total: 10
-  })
+  const expect = {
+    instruments: {
+      foo: 'bar'
+    },
+    total: new Decimal(10)
+  }
 
-  t.true(is(actual, expect))
+  t.deepEqual(actual, expect)
 })
 
-test(`${ORDER_FILLED}, new position: add position to the state`, (t) => {
+test.only(`${ORDER_FILLED}, new position: add position to the state`, (t) => {
   const order = {
     id: '0',
     identifier: 'MSFT',
@@ -51,18 +53,18 @@ test(`${ORDER_FILLED}, new position: add position to the state`, (t) => {
   const action = { type: ORDER_FILLED, payload: order }
 
   const actual = reducer(undefined, action)
-  const expect = fromJS({
+  const expect = {
     instruments: {
       [order.identifier]: {
-        quantity: 50,
-        value: 5500,
-        price: 110
+        quantity: new Decimal(50),
+        value: new Decimal(5500),
+        price: new Decimal(110)
       }
     },
-    total: 5500
-  })
+    total: new Decimal(5500)
+  }
 
-  t.true(is(actual, expect))
+  t.deepEqual(actual, expect)
 })
 
 test(`${ORDER_FILLED}, sell-side, existing position: only update quantity and value, not price`, (t) => {
@@ -74,30 +76,30 @@ test(`${ORDER_FILLED}, sell-side, existing position: only update quantity and va
     commission: 5.5
   }
   const action = { type: ORDER_FILLED, payload: order }
-  const initialState = Map({
-    instruments: Map({
-      MSFT: Map({
-        quantity: 50,
-        value: 5000,
-        price: 100
-      })
-    }),
-    total: 5000
-  })
-
-  const actual = reducer(initialState, action)
-  const expected = fromJS({
+  const initialState = {
     instruments: {
-      [order.identifier]: {
-        quantity: 25,
-        value: 2750,
-        price: 100
+      MSFT: {
+        quantity: new Decimal(50),
+        value: new Decimal(5000),
+        price: new Decimal(100)
       }
     },
-    total: 2750
-  })
+    total: new Decimal(5000)
+  }
 
-  t.true(is(actual, expected))
+  const actual = reducer(initialState, action)
+  const expect = {
+    instruments: {
+      [order.identifier]: {
+        quantity: new Decimal(25),
+        value: new Decimal(2750),
+        price: new Decimal(100)
+      }
+    },
+    total: new Decimal(2750)
+  }
+
+  t.deepEqual(actual, expect)
 })
 
 test(`${ORDER_FILLED}, buy-side, existing position: correctly update price, quantity and value`, (t) => {
@@ -109,30 +111,30 @@ test(`${ORDER_FILLED}, buy-side, existing position: correctly update price, quan
     commission: 5.5
   }
   const action = { type: ORDER_FILLED, payload: order }
-  const initialState = Map({
-    instruments: Map({
-      MSFT: Map({
-        quantity: 50,
-        value: 5000,
-        price: 100
-      })
-    }),
-    total: 5000
-  })
-
-  const actual = reducer(initialState, action)
-  const expected = fromJS({
+  const initialState = {
     instruments: {
-      [order.identifier]: {
-        quantity: 100,
-        value: 11000,
-        price: 105
+      MSFT: {
+        quantity: new Decimal(50),
+        value: new Decimal(5000),
+        price: new Decimal(100)
       }
     },
-    total: 11000
-  })
+    total: new Decimal(5000)
+  }
 
-  t.true(is(actual, expected))
+  const actual = reducer(initialState, action)
+  const expect = {
+    instruments: {
+      [order.identifier]: {
+        quantity: new Decimal(100),
+        value: new Decimal(11000),
+        price: new Decimal(105)
+      }
+    },
+    total: new Decimal(11000)
+  }
+
+  t.deepEqual(actual, expect)
 })
 
 test(`${ORDER_FILLED}, sell-side, existing position: delete the position if quantity 0`, (t) => {
@@ -144,18 +146,18 @@ test(`${ORDER_FILLED}, sell-side, existing position: delete the position if quan
     commission: 5.5
   }
   const action = { type: ORDER_FILLED, payload: order }
-  const initialState = Map({
-    instruments: Map({
-      MSFT: Map({
-        quantity: 50,
-        value: 5000,
-        price: 100
-      })
-    }),
-    total: 5000
-  })
+  const initialState = {
+    instruments: {
+      MSFT: {
+        quantity: new Decimal(50),
+        value: new Decimal(5000),
+        price: new Decimal(100)
+      }
+    },
+    total: new Decimal(5000)
+  }
 
-  t.false(reducer(initialState, action).hasIn(['instruments', order.identifier]))
+  t.is(reducer(initialState, action).instruments[order.identifier], undefined)
 })
 
 test(`${BAR_RECEIVED}: correctly update price, quantity and value`, (t) => {
@@ -168,30 +170,30 @@ test(`${BAR_RECEIVED}: correctly update price, quantity and value`, (t) => {
     close: 100
   }
   const action = { type: BAR_RECEIVED, payload: bar }
-  const initialState = Map({
-    instruments: Map({
-      MSFT: Map({
-        quantity: 50,
-        value: 2500,
-        price: 50
-      })
-    }),
-    total: 2500
-  })
-
-  const actual = reducer(initialState, action)
-  const expected = fromJS({
+  const initialState = {
     instruments: {
-      [bar.identifier]: {
-        quantity: 50,
-        value: 5000,
-        price: 50
+      MSFT: {
+        quantity: new Decimal(50),
+        value: new Decimal(2500),
+        price: new Decimal(50)
       }
     },
-    total: 5000
-  })
+    total: new Decimal(2500)
+  }
 
-  t.true(is(actual, expected))
+  const actual = reducer(initialState, action)
+  const expect = {
+    instruments: {
+      [bar.identifier]: {
+        quantity: new Decimal(50),
+        value: new Decimal(5000),
+        price: new Decimal(50)
+      }
+    },
+    total: new Decimal(5000)
+  }
+
+  t.deepEqual(actual, expect)
 })
 
 test(`${BAR_RECEIVED}: dont break if non-existent position`, (t) => {
@@ -206,10 +208,10 @@ test(`${BAR_RECEIVED}: dont break if non-existent position`, (t) => {
   const action = { type: BAR_RECEIVED, payload: bar }
 
   const actual = reducer(undefined, action)
-  const expected = Map({
-    instruments: Map(),
-    total: 0
-  })
+  const expect = {
+    instruments: {},
+    total: new Decimal(0)
+  }
 
-  t.true(is(actual, expected))
+  t.deepEqual(actual, expect)
 })
