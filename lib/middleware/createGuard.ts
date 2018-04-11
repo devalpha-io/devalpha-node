@@ -40,7 +40,7 @@ export default function createGuard(options: GuardOptions) {
           return true
         }
 
-        if (new Decimal(instrument.quantity).lessThan(Decimal.abs(quantity))) {
+        if (new Decimal(instrument.quantity).lt(Decimal.abs(quantity))) {
           return true
         }
       }
@@ -53,7 +53,7 @@ export default function createGuard(options: GuardOptions) {
         const cash = store.getState().capital.cash
         const cost = Decimal.mul(quantity, price).add(commission)
 
-        if (cash < cost) {
+        if (cash.lessThan(cost)) {
           return true
         }
       }
