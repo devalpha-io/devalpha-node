@@ -2,7 +2,7 @@ import {
   StreamAction,
   Feeds,
   FeedItem
-} from '../typings'
+} from './typings'
 
 import * as _ from 'highland'
 import { FastPriorityQueue } from 'fastpriorityqueue.ts'
@@ -20,7 +20,7 @@ function createStreams<FeedItem>(feeds: Feeds<FeedItem>): Feeds<FeedItem> {
   return streams
 }
 
-export function createMergedStream(feeds: Feeds<FeedItem>): Highland.Stream<StreamAction> {
+export function createRealtimeStream(feeds: Feeds<FeedItem>): Highland.Stream<StreamAction> {
   const streams: Feeds<Highland.Stream<FeedItem>> = createStreams(feeds)
   return _(Object.keys(streams)
     .map(key => streams[key].map((item: FeedItem) => ({
@@ -29,7 +29,7 @@ export function createMergedStream(feeds: Feeds<FeedItem>): Highland.Stream<Stre
     })))).merge()
 }
 
-export function createSortedStream(feeds: Feeds<FeedItem>): Highland.Stream<StreamAction> {
+export function createBacktestStream(feeds: Feeds<FeedItem>): Highland.Stream<StreamAction> {
   const streams: Feeds<Highland.Stream<FeedItem>> = createStreams(feeds)
   // eslint-disable-next-line no-unused-vars
   const heap = new FastPriorityQueue<StreamAction>((t1, t2) => {

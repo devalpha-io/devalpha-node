@@ -1,8 +1,7 @@
-import * as Redux from 'redux'
 import Decimal from 'decimal.js'
 import {
+  Store,
   StreamAction,
-  RootState,
   CreatedOrder,
   GuardOptions,
   ExecutedOrder
@@ -21,8 +20,8 @@ import {
  * @param  {Object} options A options object.
  * @return {function} Middleware
  */
-export default function createGuard(options: GuardOptions) {
-  return (store: Redux.Store<RootState>) => {
+export function createGuard(options: GuardOptions) {
+  return (store: Store) => {
     const isRestrictedAsset = (order: CreatedOrder) => {
       if (options.restricted && options.restricted.indexOf(order.identifier) > -1) {
         return true

@@ -1,7 +1,6 @@
-import * as Redux from 'redux'
 import {
+  Store,
   Strategy,
-  RootState,
   StreamAction
 } from '../typings'
 
@@ -10,10 +9,9 @@ import {
   ORDER_CANCEL
 } from '../constants'
 
-export default function createStrategy(strategy: Strategy) {
-  return (store: Redux.Store<RootState>) => (next: Function) => (action: StreamAction) => {
-    next(action)
-    return strategy({
+export function createStrategy(strategy: Strategy) {
+  return (store: Store) => (next: Function) => (action: StreamAction) => {
+    strategy({
       state: () => store.getState(),
       order: (order: any) => store.dispatch({
         type: ORDER_REQUESTED,
@@ -30,6 +28,7 @@ export default function createStrategy(strategy: Strategy) {
         }
       })
     }, action)
+    return next(action)
   }
 
 }

@@ -70,7 +70,8 @@ test.serial.cb('backtest event order', t => {
         cash: 9999999
       }
     }
-  }, strategy).resume()
+  }, strategy)
+    .resume()
 
   setTimeout(() => {
     const expected = 'abcdedeabcdede'
@@ -363,6 +364,7 @@ test('throws if strategy is not a function', (t) => {
 })
 
 test.serial.cb('stream returns items containing action and state during live trading', (t) => {
+  const events = []
   const strat = vester({
     feeds: {},
     backtesting: false
@@ -373,18 +375,19 @@ test.serial.cb('stream returns items containing action and state during live tra
     t.is(typeof state.orders, 'object')
     t.is(typeof state.positions, 'object')
     t.is(typeof state.timestamp, 'number')
-    t.is(action.type, INITIALIZED)
+    events.push(action.type)
   }).done(() => {
+    t.deepEqual(events, [INITIALIZED, FINISHED])
     t.end()
   })
 })
 
 test.serial.cb('stream returns items containing action and state during backtests', (t) => {
+  const events = []
   const strat = vester({
     feeds: {}
   }, () => {})
 
-  const events = []
   strat.each(({ state, action }) => {
     t.is(typeof state.capital, 'object')
     t.is(typeof state.orders, 'object')
@@ -442,13 +445,12 @@ test.serial.cb('stream consumers recieve all events in the right order', (t) => 
     feeds: {
       events: [{ timestamp: 0 }, { timestamp: 1 }]
     }
-  }, () => {
+  }, (context, action) => {
     events.push('a')
   })
 
-  strat.map((item) => {
+  strat.each(() => {
     events.push('b')
-    return item
   }).done(() => {
     t.deepEqual(events.join(''), 'abababab')
     t.end()

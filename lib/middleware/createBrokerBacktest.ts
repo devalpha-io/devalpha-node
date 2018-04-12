@@ -1,7 +1,6 @@
-import * as Redux from 'redux'
 import {
-  StreamAction,
-  RootState
+  Store,
+  StreamAction
 } from '../typings'
 import {
   ORDER_REQUESTED,
@@ -23,8 +22,8 @@ let orderIdCounter = 0
  * @param  {number|function} commission Calculate the commission based on price and quantity
  * @return {function} Middleware
  */
-export default function createBrokerBacktest(commission: number | Function) {
-  return (store: Redux.Store<RootState>) => {
+export function createBrokerBacktest(commission: number | Function) {
+  return (store: Store) => {
 
     const calculateCommission = typeof commission === 'function' ? commission : () => commission
     return (next: Function) => (action: StreamAction) => {

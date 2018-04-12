@@ -1,7 +1,6 @@
-import * as Redux from 'redux'
 import {
+  Store,
   StreamAction,
-  RootState,
   Order
 } from '../typings'
 import {
@@ -25,8 +24,8 @@ import {
  * requests to an _actual_ broker.
  * @return {function} Middleware
  */
-export default function createBrokerRealtime(createClient: Function) {
-  return (store: Redux.Store<RootState>) => {
+export function createBrokerRealtime(createClient: Function) {
+  return (store: Store) => {
 
     const client = createClient({
       onFill: (order: Order) => store.dispatch({ type: ORDER_FILLED, payload: order })
@@ -38,11 +37,23 @@ export default function createBrokerRealtime(createClient: Function) {
         const requestedOrder = { ...action.payload }
 
         if (typeof requestedOrder.price === 'undefined') {
-          store.dispatch({ type: ORDER_FAILED, payload: new Error('missing order price') })
+          store.dispatch({
+            type: ORDER_FAILED,
+            payload: {
+              timestamp: Date.now(),
+              error: new Error('missing order price')
+            }
+          })
           break
         }
         if (typeof requestedOrder.quantity === 'undefined') {
-          store.dispatch({ type: ORDER_FAILED, payload: new Error('missing order quantity') })
+          store.dispatch({
+            type: ORDER_FAILED,
+            payload: {
+              timestamp: Date.now(),
+              error: new Error('missing order quantity')
+            }
+          })
           break
         }
 
@@ -56,24 +67,46 @@ export default function createBrokerRealtime(createClient: Function) {
           const executedOrder = res
           store.dispatch({ type: ORDER_PLACED, payload: { ...executedOrder } })
         }).catch((error: Error) => {
-          store.dispatch({ type: ORDER_FAILED, payload: error })
+          store.dispatch({
+            type: ORDER_FAILED,
+            payload: {
+              timestamp: Date.now(),
+              error
+            }
+          })
         })
         break
       }
       case ORDER_CANCEL: {
-        client.cancelOrder({ ...action.payload }).then((res: string) => {
-          const id = res
-          const cancelledOrder = store.getState().orders[id]
-          store.dispatch({ type: ORDER_CANCELLED, payload: { ...cancelledOrder } })
-        }).catch((error: Error) => {
-          store.dispatch({ type: ORDER_FAILED, payload: error })
-        })
+        const id = action.payload.id
+        if (store.getState().orders[id]) {
+          client.cancelOrder({ id }).then(() => {
+            const cancelledOrder = store.getState().orders[id]
+            store.dispatch({ type: ORDER_CANCELLED, payload: { ...cancelledOrder } })
+          }).catch((error: Error) => {
+            store.dispatch({
+              type: ORDER_FAILED,
+              payload: {
+                timestamp: Date.now(),
+                error
+              }
+            })
+          })
+        } else {
+          store.dispatch({
+            type: ORDER_FAILED,
+            payload: {
+              timestamp: Date.now(),
+              error: new Error(`could not find order with id ${id}`)
+            }
+          })
+        }
         break
       }
       default:
         break
       }
-      next(action)
+      return next(action)
     }
   }
 }

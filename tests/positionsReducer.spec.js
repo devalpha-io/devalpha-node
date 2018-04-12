@@ -42,7 +42,7 @@ test(`set initial values on ${INITIALIZED}`, (t) => {
   t.deepEqual(actual, expect)
 })
 
-test.only(`${ORDER_FILLED}, new position: add position to the state`, (t) => {
+test(`${ORDER_FILLED}, new position: add position to the state`, (t) => {
   const order = {
     id: '0',
     identifier: 'MSFT',

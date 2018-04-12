@@ -1,28 +1,26 @@
-import {
-  StreamAction,
-  Strategy
-} from './typings'
-
 import * as _ from 'highland'
-import { createStore, combineReducers } from 'redux'
+import { combineReducers } from 'redux'
 import * as http from 'http'
 import * as socket from 'socket.io'
 
-// Middleware
-import createBrokerRealtime from './middleware/createBrokerRealtime'
-import createBrokerBacktest from './middleware/createBrokerBacktest'
-import createGuard from './middleware/createGuard'
-import createStrategy from './middleware/createStrategy'
+import { createRealtimeStream, createBacktestStream } from './streams'
+import { createConsumerCreator } from './consumer'
+import {
+  VesterOptions,
+  StreamAction,
+  Strategy,
+  RootState,
+  Middleware,
+  Consumer
+} from './typings/index'
 
-// Reducers
-import { capitalReducer } from './reducers/capitalReducer'
-import { positionsReducer } from './reducers/positionsReducer'
-import { ordersReducer } from './reducers/ordersReducer'
-import { timestampReducer } from './reducers/timestampReducer'
-
-// Other
-import { createMergedStream, createSortedStream } from './util/streams'
-import applyMiddlewareSeq from './applyMiddlewareSeq'
+import reducers from './reducers'
+import {
+  createGuard,
+  createStrategy,
+  createBrokerRealtime,
+  createBrokerBacktest
+} from './middleware'
 
 import {
   INITIALIZED,
@@ -35,105 +33,114 @@ import {
 
 export * from './constants'
 
-/**
- * The entry point to the whole system.
- *
- * @example
- * import vester from 'vester'
- *
- * function strategy({ order }, action) {
- *   order({
- *     identifier: 'AAPL',
- *     quantity: 100,
- *     price: 150
- *   })
- * }
- *
- * vester({
- *   strategy,
- *   backtesting: false
- * })
- */
-export function vester(config: any, strategy: Strategy) {
-  config = {
+export function vester(settings: any, strategy: Strategy) {
+  let config: VesterOptions = {
     backtesting: true,
     client: null,
     startCapital: 0,
-    ...config,
+    ...settings,
     initialStates: {
-      ...config.initialStates
+      ...settings.initialStates
     },
     feeds: {
-      ...config.feeds
+      ...settings.feeds
     },
     backtest: {
       timestamp: 0,
       commission: 0,
-      ...config.backtest
+      ...settings.backtest
     },
     guard: {
       shorting: false,
       margin: false,
       restricted: [],
-      ...config.guard
+      ...settings.guard
     },
     dashboard: {
       active: false,
       port: 4449,
-      ...config.dashboard
+      ...settings.dashboard
     }
   }
 
   if (typeof strategy !== 'function') {
-    throw new Error('Expected strategy to be a function.')
+    throw new Error('strategy must be a function')
   }
 
-  /**
-   * The strategy function is defined by the user (you), and it is called every time a new event occurs.
-   *
-   * @type {function}
-   * @param {Object} context
-   * @param {function} context.state The state of your strategy.
-   * @param {function} context.metrics Some standard metrics for your strategy. Note that calls to this
-   * function is very expensive, so use with caution.
-   * @param {function} context.order Place an order.
-   * @param {function} context.cancel Cancel an order.
-   */
-  const strategyMiddleware = createStrategy(strategy)
+  // Store
+  let state: RootState
+  let reducing = false
+  const store = {
+    dispatch: (action: StreamAction) => input.write(action),
+    getState: () => state,
+    setState: (nextState: RootState) => {
+      if (!reducing) {
+        throw new Error('Cannot set state outside of reducer.')
+      }
+      state = nextState
+    }
+  }
 
+  // Consumers
+  const createConsumer = createConsumerCreator(store)
+  
+  const reducer = combineReducers(reducers as any)
+  const reducerMiddleware: Middleware = (store) => (next) => (action) => {
+    reducing = true
+    store.setState(reducer(store.getState(), action))
+    reducing = false
+    next(action)
+  }
+
+  // Check if finished
+  const finishedConsumer: Consumer = (err, item, push, next) => {
+    if (err) {
+      push(err)
+      next()
+    } else if (item === _.nil) {
+      push(null, {
+        type: FINISHED,
+        payload: {
+          timestamp: Date.now()
+        }
+      })
+      push(null, _.nil)
+    } else {
+      push(null, item)
+      next()
+    }
+  }
+
+  // Guard
   const guardMiddleware = createGuard(config.guard)
 
-  let brokerMiddleware
+  // Strategy
+  const strategyMiddleware = createStrategy(strategy)
+
+  // Broker
+  let brokerMiddleware: Middleware
   if (config.backtesting !== false || !config.client) {
     brokerMiddleware = createBrokerBacktest(config.backtest.commission)
   } else {
     brokerMiddleware = createBrokerRealtime(config.client)
   }
 
-  const reducer = combineReducers({
-    capital: capitalReducer,
-    positions: positionsReducer,
-    orders: ordersReducer,
-    timestamp: timestampReducer
-  } as any)
-
-  const middlewares = [guardMiddleware, brokerMiddleware, strategyMiddleware]
-
-  let stream: Highland.Stream<StreamAction>
+  // Stream
+  let input: Highland.Stream<StreamAction>
   let startedAt: number
   let finishedAt: number
 
   if (config.backtesting === false) {
     startedAt = Date.now()
     finishedAt = Date.now()
-    stream = createMergedStream(config.feeds)
+    input = createRealtimeStream(config.feeds)
   } else {
     startedAt = config.backtest.timestamp
     finishedAt = config.backtest.timestamp
-    stream = createSortedStream(config.feeds)
+    input = createBacktestStream(config.feeds)
   }
 
-  stream.write({
+  input.write({
     type: INITIALIZED,
     payload: {
       timestamp: startedAt,
@@ -142,48 +149,25 @@ export function vester(config: any, strategy: Strategy) {
     }
   })
 
-  const store = createStore(reducer, applyMiddlewareSeq(stream, middlewares))
+  const isValidAction = (item: StreamAction) => item.payload && typeof item.payload.timestamp !== 'undefined'
 
-  let consumed = stream.consume((err, item, push, next) => {
-    if (err) {
-      push(err)
-      next()
-    } else if (item === _.nil) {
-      if (config.backtesting !== false) {
-        try {
-          const finished = {
-            type: FINISHED,
-            payload: {
-              timestamp: finishedAt
-            }
-          }
-          store.dispatch(finished)
-          push(null, {
-            state: store.getState(),
-            action: finished
-          })
-        } catch (e) {
-          push(e)
-        }
-      }
-      push(null, _.nil)
-    } else if (typeof (<StreamAction>item).payload.timestamp === 'undefined') {
-      push(new Error(`Skipped event from feed "${(<StreamAction>item).type}" due to missing timestamp property.`))
-      next()
-    } else {
-      finishedAt = (<StreamAction>item).payload.timestamp
-      try {
-        store.dispatch(<StreamAction>item)
-        push(null, {
-          state: store.getState(),
-          action: item
-        })
-      } catch (e) {
-        push(e)
-      }
-      next()
-    }
-  })
+  // @ts-ignore
+  const pipeline = _.pipeline((s) => s
+    .consume(finishedConsumer)
+    .filter(isValidAction)
+    .consume(createConsumer(guardMiddleware))
+    .consume(createConsumer(brokerMiddleware))
+    .consume(createConsumer(reducerMiddleware))
+    .consume(createConsumer(strategyMiddleware))
+  )
+
+  let output = input
+    .through(pipeline)
+    .map((action) => ({
+      state: store.getState(),
+      action
+    }))
+
 
   if (config.dashboard.active) {
     const app = http.createServer((_, res) => {
@@ -194,8 +178,8 @@ export function vester(config: any, strategy: Strategy) {
 
     app.listen(config.dashboard.port)
 
-    const socketStream = consumed.fork()
-    consumed = consumed.fork()
+    const socketStream = output.fork()
+    output = output.fork()
 
     io.on(SOCKETIO_CONNECTION, (client) => {
       client.on(DASHBOARD_INITIALIZE, () => {
@@ -220,5 +204,5 @@ export function vester(config: any, strategy: Strategy) {
     })
   }
 
-  return consumed
+  return output
 }

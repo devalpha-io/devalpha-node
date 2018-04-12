@@ -9,7 +9,7 @@ import {
 
 import createMockClient from './util/createMockClient'
 
-import createMiddleware from '../dist/middleware/createBrokerRealtime'
+import { createBrokerRealtime as createMiddleware } from '../dist/middleware/createBrokerRealtime'
 
 test.beforeEach((t) => {
   const store = {

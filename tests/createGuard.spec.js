@@ -6,7 +6,7 @@ import {
   ORDER_REJECTED
 } from '../dist/constants'
 
-import createMiddleware from '../dist/middleware/createGuard'
+import { createGuard as createMiddleware } from '../dist/middleware/createGuard'
 
 test.beforeEach((t) => {
   t.context.store = {
