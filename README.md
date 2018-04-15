@@ -34,7 +34,7 @@ import { vester } from 'vester'
 
 const feeds = {
   myQuandlFeed: [1, 2, 3, 4],
-  myStreamFeed: fs.readableStream(...)
+  myStreamFeed: fs.createReadStream(...)
 }
 
 const strategy = (context, action) {
