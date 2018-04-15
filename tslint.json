@@ -4,6 +4,10 @@
       "import-name": false,
       "semicolon": [true, "never"],
       "trailing-comma": [true, "never"],
-      "typedef": true
+      "typedef": true,
+      "object-shorthand-properties-first": false,
+      "no-parameter-reassignment": false,
+      "max-line-length": [true, 120],
+      "no-boolean-literal-compare": false
     }
 }

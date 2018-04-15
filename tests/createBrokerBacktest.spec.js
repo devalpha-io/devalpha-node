@@ -8,7 +8,7 @@ import {
   ORDER_FAILED
 } from '../dist/constants'
 
-import createMiddleware from '../dist/middleware/createBrokerBacktest'
+import { createBrokerBacktest as createMiddleware } from '../dist/middleware/createBrokerBacktest'
 
 test.beforeEach((t) => {
   const store = {

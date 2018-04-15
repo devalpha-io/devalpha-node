@@ -1,11 +1,11 @@
-import * as Redux from 'redux'
 import Decimal from 'decimal.js'
 import {
+  Store,
   StreamAction,
-  RootState,
   CreatedOrder,
   GuardOptions,
-  ExecutedOrder
+  ExecutedOrder,
+  Middleware
 } from '../typings'
 
 import {
@@ -19,10 +19,10 @@ import {
  *
  * @private
  * @param  {Object} options A options object.
- * @return {function} Middleware
+ * @return {Middleware} Middleware to be consumed by a Consumer.
  */
-export default function createGuard(options: GuardOptions) {
-  return (store: Redux.Store<RootState>) => {
+export function createGuard(options: GuardOptions): Middleware {
+  return (store: Store) => {
     const isRestrictedAsset = (order: CreatedOrder) => {
       if (options.restricted && options.restricted.indexOf(order.identifier) > -1) {
         return true
@@ -62,22 +62,22 @@ export default function createGuard(options: GuardOptions) {
 
     return (next: Function) => (action: StreamAction) => {
       switch (action.type) {
-      case ORDER_CREATED: {
-        const order: ExecutedOrder = <ExecutedOrder> action.payload
-        if (
-          isRestrictedAsset(order) ||
-          isDisallowedShort(order) ||
-          isDisallowedMargin(order)
-        ) {
-          return next({
-            type: ORDER_REJECTED,
-            payload: { ...action.payload }
-          })
+        case ORDER_CREATED: {
+          const order: ExecutedOrder = <ExecutedOrder> action.payload
+          if (
+            isRestrictedAsset(order) ||
+            isDisallowedShort(order) ||
+            isDisallowedMargin(order)
+          ) {
+            return next({
+              type: ORDER_REJECTED,
+              payload: { ...action.payload }
+            })
+          }
+          return next(action)
         }
-        return next(action)
-      }
-      default:
-        break
+        default:
+          break
       }
       return next(action)
     }

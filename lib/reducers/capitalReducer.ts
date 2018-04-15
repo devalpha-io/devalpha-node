@@ -24,7 +24,18 @@ const initialState: CapitalState = {
   total: new Decimal(0)
 }
 
-export function capitalReducer (state: CapitalState = initialState, action: StreamAction) {
+/**
+ * Reducer function for managing available and spent capital.
+ *
+ * @private
+ * @param  {CapitalState =      initialState} state Current state.
+ * @param  {StreamAction}    action An action received from the stream.
+ * @return {CapitalState}           Next state.
+ */
+export function capitalReducer(
+  state: CapitalState = initialState,
+  action: StreamAction): CapitalState {
+
   state = { ...state }
 
   switch (action.type) {
@@ -38,10 +49,18 @@ export function capitalReducer (state: CapitalState = initialState, action: Stre
         // TODO check that total = cash + reservedCash
         const initial = action.payload.initialStates.capital
         
-        if (typeof initial.cash !== 'undefined') state.cash = new Decimal(initial.cash)
-        if (typeof initial.commission !== 'undefined') state.commission = new Decimal(initial.commission)
-        if (typeof initial.reservedCash !== 'undefined') state.reservedCash = new Decimal(initial.reservedCash)
-        if (typeof initial.total !== 'undefined') state.total = new Decimal(initial.total)
+        if (typeof initial.cash !== 'undefined') {
+          state.cash = new Decimal(initial.cash)
+        }
+        if (typeof initial.commission !== 'undefined') {
+          state.commission = new Decimal(initial.commission)
+        }
+        if (typeof initial.reservedCash !== 'undefined') {
+          state.reservedCash = new Decimal(initial.reservedCash)
+        }
+        if (typeof initial.total !== 'undefined') {
+          state.total = new Decimal(initial.total)
+        }
       }
       break
     }
@@ -103,7 +122,8 @@ export function capitalReducer (state: CapitalState = initialState, action: Stre
       } else {
         /* we might get filled at a higher price than expected, and thus pay higher commission */
         /* extraCommission = max(0, (commission - expectedCommission) * quantity) */
-        const extraCommission = Decimal.max(0, 
+        const extraCommission = Decimal.max(
+          0, 
           Decimal.sub(order.commission, order.expectedCommission).mul(order.commission)
         )
 

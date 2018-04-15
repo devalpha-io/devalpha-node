@@ -1,3 +1,6 @@
-!dist/
+dist/**/*.map
 lib/
 tests/
+scripts/
+.nyc_output/
+_old/

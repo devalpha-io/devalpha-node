@@ -1,7 +1,7 @@
-import * as Redux from 'redux'
 import {
+  Store,
   StreamAction,
-  RootState
+  Middleware
 } from '../typings'
 import {
   ORDER_REQUESTED,
@@ -21,49 +21,55 @@ let orderIdCounter = 0
  *
  * @private
  * @param  {number|function} commission Calculate the commission based on price and quantity
- * @return {function} Middleware
+ * @return {Middleware} Middleware to be consumed by a Consumer.
  */
-export default function createBrokerBacktest(commission: number | Function) {
-  return (store: Redux.Store<RootState>) => {
+export function createBrokerBacktest(commission: number | Function): Middleware {
+  return (store: Store) => {
 
     const calculateCommission = typeof commission === 'function' ? commission : () => commission
     return (next: Function) => (action: StreamAction) => {
       switch (action.type) {
-      case ORDER_REQUESTED: {
-        const requestedOrder = { ...action.payload }
+        case ORDER_REQUESTED: {
+          const requestedOrder = { ...action.payload }
 
-        if (typeof requestedOrder.price === 'undefined') {
-          store.dispatch({ type: ORDER_FAILED, payload: new Error('missing order price') })
-          break
-        }
-        if (typeof requestedOrder.quantity === 'undefined') {
-          store.dispatch({ type: ORDER_FAILED, payload: new Error('missing order quantity') })
-          break
-        }
-
-        requestedOrder.commission = calculateCommission(requestedOrder)
-
-        store.dispatch({ type: ORDER_CREATED, payload: requestedOrder })
-        break
-      }
-      case ORDER_CREATED: {
-        const order = { ...action.payload }
-        orderIdCounter += 1
-        store.dispatch({ type: ORDER_PLACED, payload: { ...order, id: orderIdCounter.toString() } })
-        store.dispatch({
-          type: ORDER_FILLED,
-          payload: {
-            ...order,
-            id: orderIdCounter.toString(),
-            expectedPrice: order.price,
-            expectedQuantity: order.quantity,
-            expectedCommission: order.commission
+          if (typeof requestedOrder.price === 'undefined') {
+            store.dispatch({ type: ORDER_FAILED, payload: new Error('missing order price') })
+            break
           }
-        })
-        break
-      }
-      default:
-        break
+          if (typeof requestedOrder.quantity === 'undefined') {
+            store.dispatch({ type: ORDER_FAILED, payload: new Error('missing order quantity') })
+            break
+          }
+
+          requestedOrder.commission = calculateCommission(requestedOrder)
+
+          store.dispatch({ type: ORDER_CREATED, payload: requestedOrder })
+          break
+        }
+        case ORDER_CREATED: {
+          const order = { ...action.payload }
+          orderIdCounter += 1
+          store.dispatch({
+            type: ORDER_PLACED,
+            payload: {
+              ...order,
+              id: orderIdCounter.toString()
+            }
+          })
+          store.dispatch({
+            type: ORDER_FILLED,
+            payload: {
+              ...order,
+              id: orderIdCounter.toString(),
+              expectedPrice: order.price,
+              expectedQuantity: order.quantity,
+              expectedCommission: order.commission
+            }
+          })
+          break
+        }
+        default:
+          break
       }
       return next(action)
     }

@@ -5,7 +5,7 @@ import {
   ORDER_CANCEL
 } from '../dist/constants'
 
-import createMiddleware from '../dist/middleware/createStrategy'
+import { createStrategy as createMiddleware } from '../dist/middleware/createStrategy'
 
 test.beforeEach((t) => {
   const store = {

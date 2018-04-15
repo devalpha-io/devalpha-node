@@ -16,7 +16,15 @@ export type OrdersState = {
 
 const initialState = {}
 
-export function ordersReducer (state: OrdersState = initialState, action: StreamAction) {
+/**
+ * Reducer function for managing available open orders.
+ *
+ * @private
+ * @param  {OrdersState =      initialState} state Current state.
+ * @param  {StreamAction}    action An action received from the stream.
+ * @return {OrdersState}           Next state.
+ */
+export function ordersReducer(state: OrdersState = initialState, action: StreamAction) {
   state = { ...state }
 
   switch (action.type) {
