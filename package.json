@@ -1,6 +1,6 @@
 {
   "name": "vester",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "repository": "https://github.com/fhqvst/vester",
   "main": "dist/index.js",
   "license": "MIT",
