@@ -30,7 +30,7 @@ const initialState = {
  * @param  {StreamAction}    action An action received from the stream.
  * @return {PositionsState}           Next state.
  */
-export function positionsReducer (state: PositionsState = initialState, action: StreamAction) {
+export function positionsReducer(state: PositionsState = initialState, action: StreamAction) {
   state = {
     ...state,
     instruments: Object.assign({}, state.instruments)

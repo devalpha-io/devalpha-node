@@ -21,7 +21,7 @@ export interface StreamAction {
 export interface GuardOptions {
   shorting?: boolean,
   margin?: boolean,
-  restricted?: Array<string>
+  restricted?: string[]
 }
 
 export interface VesterOptions {

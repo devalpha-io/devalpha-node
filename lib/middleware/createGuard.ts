@@ -62,22 +62,22 @@ export function createGuard(options: GuardOptions): Middleware {
 
     return (next: Function) => (action: StreamAction) => {
       switch (action.type) {
-      case ORDER_CREATED: {
-        const order: ExecutedOrder = <ExecutedOrder> action.payload
-        if (
-          isRestrictedAsset(order) ||
-          isDisallowedShort(order) ||
-          isDisallowedMargin(order)
-        ) {
-          return next({
-            type: ORDER_REJECTED,
-            payload: { ...action.payload }
-          })
+        case ORDER_CREATED: {
+          const order: ExecutedOrder = <ExecutedOrder> action.payload
+          if (
+            isRestrictedAsset(order) ||
+            isDisallowedShort(order) ||
+            isDisallowedMargin(order)
+          ) {
+            return next({
+              type: ORDER_REJECTED,
+              payload: { ...action.payload }
+            })
+          }
+          return next(action)
         }
-        return next(action)
-      }
-      default:
-        break
+        default:
+          break
       }
       return next(action)
     }

@@ -21,23 +21,26 @@ import {
  */
 export function createStrategy(strategy: Strategy): Middleware {
   return (store: Store) => (next: Function) => (action: StreamAction) => {
-    strategy({
-      state: () => store.getState(),
-      order: (order: any) => store.dispatch({
-        type: ORDER_REQUESTED,
-        payload: {
-          timestamp: action.payload.timestamp,
-          ...order
-        }
-      }),
-      cancel: (id: string) => store.dispatch({
-        type: ORDER_CANCEL,
-        payload: {
-          timestamp: action.payload.timestamp,
-          id
-        }
-      })
-    }, action)
+    strategy(
+      {
+        state: () => store.getState(),
+        order: (order: any) => store.dispatch({
+          type: ORDER_REQUESTED,
+          payload: {
+            timestamp: action.payload.timestamp,
+            ...order
+          }
+        }),
+        cancel: (id: string) => store.dispatch({
+          type: ORDER_CANCEL,
+          payload: {
+            timestamp: action.payload.timestamp,
+            id
+          }
+        })
+      },
+      action
+    )
     return next(action)
   }
 

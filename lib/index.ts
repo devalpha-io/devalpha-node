@@ -198,7 +198,6 @@ export function vester(settings: any, strategy: Strategy) {
         socketStream
           .batchWithTimeOrCount(500, 1000)
           .each((events) => {
-            console.log('Batching:', events.length)
             io.emit(DASHBOARD_EVENTS, { events })
           })
           .done(() => {

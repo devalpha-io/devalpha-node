@@ -3,9 +3,10 @@
       "outDir": "dist",
       "module": "commonjs",
       "moduleResolution": "node",
-      "target": "es6",
+      "target": "es5",
       "jsx": "preserve",
       "declaration": true,
+      "sourceMap": true,
       "lib": [
         "es2017",
         "dom"
@@ -16,5 +17,12 @@
       "noImplicitReturns": true,
       "noFallthroughCasesInSwitch": true,
       "noImplicitAny": true
-    }
+    },
+    "include": [
+      "lib/**/*"
+    ],
+    "exclude": [
+      "node_modules",
+      "**/*.spec.ts"
+    ]
 }

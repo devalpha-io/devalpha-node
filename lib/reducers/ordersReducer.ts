@@ -24,7 +24,7 @@ const initialState = {}
  * @param  {StreamAction}    action An action received from the stream.
  * @return {OrdersState}           Next state.
  */
-export function ordersReducer (state: OrdersState = initialState, action: StreamAction) {
+export function ordersReducer(state: OrdersState = initialState, action: StreamAction) {
   state = { ...state }
 
   switch (action.type) {

@@ -13,64 +13,36 @@
     "socket.io": "^2.1.0"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.44",
-    "@babel/polyfill": "^7.0.0-beta.44",
-    "@babel/preset-env": "^7.0.0-beta.44",
-    "@babel/register": "^7.0.0-beta.44",
     "@types/highland": "^2.10.8",
     "@types/mathjs": "0.0.39",
     "@types/node": "^9.6.2",
     "@types/socket.io": "^1.4.33",
-    "ava": "^1.0.0-beta.3",
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-register": "^6.26.0",
+    "ava": "^1.0.0-beta.4",
     "documentation": "^6.2.0",
-    "dotenv": "^4.0.0",
-    "eslint": "^4.5.0",
-    "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.7.0",
     "nyc": "^11.1.0",
     "sinon": "^4.1.2",
     "tslint": "^5.9.1",
-    "typedoc": "^0.11.1",
+    "tslint-config-airbnb": "^5.8.0",
     "typescript": "^2.8.1"
   },
   "scripts": {
-    "build": "NODE_ENV=production tsc lib/index.ts",
+    "build": "NODE_ENV=production tsc",
     "dev": "NODE_ENV=development tsc --watch",
-    "docs:api": "documentation lint lib && node scripts/generateApi.js",
-    "docs:build": "cd docs && $(npm bin)/hexo generate",
-    "docs:watch": "cd docs && $(npm bin)/hexo server",
-    "docs:publish": "npm run docs:build && cd docs && $(npm bin)/hexo deploy",
+    "api": "documentation readme dist/**/* --section=API --markdown-toc=false",
     "start": "npm run build",
-    "lint": "eslint lib",
+    "lint": "tslint lib/**/*",
     "test": "npm run build && NODE_ENV=test ava tests/**/*.spec.js",
     "test-only": "NODE_ENV=test ava",
-    "report": "nyc report --reporter=html",
     "coverage": "NODE_ENV=test nyc ava tests/**/*.spec.js"
-  },
-  "ava": {
-    "babel": {
-      "testOptions": {
-        "presets": [
-          [
-            "@babel/preset-env"
-          ]
-        ],
-        "plugins": [
-          "@babel/plugin-proposal-object-rest-spread"
-        ]
-      }
-    },
-    "require": [
-      "@babel/register",
-      "@babel/polyfill"
-    ]
   },
   "nyc": {
     "exclude": [
-      "tests/"
+      "tests/",
+      "**/*.d.ts"
+    ],
+    "extension": [
+      ".ts",
+      ".tsx"
     ]
   }
 }
