@@ -7,6 +7,7 @@
 </p>
 
 ## About
+
 Vester is a high-level Node.js framework for creating and running your own algorithmic trading systems. 
 
 It is primarily intended for people who aren't professional mathematicians or researchers, but still want to put their programming skills to good use. I personally believe that there are a ton of good, intuitive and simple strategies which aren't available to hedge funds or high-frequency traders for whatever reasons, and hopefully Vester can aid you in finding those strategies.
@@ -14,16 +15,19 @@ It is primarily intended for people who aren't professional mathematicians or re
 The framework is inspired by the <a href="https://martinfowler.com/articles/lmax.html">LMAX architecture</a> and built using <a href="http://redux.js.org">Redux</a> and some custom middleware.
 
 ## Features
-- [x] Event sourced
-- [x] Small codebase
-- [x] Functional architecture
+
+-   [x] Event sourced
+-   [x] Small codebase
+-   [x] Functional architecture
 
 ## Installation
+
 Install using NPM:
 
 `npm install vester`
 
 ## Documentation
+
 [Website](https://fhqvst.github.io/vester/)
 
 ## Get Started
@@ -45,14 +49,29 @@ const strategy = (context) => {
 run({ strategy })
 ```
 
+## API
+
+### vester
+
+Vester only exports one function, and this is the one. It takes two parameters as input: a settings
+object and your strategy function.
+
+**Parameters**
+
+-   `settings` **any** An object containing settings.
+-   `strategy` **Strategy** A Strategy function.
+
+Returns **void** 
+
 ## Resources
-- [Backtrader](https://www.backtrader.com/)
-- [PyBacktest](https://github.com/ematvey/pybacktest)
-- [Quandl](https://www.quandl.com/)
-- [QuantConnect](https://www.quantconnect.com/)
-- [Quantopian](http://quantopian.com/)
-- [Quantstart](https://www.quantstart.com/)
-- [Zipline](http://www.zipline.io/)
+
+-   [Backtrader](https://www.backtrader.com/)
+-   [PyBacktest](https://github.com/ematvey/pybacktest)
+-   [Quandl](https://www.quandl.com/)
+-   [QuantConnect](https://www.quantconnect.com/)
+-   [Quantopian](http://quantopian.com/)
+-   [Quantstart](https://www.quantstart.com/)
+-   [Zipline](http://www.zipline.io/)
 
 ## License
 

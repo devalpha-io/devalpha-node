@@ -4,7 +4,8 @@ import {
   StreamAction,
   CreatedOrder,
   GuardOptions,
-  ExecutedOrder
+  ExecutedOrder,
+  Middleware
 } from '../typings'
 
 import {
@@ -18,9 +19,9 @@ import {
  *
  * @private
  * @param  {Object} options A options object.
- * @return {function} Middleware
+ * @return {Middleware} Middleware to be consumed by a Consumer.
  */
-export function createGuard(options: GuardOptions) {
+export function createGuard(options: GuardOptions): Middleware {
   return (store: Store) => {
     const isRestrictedAsset = (order: CreatedOrder) => {
       if (options.restricted && options.restricted.indexOf(order.identifier) > -1) {

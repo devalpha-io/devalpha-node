@@ -1,7 +1,8 @@
 import {
   Store,
   StreamAction,
-  Order
+  Order,
+  Middleware
 } from '../typings'
 import {
   ORDER_REQUESTED,
@@ -22,9 +23,9 @@ import {
  * @private
  * @param  {function} createClient Factory function for building the client to be used when sending
  * requests to an _actual_ broker.
- * @return {function} Middleware
+ * @return {Middleware} Middleware to be consumed by a Consumer.
  */
-export function createBrokerRealtime(createClient: Function) {
+export function createBrokerRealtime(createClient: Function): Middleware {
   return (store: Store) => {
 
     const client = createClient({

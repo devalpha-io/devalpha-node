@@ -2,16 +2,16 @@ import test from 'ava'
 import _ from 'highland'
 
 import {
-  createRealtimeStream,
-  createBacktestStream
+  createStreamRealtime,
+  createStreamBacktest
 } from '../dist/streams'
 
-test.cb('createRealtimeStream returns a merged stream of Redux actions', (t) => {
+test.cb('createStreamRealtime returns a merged stream of Redux actions', (t) => {
   const streams = {
     foo: _(['FOO']),
     bar: _(['BAR'])
   }
-  const merged = createRealtimeStream(streams)
+  const merged = createStreamRealtime(streams)
   const actions = []
 
   merged
@@ -30,7 +30,7 @@ test.cb('createRealtimeStream returns a merged stream of Redux actions', (t) => 
     })
 })
 
-test.cb('createRealtimeStream runs event in arbitrary order', (t) => {
+test.cb('createStreamRealtime runs event in arbitrary order', (t) => {
   let i1
   let i2
 
@@ -46,7 +46,7 @@ test.cb('createRealtimeStream runs event in arbitrary order', (t) => {
       }, 50)
     })
   }
-  const merged = createRealtimeStream(streams)
+  const merged = createStreamRealtime(streams)
   const actions = []
 
   setTimeout(() => {
@@ -64,7 +64,7 @@ test.cb('createRealtimeStream runs event in arbitrary order', (t) => {
   merged.each((x) => actions.push(x))
 })
 
-test.cb('createBacktestStream returns a sorted stream of Redux actions', (t) => {
+test.cb('createStreamBacktest returns a sorted stream of Redux actions', (t) => {
   const streams = {
     foo: _([{ timestamp: 10 }]),
     bar: _([{ timestamp: 5 }]),
@@ -74,7 +74,7 @@ test.cb('createBacktestStream returns a sorted stream of Redux actions', (t) => 
     corge: _([{ timestamp: 10 }]),
     grault: _([{ timestamp: -Infinity }])
   }
-  const sorted = createBacktestStream(streams)
+  const sorted = createStreamBacktest(streams)
   const actions = []
 
   sorted
@@ -96,11 +96,11 @@ test.cb('createBacktestStream returns a sorted stream of Redux actions', (t) => 
     })
 })
 
-test.cb('createBacktestStream does not emit errors', (t) => {
+test.cb('createStreamBacktest does not emit errors', (t) => {
   const streams = {
     foo: _.fromError(new Error())
   }
-  const merged = createBacktestStream(streams)
+  const merged = createStreamBacktest(streams)
   const actions = []
 
   merged

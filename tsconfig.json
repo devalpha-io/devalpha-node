@@ -16,12 +16,5 @@
       "noImplicitReturns": true,
       "noFallthroughCasesInSwitch": true,
       "noImplicitAny": true
-    },
-    "include": [
-      "lib/**/*"
-    ],
-    "exclude": [
-      "node_modules",
-      "*.spec.js"
-    ]
+    }
 }

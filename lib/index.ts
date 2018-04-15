@@ -3,7 +3,7 @@ import { combineReducers } from 'redux'
 import * as http from 'http'
 import * as socket from 'socket.io'
 
-import { createRealtimeStream, createBacktestStream } from './streams'
+import { createStreamRealtime, createStreamBacktest } from './streams'
 import { createConsumerCreator } from './consumer'
 import {
   VesterOptions,
@@ -33,6 +33,14 @@ import {
 
 export * from './constants'
 
+/**
+ * Vester only exports one function, and this is the one. It takes two parameters as input: a settings
+ * object and your strategy function.
+ * 
+ * @param {any}      settings An object containing settings.
+ * @param {Strategy} strategy A Strategy function.
+ * @returns {void}
+ */
 export function vester(settings: any, strategy: Strategy) {
   let config: VesterOptions = {
     backtesting: true,
@@ -101,11 +109,14 @@ export function vester(settings: any, strategy: Strategy) {
       push(null, {
         type: FINISHED,
         payload: {
-          timestamp: Date.now()
+          timestamp: config.backtesting === false ? Date.now() : finishedAt
         }
       })
       push(null, _.nil)
     } else {
+      if (config.backtesting !== false) {
+        finishedAt = (<StreamAction>item).payload.timestamp
+      }
       push(null, item)
       next()
     }
@@ -133,11 +144,11 @@ export function vester(settings: any, strategy: Strategy) {
   if (config.backtesting === false) {
     startedAt = Date.now()
     finishedAt = Date.now()
-    input = createRealtimeStream(config.feeds)
+    input = createStreamRealtime(config.feeds)
   } else {
     startedAt = config.backtest.timestamp
     finishedAt = config.backtest.timestamp
-    input = createBacktestStream(config.feeds)
+    input = createStreamBacktest(config.feeds)
   }
 
   input.write({
@@ -187,6 +198,7 @@ export function vester(settings: any, strategy: Strategy) {
         socketStream
           .batchWithTimeOrCount(500, 1000)
           .each((events) => {
+            console.log('Batching:', events.length)
             io.emit(DASHBOARD_EVENTS, { events })
           })
           .done(() => {

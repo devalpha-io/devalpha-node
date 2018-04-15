@@ -3,7 +3,7 @@ const path = require('path')
 const documentation = require('documentation')
 
 function buildApi() {
-  return documentation.build([path.resolve(process.cwd(), 'lib', '**', '*')], {})
+  return documentation.build([path.resolve(process.cwd(), 'dist', '**', '*')], {})
     .then((comments) => documentation.formats.md(comments, {
       markdownToc: true
     }))

@@ -22,6 +22,14 @@ const initialState = {
   total: new Decimal(0)
 }
 
+/**
+ * Reducer function for managing open positions and their total value.
+ *
+ * @private
+ * @param  {PositionsState =      initialState} state Current state.
+ * @param  {StreamAction}    action An action received from the stream.
+ * @return {PositionsState}           Next state.
+ */
 export function positionsReducer (state: PositionsState = initialState, action: StreamAction) {
   state = {
     ...state,

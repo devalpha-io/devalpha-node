@@ -2,7 +2,7 @@
   "name": "vester",
   "version": "0.0.2",
   "repository": "https://github.com/fhqvst/vester",
-  "main": "dist/vester.js",
+  "main": "dist/index.js",
   "license": "MIT",
   "dependencies": {
     "date-fns": "^1.29.0",
@@ -13,8 +13,6 @@
     "socket.io": "^2.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.44",
-    "@babel/core": "^7.0.0-beta.44",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.44",
     "@babel/polyfill": "^7.0.0-beta.44",
     "@babel/preset-env": "^7.0.0-beta.44",
@@ -24,7 +22,10 @@
     "@types/node": "^9.6.2",
     "@types/socket.io": "^1.4.33",
     "ava": "^1.0.0-beta.3",
-    "documentation": "^5.3.3",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-register": "^6.26.0",
+    "documentation": "^6.2.0",
     "dotenv": "^4.0.0",
     "eslint": "^4.5.0",
     "eslint-config-airbnb-base": "^12.1.0",
@@ -32,10 +33,11 @@
     "nyc": "^11.1.0",
     "sinon": "^4.1.2",
     "tslint": "^5.9.1",
+    "typedoc": "^0.11.1",
     "typescript": "^2.8.1"
   },
   "scripts": {
-    "build": "NODE_ENV=production tsc",
+    "build": "NODE_ENV=production tsc lib/index.ts",
     "dev": "NODE_ENV=development tsc --watch",
     "docs:api": "documentation lint lib && node scripts/generateApi.js",
     "docs:build": "cd docs && $(npm bin)/hexo generate",
@@ -47,24 +49,6 @@
     "test-only": "NODE_ENV=test ava",
     "report": "nyc report --reporter=html",
     "coverage": "NODE_ENV=test nyc ava tests/**/*.spec.js"
-  },
-  "babel": {
-    "presets": [
-      [
-        "@babel/preset-env",
-        {
-          "targets": {
-            "browsers": [
-              "last 2 versions",
-              "safari >= 7"
-            ]
-          }
-        }
-      ]
-    ],
-    "plugins": [
-      "@babel/plugin-proposal-object-rest-spread"
-    ]
   },
   "ava": {
     "babel": {

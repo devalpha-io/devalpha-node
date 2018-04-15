@@ -1,6 +1,7 @@
 import {
   Store,
-  StreamAction
+  StreamAction,
+  Middleware
 } from '../typings'
 import {
   ORDER_REQUESTED,
@@ -20,9 +21,9 @@ let orderIdCounter = 0
  *
  * @private
  * @param  {number|function} commission Calculate the commission based on price and quantity
- * @return {function} Middleware
+ * @return {Middleware} Middleware to be consumed by a Consumer.
  */
-export function createBrokerBacktest(commission: number | Function) {
+export function createBrokerBacktest(commission: number | Function): Middleware {
   return (store: Store) => {
 
     const calculateCommission = typeof commission === 'function' ? commission : () => commission

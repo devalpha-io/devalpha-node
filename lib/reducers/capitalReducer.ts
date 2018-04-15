@@ -24,7 +24,15 @@ const initialState: CapitalState = {
   total: new Decimal(0)
 }
 
-export function capitalReducer (state: CapitalState = initialState, action: StreamAction) {
+/**
+ * Reducer function for managing available and spent capital.
+ *
+ * @private
+ * @param  {CapitalState =      initialState} state Current state.
+ * @param  {StreamAction}    action An action received from the stream.
+ * @return {CapitalState}           Next state.
+ */
+export function capitalReducer (state: CapitalState = initialState, action: StreamAction): CapitalState {
   state = { ...state }
 
   switch (action.type) {
