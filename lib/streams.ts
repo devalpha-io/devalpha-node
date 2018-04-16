@@ -16,7 +16,7 @@ import { FastPriorityQueue } from 'fastpriorityqueue.ts'
  */
 function createStreams<FeedItem>(feeds: Feeds<FeedItem>): Feeds<FeedItem> {
   const streams: Feeds<FeedItem> = {}
-  Object.keys(feeds).forEach(key => {
+  Object.keys(feeds).forEach((key) => {
     const feed = feeds[key]
     if (_.isStream(feed)) {
       streams[key] = <Highland.Stream<FeedItem>> feed
@@ -61,56 +61,103 @@ export function createStreamRealtime(feeds: Feeds<FeedItem>): Highland.Stream<St
  */
 export function createStreamBacktest(feeds: Feeds<FeedItem>): Highland.Stream<StreamAction> {
   const streams: Feeds<Highland.Stream<FeedItem>> = createStreams(feeds)
-  // eslint-disable-next-line no-unused-vars
   const heap = new FastPriorityQueue<StreamAction>((t1, t2) => {
     if (typeof t1 === 'undefined' && typeof t2 === 'undefined') {
       return false
     }
-
     if (typeof t2 === 'undefined') {
       return true
     }
-
     if (typeof t1 === 'undefined') {
       return false
     }
-
     return t1 < t2
   })
 
+  const sourceStream: Highland.Stream<StreamAction> = _()
+  const sortedStreams: Highland.Stream<StreamAction>[] = []
+  const callbacks: any = {}
+  
+  let feedFinished = false
+  let streamFinished = false
+
+  let initialized = 0
+
+  const maybeFinish = (lock1: boolean, lock2: boolean) => {
+    if (lock1 && lock2) {
+      // @ts-ignore
+      sourceStream.write(_.nil)
+    }
+  }
+
   Object.keys(streams).forEach((type) => {
     const stream = streams[type]
-    stream.pull((err: Error, item: FeedItem | Highland.Nil) => {
-      if (!err && (item !== _.nil)) {
-        heap.add({
-          type: type,
-          payload: (<FeedItem>item)
-        }, (<FeedItem>item).timestamp)
+    sortedStreams.push(stream.consume((err: Error, item: FeedItem | Highland.Nil, push: Function, next: Function) => {
+      callbacks[type] = () => {
+        callbacks[type] = undefined
+        next()
+      }
+      if (err) {
+        push(err)
+      } else if (item === _.nil) {
+        push(null, _.nil)
+      } else {
+        push(null, {
+          type,
+          payload: item
+        })
+      }
+    }))
+  })
+
+  const streamCount = sortedStreams.length
+  // @ts-ignore
+  _.merge(sortedStreams)
+  // @ts-ignore
+    .errors((err: Error) => {
+      // TODO Write srrors to sourceStream
+      console.log(err)
+      // @ts-ignore 
+      sourceStream.write(_.nil)
+    })
+    .each((action: StreamAction) => {
+      initialized += 1
+      heap.add(action, action.payload.timestamp)
+      // @ts-ignore
+      if (initialized >= streamCount && sourceStream._outgoing.length === 0) {
+        if (!heap.isEmpty()) {
+          const streamItem = heap.poll().object
+          sourceStream.write(streamItem)
+          if (callbacks[streamItem.type]) {
+            callbacks[streamItem.type]()
+          }
+        }
       }
     })
-  })
+    .done(() => {
+      // @ts-ignore
+      feedFinished = true
+      maybeFinish(feedFinished, streamFinished)
+    })
 
-  return _(function(push, next) {
-    // @ts-ignore TS2683 This implicitly any
-    if (this._outgoing.length > 0) {
-      next()
-    } else if (!heap.isEmpty()) {
-      const polled = heap.poll()
-      const streamItem = polled.object
-
-      push(null, streamItem)
-
-      streams[streamItem.type].pull((err: Error, nextItem: FeedItem | Highland.Nil) => {
-        if (!err && (nextItem !== _.nil)) {
-          heap.add({
-            type: streamItem.type,
-            payload: (<FeedItem>nextItem)
-          }, (<FeedItem>nextItem).timestamp)
+  sourceStream.observe()
+    .each(() => {
+      // @ts-ignore
+      if (sourceStream._outgoing.length === 0) {
+        if (!heap.isEmpty()) {
+          const streamItem = heap.poll().object
+          sourceStream.write(streamItem)
+          if (callbacks[streamItem.type]) {
+            callbacks[streamItem.type]()
+          }
         }
-        next()
-      })
-    } else {
-      push(null, _.nil)
-    }
-  })
+      }
+      // @ts-ignore
+      if (sourceStream._outgoing.length === 0) {
+        streamFinished = true
+        maybeFinish(feedFinished, streamFinished)
+      }
+    })
+
+  return sourceStream
 }

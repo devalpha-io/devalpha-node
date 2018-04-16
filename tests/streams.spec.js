@@ -104,12 +104,9 @@ test.cb('createStreamBacktest does not emit errors', (t) => {
   const actions = []
 
   merged
-    .each((x) => actions.push(x.type))
+    .each((x) => actions.push(x))
     .done(() => {
-      const actual = actions
-      const expect = []
-
-      t.deepEqual(actual, expect)
+      t.deepEqual(actions, [])
       t.end()
     })
 })

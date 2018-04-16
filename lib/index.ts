@@ -163,7 +163,7 @@ export function vester(settings: any, strategy: Strategy) {
   const isValidAction = (item: StreamAction) => item.payload && typeof item.payload.timestamp !== 'undefined'
 
   // @ts-ignore
-  const pipeline = _.pipeline((s) => s
+  const pipeline = _.pipeline(s => s
     .consume(finishedConsumer)
     .filter(isValidAction)
     .consume(createConsumer(guardMiddleware))
@@ -174,7 +174,7 @@ export function vester(settings: any, strategy: Strategy) {
 
   let output = input
     .through(pipeline)
-    .map((action) => ({
+    .map(action => ({
       state: store.getState(),
       action
     }))
