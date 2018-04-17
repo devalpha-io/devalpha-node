@@ -3,7 +3,7 @@ import { combineReducers } from 'redux'
 import * as http from 'http'
 import * as socket from 'socket.io'
 
-import { createStreamRealtime, createStreamBacktest } from './streams'
+import { createStreamMerged, createStreamSorted } from './streams'
 import { createConsumerCreator } from './consumer'
 import {
   VesterOptions,
@@ -144,11 +144,11 @@ export function vester(settings: any, strategy: Strategy) {
   if (config.backtesting === false) {
     startedAt = Date.now()
     finishedAt = Date.now()
-    input = createStreamRealtime(config.feeds)
+    input = createStreamMerged(config.feeds)
   } else {
     startedAt = config.backtest.timestamp
     finishedAt = config.backtest.timestamp
-    input = createStreamBacktest(config.feeds)
+    input = createStreamSorted(config.feeds)
   }
 
   input.write({
@@ -173,7 +173,18 @@ export function vester(settings: any, strategy: Strategy) {
   )
 
   let output = input
+    .doto(() => {
+      if (config.backtesting !== false) {
+        input.pause()
+      }
+    })
     .through(pipeline)
+    .doto(() => {
+      // @ts-ignore
+      if (config.backtesting !== false && input._outgoing.length === 0) {
+        input.resume()
+      }
+    })
     .map(action => ({
       state: store.getState(),
       action

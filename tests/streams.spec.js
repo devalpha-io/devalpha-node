@@ -2,16 +2,16 @@ import test from 'ava'
 import _ from 'highland'
 
 import {
-  createStreamRealtime,
-  createStreamBacktest
+  createStreamMerged,
+  createStreamSorted
 } from '../dist/streams'
 
-test.cb('createStreamRealtime returns a merged stream of Redux actions', (t) => {
+test.cb('createStreamMerged returns a merged stream of Redux actions', (t) => {
   const streams = {
     foo: _(['FOO']),
     bar: _(['BAR'])
   }
-  const merged = createStreamRealtime(streams)
+  const merged = createStreamMerged(streams)
   const actions = []
 
   merged
@@ -30,7 +30,7 @@ test.cb('createStreamRealtime returns a merged stream of Redux actions', (t) => 
     })
 })
 
-test.cb('createStreamRealtime runs event in arbitrary order', (t) => {
+test.cb('createStreamMerged runs event in arbitrary order', (t) => {
   let i1
   let i2
 
@@ -46,7 +46,7 @@ test.cb('createStreamRealtime runs event in arbitrary order', (t) => {
       }, 50)
     })
   }
-  const merged = createStreamRealtime(streams)
+  const merged = createStreamMerged(streams)
   const actions = []
 
   setTimeout(() => {
@@ -64,17 +64,17 @@ test.cb('createStreamRealtime runs event in arbitrary order', (t) => {
   merged.each((x) => actions.push(x))
 })
 
-test.cb('createStreamBacktest returns a sorted stream of Redux actions', (t) => {
+test.cb('createStreamSorted returns a sorted stream of Redux actions', (t) => {
   const streams = {
     foo: _([{ timestamp: 10 }]),
     bar: _([{ timestamp: 5 }]),
-    baz: _([{}]),
     qux: _([{}]),
+    baz: _([{}]),
     quux: _([{ timestamp: 15 }]),
     corge: _([{ timestamp: 10 }]),
     grault: _([{ timestamp: -Infinity }])
   }
-  const sorted = createStreamBacktest(streams)
+  const sorted = createStreamSorted(streams)
   const actions = []
 
   sorted
@@ -96,17 +96,21 @@ test.cb('createStreamBacktest returns a sorted stream of Redux actions', (t) => 
     })
 })
 
-test.cb('createStreamBacktest does not emit errors', (t) => {
+test.cb('createStreamSorted does not emit errors', (t) => {
   const streams = {
     foo: _.fromError(new Error())
   }
-  const merged = createStreamBacktest(streams)
+  const merged = createStreamSorted(streams)
   const actions = []
+  const errors = []
 
   merged
-    .each((x) => actions.push(x))
-    .done(() => {
+    .doto((x) => actions.push(x))
+    .errors((e) => {
+      errors.push(e)
+      t.is(errors.length, 1)
       t.deepEqual(actions, [])
       t.end()
     })
+    .resume()
 })
