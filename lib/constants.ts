@@ -8,7 +8,6 @@ export const ORDER_CANCELLED = '@@vester/ORDER_CANCELLED'
 export const ORDER_CANCEL = '@@vester/ORDER_CANCEL'
 export const INITIALIZED = '@@vester/INITIALIZED'
 export const FINISHED = '@@vester/FINISHED'
-export const BAR_RECEIVED = '@@vester/BAR_RECEIVED'
 
 export const DASHBOARD_INITIALIZE = '@@vester/DASHBOARD_INITIALIZE'
 export const DASHBOARD_EVENTS = '@@vester/DASHBOARD_EVENTS'

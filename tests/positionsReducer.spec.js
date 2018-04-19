@@ -4,8 +4,7 @@ import Decimal from 'decimal.js'
 import { positionsReducer as reducer } from '../dist/reducers/positionsReducer'
 import {
   INITIALIZED,
-  ORDER_FILLED,
-  BAR_RECEIVED
+  ORDER_FILLED
 } from '../dist/constants'
 
 test('return the initial state', (t) => {
@@ -160,7 +159,7 @@ test(`${ORDER_FILLED}, sell-side, existing position: delete the position if quan
   t.is(reducer(initialState, action).instruments[order.identifier], undefined)
 })
 
-test(`${BAR_RECEIVED}: correctly update price, quantity and value`, (t) => {
+test(`default: correctly update price, quantity and value`, (t) => {
   const bar = {
     identifier: 'MSFT',
     timestamp: 0,
@@ -169,7 +168,7 @@ test(`${BAR_RECEIVED}: correctly update price, quantity and value`, (t) => {
     low: 90,
     close: 100
   }
-  const action = { type: BAR_RECEIVED, payload: bar }
+  const action = { type: 'foobar', payload: bar }
   const initialState = {
     instruments: {
       MSFT: {
@@ -196,7 +195,7 @@ test(`${BAR_RECEIVED}: correctly update price, quantity and value`, (t) => {
   t.deepEqual(actual, expect)
 })
 
-test(`${BAR_RECEIVED}: dont break if non-existent position`, (t) => {
+test(`default: dont break if non-existent position`, (t) => {
   const bar = {
     identifier: 'MSFT',
     timestamp: 0,
@@ -205,7 +204,7 @@ test(`${BAR_RECEIVED}: dont break if non-existent position`, (t) => {
     low: 90,
     close: 100
   }
-  const action = { type: BAR_RECEIVED, payload: bar }
+  const action = { type: 'foobar', payload: bar }
 
   const actual = reducer(undefined, action)
   const expect = {

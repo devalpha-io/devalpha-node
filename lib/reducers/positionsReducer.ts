@@ -1,13 +1,13 @@
 import Decimal from 'decimal.js'
 import {
   Position,
-  StreamAction
+  StreamAction,
+  Bar
 } from '../typings'
 
 import {
   INITIALIZED,
-  ORDER_FILLED,
-  BAR_RECEIVED
+  ORDER_FILLED
 } from '../constants'
 
 export type PositionsState = {
@@ -20,6 +20,23 @@ export type PositionsState = {
 const initialState = {
   instruments: {},
   total: new Decimal(0)
+}
+
+/**
+ * Tries to collect properties assembling a chart bar from an object.
+ * @param {any} maybeBar A possible bar
+ */
+export function parseBar(maybeBar: any) {
+  const bar: Bar = {} as Bar
+  if (maybeBar.identifier) {
+    bar.identifier = maybeBar.identifier
+  } else {
+    throw new TypeError('Invalid argument')
+  }
+  for (const key of ['open', 'high', 'low', 'close']) {
+    bar[key] = new Decimal(maybeBar[key])
+  }
+  return bar
 }
 
 /**
@@ -107,29 +124,28 @@ export function positionsReducer(state: PositionsState = initialState, action: S
       break
     }
 
-    case BAR_RECEIVED: {
-      const bar = action.payload
-      const { identifier } = bar
+    default: {
+      try {
+        const bar = parseBar(action.payload)
+        const { identifier } = bar
+        if (state.instruments[identifier]) {
+          /* create a zero-value position if non-existent, then do nothing more */
+          const quantity = state.instruments[identifier].quantity
+          const marketPrice = bar.close
+          const oldValue = state.instruments[identifier].value
 
-      if (state.instruments[identifier]) {
-        /* create a zero-value position if non-existent, then do nothing more */
-        const quantity = state.instruments[identifier].quantity
-        const marketPrice = bar.close
-        const oldValue = state.instruments[identifier].value
+          /* calculate the new the value of the position */
+          /* value = quantity * marketPrice */
+          const value = Decimal.mul(quantity, marketPrice)
+          /* assign the new position */
+          state.instruments[identifier].value = value
 
-        /* calculate the new the value of the position */
-        /* value = quantity * marketPrice */
-        const value = Decimal.mul(quantity, marketPrice)
-        /* assign the new position */
-        state.instruments[identifier].value = value
-
-        state.total = Decimal.add(state.total, Decimal.sub(value, oldValue))
+          state.total = Decimal.add(state.total, Decimal.sub(value, oldValue))
+        }
+      } catch (e) {
+        // Do nothing
       }
 
-      break
-    }
-
-    default: {
       break
     }
   }

@@ -4,6 +4,19 @@ import { OrdersState } from '../reducers/ordersReducer'
 import { PositionsState } from '../reducers/positionsReducer'
 import { TimestampState } from '../reducers/timestampReducer'
 
+export type Bar = IBar & {
+  [key: string]: any
+}
+
+export interface IBar {
+  timestamp: number,
+  identifier: string,
+  open: number | Decimal,
+  high: number | Decimal,
+  low: number | Decimal,
+  close: number | Decimal
+}
+
 export interface Feeds<R> {
   [key: string]: any
 }
