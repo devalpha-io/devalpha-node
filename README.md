@@ -18,6 +18,8 @@ The internal architecture primarily consists of one big stream and a bunch of co
 -   [x] Tiny footprint
 -   [x] Easily extensible
 -   [x] Simple API
+-   [x] Thoroughly tested
+-   [x] Typescript definitions
 
 ## Installation
 
