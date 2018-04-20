@@ -45,8 +45,6 @@ export function capitalReducer(
         state.total = new Decimal(action.payload.startCapital)
       }
       if (action.payload.initialStates.capital) {
-        // TODO validate supplied data
-        // TODO check that total = cash + reservedCash
         const initial = action.payload.initialStates.capital
         
         if (typeof initial.cash !== 'undefined') {

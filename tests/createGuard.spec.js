@@ -55,6 +55,3 @@ test('reject order if placed on restricted asset', (t) => {
 
   t.deepEqual(actual, expect)
 })
-
-test.todo('reject order if short and shorting is disallowed')
-test.todo('reject order if margin limit will be exceeded')

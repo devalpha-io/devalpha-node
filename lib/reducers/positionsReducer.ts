@@ -56,7 +56,6 @@ export function positionsReducer(state: PositionsState = initialState, action: S
 
     case INITIALIZED: {
       if (action.payload.initialStates.positions) {
-        // TODO validate supplied data
         const initial = action.payload.initialStates.positions
         state = { ...state, ...initial }
       }

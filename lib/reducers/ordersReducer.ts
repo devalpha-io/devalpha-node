@@ -29,7 +29,6 @@ export function ordersReducer(state: OrdersState = initialState, action: StreamA
 
   switch (action.type) {
     case INITIALIZED: {
-      // TODO validate supplied data
       if (action.payload.initialStates.orders) {
         const initial = action.payload.initialStates.orders
         state = { ...state, ...initial }
@@ -45,7 +44,7 @@ export function ordersReducer(state: OrdersState = initialState, action: StreamA
 
     case ORDER_FILLED: {
       const order: ExecutedOrder = <ExecutedOrder> action.payload
-      // @todo: Check if partially filled as well
+      /* @todo: Check if partially filled as well */
       delete state[order.id]
       break
     }
