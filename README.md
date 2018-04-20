@@ -27,6 +27,8 @@ Install using NPM:
 
 ## Quickstart
 
+(Check out [devalpha-example](https://github.com/fhqvst/devalpha-example) for a starter repo.)
+
 Getting started is easy as pie. Hook up any source of data you like and start trading in seconds.
 
 ```javascript
@@ -69,106 +71,67 @@ vester({ feeds }, strategy).done(() => {
 
 ```javascript
 const settings = {
-  /**
-   * Toggle backtesting/realtime mode. In backtesting mode, events from the feed stream are pulled 
-   * as needed rather than pushed as created. This allows you to do a number of events for each
-   * feed item, and then pull the next one only when you're finished with the current.
-   *
-   * NOTE: Vester will only activate realtime mode when this parameter is explicitly set to 
-   * `false`. This means that setting `backtesting: 0` will not do the job.
-   *
-   * @type {boolean}
-   */
+
+  /* Toggle backtesting/realtime mode. In backtesting mode, events from the feed stream are pulled
+  as needed rather than pushed as created. This allows you to do a number of events for each feed
+  item, and then pull the next one only when you're finished with the current.
+  
+  NOTE: Vester will only activate realtime mode when this parameter is explicitly set to `false`.
+  This means that setting `backtesting: 0` will not do the job. */
   backtesting: true,
 
-  /**
-   * Only used in realtime mode. The client manages order execution, and is provided to the 
-   * internal broker middleware.
-   * @type {function}
-   */
+  /* Only used in realtime mode. The client manages order execution, and is provided to the 
+  internal broker middleware. */
   client: null,
 
-  /**
-   * Define the starting capital of your algorithm. Use only in backtesting mode. In realtime mode
-   * you're better of using the `initialStates` setting instead.
-   * @type {number}
-   */
+  /* Define the starting capital of your algorithm. Use only in backtesting mode. In realtime mode
+  you're better of using the `initialStates` setting instead. */
   startCapital: 0,
   
-  /**
-   * Provide initial states for your algorithm. One obvious use case would be when realtime
-   * trading, and you want to fetch positions, capital, or order information from your broker.
-   * @type {object}
-   */
+  /* Provide initial states for your algorithm. One obvious use case would be when realtime
+  trading, and you want to fetch positions, capital, or order information from your broker. */
   initialStates: {},
 
-  /**
-   * An object mapping event names to stream-like objects. See https://highlandjs.org/#_(source) 
-   * for a definition of "stream-like". 
-   * @type {object}
-   */
+  /* An object mapping event names to stream-like objects. See https://highlandjs.org/#_(source)
+  for a definition of "stream-like". Keys will be used as event type names. */
   feeds: {},
 
-  /**
-   * Settings for your backtest.
-   * @type {object}
-   */
+  /* Settings for your backtest. */
   backtest: {
-    /**
-     * Denotes when your backtest is started (the first date of your backtesting data).
-     * @type {number}
-     */
+    
+    /* Denotes when your backtest is started (the first date of your backtesting data). */
     timestamp: 0,
 
-    /**
-     * A number or a function used when calculating expected commission.
-     * @type {number | function}
-     */
+    /* A number or a function used when calculating expected commission. */
     commission: 0
+
   },
 
-  /**
-   * Settings for the guard middleware, which will prevent or alter orders (based on your configuration).
-   * @type {object}
-   */
+  /* Settings for the guard middleware, which will prevent or alter orders (based on your
+  configuration). */
   guard: {
-    /**
-     * Allow/disallow shorting.
-     * @type {boolean}
-     */
+    
+    /* Allow/disallow shorting. */
     shorting: false,
     
-    /**
-     * Allow/disallow trading on margin.
-     * @type {boolean}
-     */
+    /* Allow/disallow trading on margin. */
     margin: false,
 
-    /**
-     * An array of restricted instrument identifiers. Example: ['GOOG', 'SPOT'].
-     * @type {Array}
-     */
+    /* An array of restricted instrument identifiers. Example: ['GOOG', 'SPOT']. */
     restricted: []
+
   },
 
-  /**
-   * DevAlpha dashboard settings.
-   * @type {object}
-   */
+  /* DevAlpha dashboard settings. */
   dashboard: {
 
-    /**
-     * Toggle the DevAlpha dashboard.
-     * @type {boolean}
-     */
+    /* Toggle the DevAlpha dashboard. */
     active: false,
 
-    /**
-     * Port used to pipe portfolio data.
-     * @type {number}
-     */
+    /* Port used to pipe portfolio data. */
     port: 4449
   }
+
 }
 ```
 
