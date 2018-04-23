@@ -37,7 +37,7 @@ export interface GuardOptions {
   restricted?: string[]
 }
 
-export interface VesterOptions {
+export interface DevAlphaOptions {
   backtesting: boolean,
   client: any,
   startCapital: number,

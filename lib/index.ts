@@ -6,7 +6,7 @@ import * as socket from 'socket.io'
 import { createStreamMerged, createStreamSorted } from './streams'
 import { createConsumerCreator } from './consumer'
 import {
-  VesterOptions,
+  DevAlphaOptions,
   StreamAction,
   Strategy,
   RootState,
@@ -34,15 +34,15 @@ import {
 export * from './constants'
 
 /**
- * Vester only exports one function, and this is the one. It takes two parameters as input: a settings
+ * DevAlpha only exports one function, and this is the one. It takes two parameters as input: a settings
  * object and your strategy function.
  * 
  * @param {any}      settings An object containing settings.
  * @param {Strategy} strategy A Strategy function.
  * @returns {void}
  */
-export function vester(settings: any, strategy: Strategy) {
-  let config: VesterOptions = {
+export function devalpha(settings: any, strategy: Strategy) {
+  let config: DevAlphaOptions = {
     backtesting: true,
     client: null,
     startCapital: 0,

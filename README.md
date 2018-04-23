@@ -1,14 +1,10 @@
-# ![Vester](https://fhqvst.github.io/vester/images/vester-splash.svg)
+# DevAlpha
 
-<p align="center">
-  <a href="https://travis-ci.org/fhqvst/vester"><img src="https://img.shields.io/travis/fhqvst/vester.svg"></a>
-  <a href="https://david-dm.org/fhqvst/vester"><img src="https://img.shields.io/david/fhqvst/vester.svg"></a>
-  <a href="https://www.npmjs.com/package/vester"><img src="https://img.shields.io/npm/v/vester.svg"></a>
-</p>
+<a href="https://travis-ci.org/fhqvst/devalpha"><img src="https://img.shields.io/travis/fhqvst/devalpha.svg"></a>
+<a href="https://david-dm.org/fhqvst/devalpha"><img src="https://img.shields.io/david/fhqvst/devalpha.svg"></a>
+<a href="https://www.npmjs.com/package/devalpha"><img src="https://img.shields.io/npm/v/devalpha.svg"></a>
 
-## About
-
-Vester is a Javascript framework for creating and running your own algorithmic trading systems. It is built using TypeScript, weighs in at a less than 1500 lines of code, and is speedy as hell.
+DevAlpha is a Javascript framework for creating and running your own algorithmic trading systems. It is built using TypeScript, weighs in at a less than 1500 lines of code, and is speedy as hell.
 
 The internal architecture primarily consists of one big stream and a bunch of consumers. It is implemented using the excellent [Highland](https://highlandjs.org/) streams library, and also makes use of some helper functions from [Redux](https://redux.js.org/).
 
@@ -25,16 +21,16 @@ The internal architecture primarily consists of one big stream and a bunch of co
 
 Install using NPM:
 
-`npm install vester`
+`npm install devalpha`
 
 ## Quickstart
 
-(Check out [devalpha-example](https://github.com/fhqvst/devalpha-example) for a starter repo.)
+(Check out [devalpha-example](https://github.com/devalpha-io/devalpha-example) for a starter repo.)
 
 Getting started is easy as pie. Hook up any source of data you like and start trading in seconds.
 
 ```javascript
-import { vester } from 'vester'
+import { devalpha } from 'devalpha'
 
 const feeds = {
   myQuandlFeed: [1, 2, 3, 4],
@@ -64,7 +60,7 @@ const strategy = (context, action) {
 }
 
 // Make money!
-vester({ feeds }, strategy).done(() => {
+devalpha({ feeds }, strategy).done(() => {
   console.log('Finished!')
 })
 ```
@@ -78,7 +74,7 @@ const settings = {
   as needed rather than pushed as created. This allows you to do a number of events for each feed
   item, and then pull the next one only when you're finished with the current.
   
-  NOTE: Vester will only activate realtime mode when this parameter is explicitly set to `false`.
+  NOTE: DevAlpha will only activate realtime mode when this parameter is explicitly set to `false`.
   This means that setting `backtesting: 0` will not do the job. */
   backtesting: true,
 
@@ -139,24 +135,24 @@ const settings = {
 
 ## Usage
 
-The `vester`-function returns an unconsumed stream, and so it is up to you to consume it (thereby running the strategy). Highland provides a number of ways of doing this ([see here](https://highlandjs.org/#Consumption)), but the easiest one is probably just to use `.resume()` like so:
+The `devalpha`-function returns an unconsumed stream, and so it is up to you to consume it (thereby running the strategy). Highland provides a number of ways of doing this ([see here](https://highlandjs.org/#Consumption)), but the easiest one is probably just to use `.resume()` like so:
 
 ```javascript
 const settings = {...}
 const strategy = (context, action) => {...}
 
-vester(settings, strategy).resume()
+devalpha(settings, strategy).resume()
 ```
 
 However, you could also do crazy things like this:
 
 ```javascript
-import { vester, ORDER_FILLED, ORDER_FAILED } from 'vester'
+import { devalpha, ORDER_FILLED, ORDER_FAILED } from 'devalpha'
 
 const settings = {...}
 const strategy = (context, action) => {...}
 
-const stream = vester(settings, strategy)
+const stream = devalpha(settings, strategy)
 
 const slackStream = stream.fork()
 const redisStream = stream.fork()

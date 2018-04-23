@@ -3,7 +3,7 @@ import _ from 'highland'
 import sinon from 'sinon'
 
 import {
-  vester,
+  devalpha,
   ORDER_PLACED,
   ORDER_FILLED,
   ORDER_FAILED,
@@ -52,7 +52,7 @@ test.serial.cb('backtest event order', t => {
     }
   }
 
-  vester({
+  devalpha({
     feeds: {
       example: [
         {
@@ -113,7 +113,7 @@ test.serial.cb('live trading event order', t => {
     }
   }
 
-  vester({
+  devalpha({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -149,7 +149,7 @@ test.serial.cb('state() returns an object', t => {
     t.end()
   }
 
-  vester({
+  devalpha({
     backtesting: false
   }, strategy).resume()
 })
@@ -172,7 +172,7 @@ test.serial.cb('failing orders are dispatched', t => {
     }
   }
 
-  vester({
+  devalpha({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -215,7 +215,7 @@ test.serial.cb('orders are cancellable', t => {
     }
   }
 
-  vester({
+  devalpha({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -248,7 +248,7 @@ test.serial.cb('should not be able to cancel unknown orders', t => {
     }
   }
 
-  vester({
+  devalpha({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -265,7 +265,7 @@ test.serial.cb('should not be able to cancel unknown orders', t => {
 /*
 test.serial.cb('correctly preloads stored state', (t) => {
 
-  vester({
+  devalpha({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -288,7 +288,7 @@ test.serial.cb('correctly preloads stored state', (t) => {
   })
 
   setTimeout(() => {
-    vester({
+    devalpha({
       feeds: {
         example: _((push, next) => {
           setTimeout(() => {
@@ -315,7 +315,7 @@ test.serial.cb('correctly preloads stored state', (t) => {
 */
 
 // test.serial.cb('logs errors on skipped events during live trading', (t) => {
-//   vester({
+//   devalpha({
 //     feeds: {
 //       example: _((push, next) => {
 //         setTimeout(() => {
@@ -339,7 +339,7 @@ test.serial.cb('correctly preloads stored state', (t) => {
 
 // test.serial.cb('logs errors on skipped events during backtests', (t) => {
 
-//   vester({
+//   devalpha({
 //     feeds: {
 //       example: [{ value: 'event 1' }]
 //     },
@@ -358,14 +358,14 @@ test.serial.cb('correctly preloads stored state', (t) => {
 // })
 
 test('throws if strategy is not a function', (t) => {
-  t.throws(() => vester({
+  t.throws(() => devalpha({
     strategy: 'foobar'
   }).resume())
 })
 
 test.serial.cb('stream returns items containing action and state during live trading', (t) => {
   const events = []
-  const strat = vester({
+  const strat = devalpha({
     feeds: {},
     backtesting: false
   }, () => {})
@@ -384,7 +384,7 @@ test.serial.cb('stream returns items containing action and state during live tra
 
 test.serial.cb('stream returns items containing action and state during backtests', (t) => {
   const events = []
-  const strat = vester({
+  const strat = devalpha({
     feeds: {}
   }, () => {})
 
@@ -401,7 +401,7 @@ test.serial.cb('stream returns items containing action and state during backtest
 })
 
 test.serial.cb('errors can be extracted from the stream', (t) => {
-  const strat = vester({
+  const strat = devalpha({
     feeds: {
       events: [{ timestamp: 0 }]
     }
@@ -417,13 +417,13 @@ test.serial.cb('errors can be extracted from the stream', (t) => {
 })
 
 test.serial.cb('errors can be extracted from merged streams', (t) => {
-  const strat1 = vester({
+  const strat1 = devalpha({
     feeds: {
       events: [{ timestamp: 0 }]
     }
   }, () => { throw new Error('strat1') })
 
-  const strat2 = vester({
+  const strat2 = devalpha({
     feeds: {
       events: [{ timestamp: 0 }]
     }
@@ -441,7 +441,7 @@ test.serial.cb('errors can be extracted from merged streams', (t) => {
 
 test.serial.cb('stream consumers recieve all events in the right order', (t) => {
   const events = []
-  const strat = vester({
+  const strat = devalpha({
     feeds: {
       events: [{ timestamp: 0 }, { timestamp: 1 }]
     }
@@ -459,7 +459,7 @@ test.serial.cb('stream consumers recieve all events in the right order', (t) => 
 
 test.serial.cb('stream consumers can apply backpressure', (t) => {
   const events = []
-  const strat = vester({
+  const strat = devalpha({
     feeds: {
       events: [{ timestamp: 0 }, { timestamp: 1 }]
     }
