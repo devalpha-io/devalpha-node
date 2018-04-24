@@ -1,7 +1,8 @@
 import Decimal from 'decimal.js'
 import {
-  StreamAction
-} from '../typings'
+  StreamAction,
+  CapitalState
+} from '../types'
 
 import {
   INITIALIZED,
@@ -9,13 +10,6 @@ import {
   ORDER_FILLED,
   ORDER_CANCELLED
 } from '../constants'
-
-export type CapitalState = {
-  cash: Decimal,
-  commission: Decimal,
-  reservedCash: Decimal,
-  total: Decimal
-}
 
 const initialState: CapitalState = {
   cash: new Decimal(0),

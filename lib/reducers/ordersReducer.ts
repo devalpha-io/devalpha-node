@@ -1,7 +1,8 @@
 import {
   ExecutedOrder,
-  StreamAction
-} from '../typings'
+  StreamAction,
+  OrdersState
+} from '../types'
 
 import {
   ORDER_PLACED,
@@ -9,10 +10,6 @@ import {
   ORDER_CANCELLED,
   INITIALIZED
 } from '../constants'
-
-export type OrdersState = {
-  [key: string]: ExecutedOrder
-}
 
 const initialState = {}
 

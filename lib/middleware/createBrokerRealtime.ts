@@ -2,8 +2,9 @@ import {
   Store,
   StreamAction,
   Order,
-  Middleware
-} from '../typings'
+  Middleware,
+  CreatedOrder
+} from '../types'
 import {
   ORDER_REQUESTED,
   ORDER_CREATED,
@@ -29,6 +30,7 @@ export function createBrokerRealtime(createClient: Function): Middleware {
   return (store: Store) => {
 
     const client = createClient({
+      // @todo Don't require the client to provide expectedPrice/Quantity/Commission
       onFill: (order: Order) => store.dispatch({ type: ORDER_FILLED, payload: order })
     })
 
@@ -58,9 +60,15 @@ export function createBrokerRealtime(createClient: Function): Middleware {
             break
           }
 
-          requestedOrder.commission = client.calculateCommission(requestedOrder)
+          const createdOrder: CreatedOrder = {
+            identifier: requestedOrder.identifier,
+            price: requestedOrder.price,
+            quantity: requestedOrder.quantity,
+            timestamp: requestedOrder.timestamp,
+            commission: client.calculateCommission(requestedOrder),
+          }
 
-          store.dispatch({ type: ORDER_CREATED, payload: requestedOrder })
+          store.dispatch({ type: ORDER_CREATED, payload: createdOrder })
           break
         }
         case ORDER_CREATED: {

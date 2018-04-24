@@ -1,8 +1,7 @@
 import {
-  StreamAction
-} from '../typings'
-
-export type TimestampState = number
+  StreamAction,
+  TimestampState
+} from '../types'
 
 const initialState = 0
 

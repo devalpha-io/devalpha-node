@@ -2,8 +2,9 @@ import {
   Store,
   Strategy,
   StreamAction,
-  Middleware
-} from '../typings'
+  Middleware,
+  RequestedOrder
+} from '../types'
 
 import {
   ORDER_REQUESTED,
@@ -24,7 +25,7 @@ export function createStrategy(strategy: Strategy): Middleware {
     strategy(
       {
         state: () => store.getState(),
-        order: (order: any) => store.dispatch({
+        order: (order: RequestedOrder) => store.dispatch({
           type: ORDER_REQUESTED,
           payload: {
             timestamp: action.payload.timestamp,

@@ -1,21 +1,16 @@
 import Decimal from 'decimal.js'
 import {
-  Position,
   StreamAction,
-  Bar
-} from '../typings'
+  Bar,
+  PositionsState,
+  // @ts-ignore TS6133
+  Position
+} from '../types'
 
 import {
   INITIALIZED,
   ORDER_FILLED
 } from '../constants'
-
-export type PositionsState = {
-  instruments: {
-    [key: string]: Position
-  },
-  total: Decimal
-}
 
 const initialState = {
   instruments: {},

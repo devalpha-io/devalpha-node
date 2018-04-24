@@ -4,19 +4,13 @@
       "module": "commonjs",
       "moduleResolution": "node",
       "target": "es5",
-      "jsx": "preserve",
       "declaration": true,
-      "sourceMap": true,
-      "lib": [
-        "es2017",
-        "dom"
-      ],
+      "lib": ["ES2018"],
       "strict": true,
       "noUnusedLocals": true,
       "noUnusedParameters": true,
       "noImplicitReturns": true,
-      "noFallthroughCasesInSwitch": true,
-      "noImplicitAny": true
+      "noFallthroughCasesInSwitch": true
     },
     "include": [
       "lib/**/*"

@@ -2,7 +2,7 @@ import {
   StreamAction,
   Feeds,
   FeedItem
-} from './typings'
+} from './types'
 
 import * as _ from 'highland'
 import { FastPriorityQueue } from 'fastpriorityqueue.ts'
@@ -14,7 +14,7 @@ import { FastPriorityQueue } from 'fastpriorityqueue.ts'
  * @param {Feeds<FeedItem>} feeds A Feeds object mapping names to stream-like objects.
  * @return {Feeds<FeedItem>} A Feeds object mapping names to actual streams.
  */
-function createStreams<FeedItem>(feeds: Feeds<FeedItem>): Feeds<FeedItem> {
+function createStreams(feeds: any): Feeds<FeedItem> {
   const streams: Feeds<FeedItem> = {}
   Object.keys(feeds).forEach((key) => {
     const feed = feeds[key]
@@ -36,7 +36,7 @@ function createStreams<FeedItem>(feeds: Feeds<FeedItem>): Feeds<FeedItem> {
  * @return {Highland.Stream<StreamAction>}       A single Highland Stream made from merged streams.
  */
 export function createStreamMerged(feeds: Feeds<FeedItem>): Highland.Stream<StreamAction> {
-  const streams: Feeds<Highland.Stream<FeedItem>> = createStreams(feeds)
+  const streams: Feeds<FeedItem> = createStreams(feeds)
   return _(Object.keys(streams)
     .map(key => streams[key].map((item: FeedItem) => ({
       type: key,
@@ -60,7 +60,7 @@ export function createStreamMerged(feeds: Feeds<FeedItem>): Highland.Stream<Stre
  * @return {Highland.Stream<StreamAction>}       A single Highland Stream made from sorted streams.
  */
 export function createStreamSorted(feeds: Feeds<FeedItem>): Highland.Stream<StreamAction> {
-  const streams: Feeds<Highland.Stream<FeedItem>> = createStreams(feeds)
+  const streams: Feeds<FeedItem> = createStreams(feeds)
   const heap = new FastPriorityQueue<StreamAction>((t1, t2) => {
     if (typeof t1 === 'undefined' && typeof t2 === 'undefined') {
       return false

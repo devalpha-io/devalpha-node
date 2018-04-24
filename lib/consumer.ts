@@ -3,13 +3,13 @@ import {
   Store,
   Middleware,
   StreamAction
-} from './typings/index'
+} from './types'
 
 /**
  * A convenience function which partially applies the createConsumer function with the given store.
  *
  * @private
- * @param {Store} store A Store object.
+ * @param {Store} store An Store object.
  * @return {Function} A partially applied createConsumer-function which only takes a middleware as parameter.
  */
 export const createConsumerCreator = (store: Store) => createConsumer(store)
@@ -19,7 +19,7 @@ export const createConsumerCreator = (store: Store) => createConsumer(store)
  * the middleware onto the events.
  *
  * @private
- * @param {Store} store A Store object.
+ * @param {Store} store An Store object.
  * @return {Function} A function which takes a middleware as parameter, which then returns a Consumer.
  */
 export const createConsumer = (store: Store) => (middleware: Middleware) => (err: Error, item: StreamAction | Highland.Nil, push: Function, next: Function): void => {
@@ -43,3 +43,4 @@ export const createConsumer = (store: Store) => (middleware: Middleware) => (err
     }
   }
 }
+

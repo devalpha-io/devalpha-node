@@ -59,12 +59,14 @@ test.cb('asynchronously dispatch order placed upon order created', (t) => {
 
 test('build limit orders', (t) => {
   const { middleware, store } = t.context
+  const timestamp = Date.now()
   const action = {
     type: ORDER_REQUESTED,
     payload: {
       identifier: 'MSFT',
       quantity: 10,
-      price: 20
+      price: 20,
+      timestamp
     }
   }
   middleware(action)
@@ -74,7 +76,8 @@ test('build limit orders', (t) => {
     identifier: 'MSFT',
     quantity: 10,
     price: 20,
-    commission: 0
+    commission: 0,
+    timestamp
   }
   t.deepEqual(actual, expect)
 })

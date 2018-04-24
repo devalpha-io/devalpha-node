@@ -1,8 +1,9 @@
 import {
   Store,
   StreamAction,
-  Middleware
-} from '../typings'
+  Middleware,
+  CreatedOrder
+} from '../types'
 import {
   ORDER_REQUESTED,
   ORDER_CREATED,
@@ -32,6 +33,8 @@ export function createBrokerBacktest(commission: number | Function): Middleware 
         case ORDER_REQUESTED: {
           const requestedOrder = { ...action.payload }
 
+          /* DevAlpha currently only supports limit, quantity, orders, but will support more in
+          future releases */
           if (typeof requestedOrder.price === 'undefined') {
             store.dispatch({ type: ORDER_FAILED, payload: new Error('missing order price') })
             break
@@ -41,9 +44,15 @@ export function createBrokerBacktest(commission: number | Function): Middleware 
             break
           }
 
-          requestedOrder.commission = calculateCommission(requestedOrder)
+          const createdOrder: CreatedOrder = {
+            identifier: requestedOrder.identifier,
+            price: requestedOrder.price,
+            quantity: requestedOrder.quantity,
+            timestamp: requestedOrder.timestamp,
+            commission: calculateCommission(requestedOrder),
+          }
 
-          store.dispatch({ type: ORDER_CREATED, payload: requestedOrder })
+          store.dispatch({ type: ORDER_CREATED, payload: createdOrder })
           break
         }
         case ORDER_CREATED: {

@@ -6,7 +6,7 @@ import {
   GuardOptions,
   ExecutedOrder,
   Middleware
-} from '../typings'
+} from '../types'
 
 import {
   ORDER_CREATED,

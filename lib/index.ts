@@ -12,7 +12,7 @@ import {
   RootState,
   Middleware,
   Consumer
-} from './typings/index'
+} from './types'
 
 import reducers from './reducers'
 import {
@@ -32,6 +32,7 @@ import {
 } from './constants'
 
 export * from './constants'
+export * from './types'
 
 /**
  * DevAlpha only exports one function, and this is the one. It takes two parameters as input: a settings

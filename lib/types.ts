@@ -1,8 +1,6 @@
 import Decimal from 'decimal.js'
-import { CapitalState } from '../reducers/capitalReducer'
-import { OrdersState } from '../reducers/ordersReducer'
-import { PositionsState } from '../reducers/positionsReducer'
-import { TimestampState } from '../reducers/timestampReducer'
+
+export type TimestampState = number
 
 export type Bar = IBar & {
   [key: string]: any
@@ -17,8 +15,32 @@ export interface IBar {
   close: number | Decimal
 }
 
+export type OrdersState = {
+  [key: string]: ExecutedOrder
+}
+
+export interface Position {
+  quantity: Decimal,
+  value: Decimal,
+  price: Decimal
+}
+
+export type PositionsState = {
+  instruments: {
+    [key: string]: Position
+  },
+  total: Decimal
+}
+
+export type CapitalState = {
+  cash: Decimal,
+  commission: Decimal,
+  reservedCash: Decimal,
+  total: Decimal
+}
+
 export interface Feeds<R> {
-  [key: string]: any
+  [key: string]: Highland.Stream<R>
 }
 
 export interface FeedItem {
@@ -71,7 +93,7 @@ export interface RootState {
 
 export interface Context {
   state: () => RootState,
-  order: (order: any) => StreamAction,
+  order: (order: RequestedOrder) => void,
   cancel: (id: string) => StreamAction,
 }
 
@@ -79,34 +101,45 @@ export type Middleware = (store: Store) => (next: Function) => (action: StreamAc
 
 export type Consumer = (err: Error, item: StreamAction | Highland.Nil, push: Function, next: Function) => void
 
+
 export interface Order {
   identifier: string,
-  quantity: number,
-  price?: number
+  timestamp?: number
 }
 
-export interface RequestedOrder extends Order {
+export interface LimitOrder extends Order { price: number }
+export interface MarketOrder extends Order { }
 
-}
+export interface QuantityOrder extends Order { quantity: number }
+export interface PercentageOrder extends Order { percent: number }
+
+export interface StopOrder extends Order { trigger: number }
+export interface TrailingOrder extends Order { threshold: number }
+
+export type PricedOrder = LimitOrder | MarketOrder
+export type ExecutingOrder = StopOrder | TrailingOrder
+export type SizedOrder = PercentageOrder | QuantityOrder
+
+export type RequestedOrder = (
+  (PricedOrder & SizedOrder) |
+  (PricedOrder & SizedOrder & ExecutingOrder)
+)
 
 export interface CreatedOrder extends Order {
-  id: string,
   commission: number,
-  timestamp: number,
-  price: number
+  quantity: number,
+  price: number,
+  timestamp: number
 }
 
-export interface ExecutedOrder extends Order {
-  id: string,
-  timestamp: number,
-  commission: number,
-  price: number
+export interface ExecutedOrder extends CreatedOrder {
+  id: string
 }
 
-export interface Position {
-  quantity: Decimal,
-  value: Decimal,
-  price: Decimal
+export interface FilledOrder extends ExecutedOrder {
+  expectedPrice: number,
+  expectedQuantity: number,
+  expectedCommission: number
 }
 
-type Strategy = (context: Context, action: StreamAction) => void
+export type Strategy = (context: Context, action: StreamAction) => void
