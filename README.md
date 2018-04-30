@@ -1,7 +1,7 @@
 # DevAlpha
 
-<a href="https://travis-ci.org/devalpha-io/devalpha"><img src="https://img.shields.io/travis/devalpha-io/devalpha-node.svg"></a>
-<a href="https://david-dm.org/devalpha-io/devalpha"><img src="https://img.shields.io/david/devalpha-io/devalpha-node.svg"></a>
+<a href="https://travis-ci.org/devalpha-io/devalpha-node"><img src="https://img.shields.io/travis/devalpha-io/devalpha-node.svg"></a>
+<a href="https://david-dm.org/devalpha-io/devalpha-node"><img src="https://img.shields.io/david/devalpha-io/devalpha-node.svg"></a>
 <a href="https://www.npmjs.com/package/devalpha"><img src="https://img.shields.io/npm/v/devalpha.svg"></a>
 
 DevAlpha is a Javascript framework for creating and running your own algorithmic trading systems. It is built using TypeScript, weighs in at a less than 1500 lines of code, and is speedy as hell.
