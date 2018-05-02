@@ -197,7 +197,11 @@ export function devalpha(settings: any, strategy: Strategy) {
       res.writeHead(200)
       res.end()
     })
-    const io = socket(app)
+    const io = socket(app, {
+      pingTimeout: 1000,
+      pingInterval: 400,
+      origins: 'localhost:* devalpha.io:*'
+    })
 
     app.listen(config.dashboard.port)
 
@@ -220,7 +224,7 @@ export function devalpha(settings: any, strategy: Strategy) {
               finishedAt
             })
 
-            client.disconnect(true)
+            client.disconnect()
             io.close()
           })
       })
