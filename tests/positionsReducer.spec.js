@@ -42,19 +42,20 @@ test(`set initial values on ${INITIALIZED}`, (t) => {
 })
 
 test(`${ORDER_FILLED}, new position: add position to the state`, (t) => {
-  const order = {
+  const placedOrder = {
     id: '0',
     identifier: 'MSFT',
-    quantity: 50,
-    price: 110,
-    commission: 5.5
+    quantity: new Decimal(50),
+    price: new Decimal(110),
+    commission: new Decimal(5.5)
   }
-  const action = { type: ORDER_FILLED, payload: order }
+  const filledOrder = { ...placedOrder }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
 
   const actual = reducer(undefined, action)
   const expect = {
     instruments: {
-      [order.identifier]: {
+      [placedOrder.identifier]: {
         quantity: new Decimal(50),
         value: new Decimal(5500),
         price: new Decimal(110)
@@ -67,14 +68,15 @@ test(`${ORDER_FILLED}, new position: add position to the state`, (t) => {
 })
 
 test(`${ORDER_FILLED}, sell-side, existing position: only update quantity and value, not price`, (t) => {
-  const order = {
+  const placedOrder = {
     id: '1',
     identifier: 'MSFT',
     quantity: -25,
     price: 110,
     commission: 5.5
   }
-  const action = { type: ORDER_FILLED, payload: order }
+  const filledOrder = { ...placedOrder }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
   const initialState = {
     instruments: {
       MSFT: {
@@ -89,7 +91,7 @@ test(`${ORDER_FILLED}, sell-side, existing position: only update quantity and va
   const actual = reducer(initialState, action)
   const expect = {
     instruments: {
-      [order.identifier]: {
+      [placedOrder.identifier]: {
         quantity: new Decimal(25),
         value: new Decimal(2750),
         price: new Decimal(100)
@@ -102,14 +104,15 @@ test(`${ORDER_FILLED}, sell-side, existing position: only update quantity and va
 })
 
 test(`${ORDER_FILLED}, buy-side, existing position: correctly update price, quantity and value`, (t) => {
-  const order = {
+  const placedOrder = {
     id: '1',
     identifier: 'MSFT',
     quantity: 50,
     price: 110,
     commission: 5.5
   }
-  const action = { type: ORDER_FILLED, payload: order }
+  const filledOrder = { ...placedOrder }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
   const initialState = {
     instruments: {
       MSFT: {
@@ -124,7 +127,7 @@ test(`${ORDER_FILLED}, buy-side, existing position: correctly update price, quan
   const actual = reducer(initialState, action)
   const expect = {
     instruments: {
-      [order.identifier]: {
+      [placedOrder.identifier]: {
         quantity: new Decimal(100),
         value: new Decimal(11000),
         price: new Decimal(105)
@@ -137,14 +140,15 @@ test(`${ORDER_FILLED}, buy-side, existing position: correctly update price, quan
 })
 
 test(`${ORDER_FILLED}, sell-side, existing position: delete the position if quantity 0`, (t) => {
-  const order = {
+  const placedOrder = {
     id: '1',
     identifier: 'MSFT',
     quantity: -50,
     price: 110,
     commission: 5.5
   }
-  const action = { type: ORDER_FILLED, payload: order }
+  const filledOrder = { ...placedOrder }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
   const initialState = {
     instruments: {
       MSFT: {
@@ -156,7 +160,7 @@ test(`${ORDER_FILLED}, sell-side, existing position: delete the position if quan
     total: new Decimal(5000)
   }
 
-  t.is(reducer(initialState, action).instruments[order.identifier], undefined)
+  t.is(reducer(initialState, action).instruments[placedOrder.identifier], undefined)
 })
 
 test(`default: correctly update price, quantity and value`, (t) => {

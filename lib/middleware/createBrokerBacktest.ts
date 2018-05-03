@@ -1,4 +1,7 @@
 import {
+  createOrderCreator
+} from '../order'
+import {
   Store,
   StreamAction,
   Middleware,
@@ -8,8 +11,7 @@ import {
   ORDER_REQUESTED,
   ORDER_CREATED,
   ORDER_PLACED,
-  ORDER_FILLED,
-  ORDER_FAILED
+  ORDER_FILLED
 } from '../constants'
 
 let orderIdCounter = 0
@@ -28,51 +30,35 @@ export function createBrokerBacktest(commission: number | Function): Middleware 
   return (store: Store) => {
 
     const calculateCommission = typeof commission === 'function' ? commission : () => commission
+    const createOrder = createOrderCreator(store)(calculateCommission)
+
     return (next: Function) => (action: StreamAction) => {
       switch (action.type) {
         case ORDER_REQUESTED: {
-          const requestedOrder = { ...action.payload }
-
-          /* DevAlpha currently only supports limit, quantity, orders, but will support more in
-          future releases */
-          if (typeof requestedOrder.price === 'undefined') {
-            store.dispatch({ type: ORDER_FAILED, payload: new Error('missing order price') })
-            break
-          }
-          if (typeof requestedOrder.quantity === 'undefined') {
-            store.dispatch({ type: ORDER_FAILED, payload: new Error('missing order quantity') })
-            break
-          }
-
-          const createdOrder: CreatedOrder = {
-            identifier: requestedOrder.identifier,
-            price: requestedOrder.price,
-            quantity: requestedOrder.quantity,
-            timestamp: requestedOrder.timestamp,
-            commission: calculateCommission(requestedOrder),
-          }
-
+          const order: any = { ...action.payload }
+          const createdOrder: CreatedOrder = createOrder(order)
           store.dispatch({ type: ORDER_CREATED, payload: createdOrder })
           break
         }
         case ORDER_CREATED: {
-          const order = { ...action.payload }
           orderIdCounter += 1
+
+          const order = { ...action.payload }
+          const id = orderIdCounter.toString()
+
+          const placedOrder = { ...order, id }
+
           store.dispatch({
             type: ORDER_PLACED,
-            payload: {
-              ...order,
-              id: orderIdCounter.toString()
-            }
+            payload: placedOrder
           })
+
           store.dispatch({
             type: ORDER_FILLED,
             payload: {
-              ...order,
-              id: orderIdCounter.toString(),
-              expectedPrice: order.price,
-              expectedQuantity: order.quantity,
-              expectedCommission: order.commission
+              placedOrder: { ...placedOrder },
+              filledOrder: { ...placedOrder },
+              timestamp: placedOrder.timestamp
             }
           })
           break

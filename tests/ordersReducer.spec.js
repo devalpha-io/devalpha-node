@@ -1,4 +1,5 @@
 import test from 'ava'
+import Decimal from 'decimal.js'
 
 import { ordersReducer as reducer } from '../dist/reducers/ordersReducer'
 import {
@@ -35,9 +36,9 @@ test(`${ORDER_PLACED} adds an order to the Map of orders`, (t) => {
   const order = {
     id: '0',
     identifier: 'MSFT',
-    quantity: 100,
-    price: 100,
-    commission: 10
+    quantity: new Decimal(100),
+    price: new Decimal(100),
+    commission: new Decimal(10)
   }
   const action = { type: ORDER_PLACED, payload: order }
 
@@ -49,17 +50,18 @@ test(`${ORDER_PLACED} adds an order to the Map of orders`, (t) => {
   t.deepEqual(actual, expect)
 })
 
-test(`${ORDER_FILLED} removes an order from the Map of orders`, (t) => {
-  const order = {
+test(`${ORDER_FILLED} removes an order from the map of orders if completely filled`, (t) => {
+  const placedOrder = {
     id: '0',
     identifier: 'MSFT',
-    quantity: 100,
-    price: 100,
-    commission: 10
+    quantity: new Decimal(100),
+    price: new Decimal(100),
+    commission: new Decimal(10)
   }
-  const action = { type: ORDER_FILLED, payload: order }
+  const filledOrder = { ...placedOrder }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
   const initialState = {
-    '0': order
+    '0': { ...placedOrder }
   }
 
   const actual = reducer(initialState, action)
@@ -68,14 +70,47 @@ test(`${ORDER_FILLED} removes an order from the Map of orders`, (t) => {
   t.deepEqual(actual, expect)
 })
 
+test(`${ORDER_FILLED} retains an order in the map of orders if partially filled`, (t) => {
+  const placedOrder = {
+    id: '0',
+    identifier: 'MSFT',
+    quantity: new Decimal(100),
+    price: new Decimal(100),
+    commission: new Decimal(10)
+  }
+  const filledOrder = {
+    id: '0',
+    identifier: 'MSFT',
+    quantity: new Decimal(25),
+    price: new Decimal(100),
+    commission: new Decimal(2.5)
+  }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
+  const initialState = {
+    '0': { ...placedOrder }
+  }
 
-test(`${ORDER_CANCELLED} removes an order from the Map of orders`, (t) => {
+  const actual = reducer(initialState, action)
+  const expect = {
+    '0': {
+      id: '0',
+      identifier: 'MSFT',
+      quantity: new Decimal(75),
+      price: new Decimal(100),
+      commission: new Decimal(7.5)
+    }
+  }
+
+  t.deepEqual(actual, expect)
+})
+
+test(`${ORDER_CANCELLED} removes an order from the map of orders`, (t) => {
   const order = {
     id: '0',
     identifier: 'MSFT',
-    quantity: 100,
-    price: 100,
-    commission: 10
+    quantity: new Decimal(100),
+    price: new Decimal(100),
+    commission: new Decimal(10)
   }
   const action = { type: ORDER_CANCELLED, payload: { id: '0' } }
   const initialState = {

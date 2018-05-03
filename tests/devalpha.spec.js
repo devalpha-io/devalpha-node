@@ -70,8 +70,7 @@ test.serial.cb('backtest event order', t => {
         cash: 9999999
       }
     }
-  }, strategy)
-    .resume()
+  }, strategy).resume()
 
   setTimeout(() => {
     const expected = 'abcdedeabcdede'

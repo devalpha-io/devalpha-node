@@ -4,7 +4,6 @@ import {
   StreamAction,
   CreatedOrder,
   GuardOptions,
-  ExecutedOrder,
   Middleware
 } from '../types'
 
@@ -32,7 +31,7 @@ export function createGuard(options: GuardOptions): Middleware {
 
     const isDisallowedShort = (order: CreatedOrder) => {
       const { quantity, identifier } = order
-      if ((!options.shorting) && quantity < 0) {
+      if ((!options.shorting) && quantity.isNegative()) {
 
         const instrument = store.getState().positions.instruments[identifier]
 
@@ -63,7 +62,7 @@ export function createGuard(options: GuardOptions): Middleware {
     return (next: Function) => (action: StreamAction) => {
       switch (action.type) {
         case ORDER_CREATED: {
-          const order: ExecutedOrder = <ExecutedOrder> action.payload
+          const order: CreatedOrder = <CreatedOrder> action.payload
           if (
             isRestrictedAsset(order) ||
             isDisallowedShort(order) ||

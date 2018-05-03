@@ -89,22 +89,23 @@ export function capitalReducer(
     }
 
     case ORDER_FILLED: {
-      const order = action.payload
+      const placedOrder = action.payload.placedOrder
+      const filledOrder = action.payload.filledOrder
 
       // @ts-ignore TS2322 Decimal.sign returns number (decimal.js@10.0.0)
-      const direction: number = Decimal.sign(order.quantity)
+      const direction: number = Decimal.sign(filledOrder.quantity)
 
       /* adjust commission for partially filled orders */
       /* adjustedCommission = expectedCommission * quantity / expectedQuantity */
-      const adjustedCommission = new Decimal(order.expectedCommission)
-        .mul(order.quantity)
-        .div(order.expectedQuantity)
+      const adjustedCommission = new Decimal(placedOrder.commission)
+        .mul(filledOrder.quantity)
+        .div(placedOrder.quantity)
 
       if (direction === 1) {
         /* order.expectedQuantity not used as we can be partially filled as well. */
         /* cost = quantity * expectedPrice + adjustedCommission */
-        const cost = new Decimal(order.quantity)
-          .mul(order.expectedPrice)
+        const cost = new Decimal(filledOrder.quantity)
+          .mul(placedOrder.price)
           .add(adjustedCommission)
 
         /* reservedCash = reservedCash - cost */
@@ -116,11 +117,11 @@ export function capitalReducer(
         /* extraCommission = max(0, (commission - expectedCommission) * quantity) */
         const extraCommission = Decimal.max(
           0, 
-          Decimal.sub(order.commission, order.expectedCommission).mul(order.commission)
+          Decimal.sub(filledOrder.commission, placedOrder.commission).mul(filledOrder.commission)
         )
 
         /* receivedCash = |quantity * price| - extraCommission */
-        const receivedCash = Decimal.mul(order.quantity, order.price)
+        const receivedCash = Decimal.mul(filledOrder.quantity, filledOrder.price)
           .abs()
           .sub(extraCommission)
 
@@ -135,7 +136,7 @@ export function capitalReducer(
       }
 
       /* adjust commission */
-      state.commission = Decimal.add(state.commission, order.commission)
+      state.commission = Decimal.add(state.commission, filledOrder.commission)
 
       state.total = Decimal.add(state.cash, state.reservedCash)
 

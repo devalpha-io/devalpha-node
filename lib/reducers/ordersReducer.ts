@@ -1,3 +1,5 @@
+import Decimal from 'decimal.js'
+
 import {
   ExecutedOrder,
   StreamAction,
@@ -34,15 +36,33 @@ export function ordersReducer(state: OrdersState = initialState, action: StreamA
     }
 
     case ORDER_PLACED: {
-      const order: ExecutedOrder = <ExecutedOrder> action.payload
+      const order: ExecutedOrder = action.payload as ExecutedOrder
       state[order.id] = order
       break
     }
 
     case ORDER_FILLED: {
-      const order: ExecutedOrder = <ExecutedOrder> action.payload
-      /* @todo: Check if partially filled as well */
-      delete state[order.id]
+      const order: ExecutedOrder = action.payload.filledOrder as ExecutedOrder
+
+      const storedOrder = state[order.id]
+      if (storedOrder.quantity.eq(order.quantity)) {
+        delete state[order.id]
+      } else if (
+        (storedOrder.quantity.isPositive() && order.quantity.gt(storedOrder.quantity)) ||
+        (storedOrder.quantity.isNegative() && order.quantity.lt(storedOrder.quantity))
+      ) {
+        const expected = storedOrder.quantity.toFixed(2)
+        const actual = order.quantity.toFixed(2)
+        throw new Error(`received order quantity ${actual} while expecting ${expected}`)
+      } else {
+        const newQuantity = Decimal.sub(storedOrder.quantity, order.quantity)
+        const newCommission = Decimal.sub(storedOrder.commission, order.commission)
+        state[order.id] = {
+          ...storedOrder,
+          quantity: newQuantity,
+          commission: newCommission,
+        }
+      }
       break
     }
 

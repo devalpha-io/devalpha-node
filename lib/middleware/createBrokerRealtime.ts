@@ -1,9 +1,11 @@
+import Decimal from 'decimal.js'
+import { createOrderCreator } from '../order'
 import {
   Store,
   StreamAction,
-  Order,
   Middleware,
-  CreatedOrder
+  CreatedOrder,
+  ExecutedOrder
 } from '../types'
 import {
   ORDER_REQUESTED,
@@ -31,49 +33,45 @@ export function createBrokerRealtime(createClient: Function): Middleware {
 
     const client = createClient({
       // @todo Don't require the client to provide expectedPrice/Quantity/Commission
-      onFill: (order: Order) => store.dispatch({ type: ORDER_FILLED, payload: order })
+      onFill: (order: ExecutedOrder) => {
+        store.dispatch({
+          type: ORDER_FILLED,
+          payload: {
+            placedOrder: { ...store.getState().orders[order.id] },
+            filledOrder: {
+              id: order.id,
+              identifier: order.identifier,
+              price: new Decimal(order.price),
+              quantity: new Decimal(order.quantity),
+              commission: new Decimal(order.commission),
+              timestamp: order.timestamp
+            },
+            timestamp: order.timestamp
+          }
+        })
+      }
     })
+
+    const createOrder = createOrderCreator(store)(client.calculateCommission)
 
     return (next: Function) => (action: StreamAction) => {
       switch (action.type) {
         case ORDER_REQUESTED: {
-          const requestedOrder = { ...action.payload }
-
-          if (typeof requestedOrder.price === 'undefined') {
-            store.dispatch({
-              type: ORDER_FAILED,
-              payload: {
-                timestamp: Date.now(),
-                error: new Error('missing order price')
-              }
-            })
-            break
-          }
-          if (typeof requestedOrder.quantity === 'undefined') {
-            store.dispatch({
-              type: ORDER_FAILED,
-              payload: {
-                timestamp: Date.now(),
-                error: new Error('missing order quantity')
-              }
-            })
-            break
-          }
-
-          const createdOrder: CreatedOrder = {
-            identifier: requestedOrder.identifier,
-            price: requestedOrder.price,
-            quantity: requestedOrder.quantity,
-            timestamp: requestedOrder.timestamp,
-            commission: client.calculateCommission(requestedOrder),
-          }
-
+          const order = { ...action.payload }
+          const createdOrder: CreatedOrder = createOrder(order)
           store.dispatch({ type: ORDER_CREATED, payload: createdOrder })
           break
         }
         case ORDER_CREATED: {
-          client.executeOrder({ ...action.payload }).then((res: Order) => {
-            const executedOrder = res
+          client.executeOrder({ ...action.payload }).then((res: any) => {
+            const executedOrder: ExecutedOrder = {
+              id: res.id,
+              identifier: res.identifier,
+              price: res.price,
+              quantity: res.quantity,
+              commission: res.commission,
+              timestamp: res.timestamp
+            }
             store.dispatch({ type: ORDER_PLACED, payload: { ...executedOrder } })
           }).catch((error: Error) => {
             store.dispatch({

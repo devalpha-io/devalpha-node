@@ -58,20 +58,21 @@ export function positionsReducer(state: PositionsState = initialState, action: S
     }
 
     case ORDER_FILLED: {
-      const order = action.payload
-      const { identifier } = order
+      const filledOrder = action.payload.filledOrder
+
+      const { identifier } = filledOrder
       // @ts-ignore TS2322 Decimal.sign returns number (decimal.js@10.0.0)
-      const direction: number = Decimal.sign(order.quantity)
+      const direction: number = Decimal.sign(filledOrder.quantity)
 
       /* this is a new instrument, so add it and exit early */
       if (!state.instruments[identifier]) {
         /* value = quantity * price */
-        const value = Decimal.mul(order.quantity, order.price)
+        const value = Decimal.mul(filledOrder.quantity, filledOrder.price)
 
         state.instruments[identifier] = {
-          quantity: new Decimal(order.quantity),
+          quantity: new Decimal(filledOrder.quantity),
           value,
-          price: new Decimal(order.price)
+          price: new Decimal(filledOrder.price)
         }
 
         state.total = Decimal.add(state.total, value)
@@ -85,20 +86,20 @@ export function positionsReducer(state: PositionsState = initialState, action: S
         /* price =
          *   (order.price * order.quantity + (instrument.quantity * instrument.price)) /
          *   (instrument.quantity + order.quantity) */
-        const price = Decimal.mul(order.price, order.quantity)
+        const price = Decimal.mul(filledOrder.price, filledOrder.quantity)
           .add(Decimal.mul(instrument.quantity, instrument.price))
-          .div(Decimal.add(instrument.quantity, order.quantity))
+          .div(Decimal.add(instrument.quantity, filledOrder.quantity))
 
         instrument.price = price
       }
 
       /* update quantity */
       /* quantity = instrument.quantity + order.quantity */
-      const quantity = Decimal.add(instrument.quantity, order.quantity)
+      const quantity = Decimal.add(instrument.quantity, filledOrder.quantity)
 
       /* update value */
       /* value = order.price * (instrument.quantity + order.quantity) */
-      const value = Decimal.mul(order.price, Decimal.add(instrument.quantity, order.quantity))
+      const value = Decimal.mul(filledOrder.price, Decimal.add(instrument.quantity, filledOrder.quantity))
         
       const oldValue = instrument.value
 

@@ -76,9 +76,9 @@ test(`${ORDER_PLACED} of a sell-side order correctly edits reservedCash`, (t) =>
   const order = {
     id: '1',
     identifier: 'MSFT',
-    quantity: -50,
-    price: 110,
-    commission: 5.5
+    quantity: new Decimal(-50),
+    price: new Decimal(110),
+    commission: new Decimal(5.5)
   }
   const action = { type: ORDER_PLACED, payload: order }
 
@@ -97,9 +97,9 @@ test(`${ORDER_PLACED} of a buy-side order correctly edits cash, commission and r
   const order = {
     id: '0',
     identifier: 'MSFT',
-    quantity: 100,
-    price: 100,
-    commission: 10
+    quantity: new Decimal(100),
+    price: new Decimal(100),
+    commission: new Decimal(10)
   }
   const action = { type: ORDER_PLACED, payload: order }
 
@@ -118,9 +118,9 @@ test(`${ORDER_CANCELLED} of a sell-side order does not modify anything`, (t) => 
   const order = {
     id: '1',
     identifier: 'MSFT',
-    quantity: -50,
-    price: 110,
-    commission: 5.5
+    quantity: new Decimal(-50),
+    price: new Decimal(110),
+    commission: new Decimal(5.5)
   }
   const action = { type: ORDER_CANCELLED, payload: order }
 
@@ -134,9 +134,9 @@ test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reserved
   const order = {
     id: '0',
     identifier: 'MSFT',
-    quantity: 100,
-    price: 100,
-    commission: 10
+    quantity: new Decimal(100),
+    price: new Decimal(100),
+    commission: new Decimal(10)
   }
   const action = { type: ORDER_CANCELLED, payload: order }
   const initialState = {
@@ -156,23 +156,21 @@ test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reserved
 })
 
 test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decrease reservedCash`, (t) => {
-  const order = {
+  const placedOrder = {
     id: '0',
     identifier: 'MSFT',
-    quantity: -100,
-    price: 100,
-    commission: 10,
-    expectedQuantity: -100,
-    expectedPrice: 100,
-    expectedCommission: 10,
-    timestamp: 100
+    quantity: new Decimal(-100),
+    price: new Decimal(100),
+    commission: new Decimal(10),
+    timestamp: new Decimal(100)
   }
-  const action = { type: ORDER_FILLED, payload: order }
+  const filledOrder = { ...placedOrder }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
   const initialState = {
-    cash: -10,
-    reservedCash: 10,
-    commission: 0,
-    total: 0
+    cash: new Decimal(-10),
+    reservedCash: new Decimal(10),
+    commission: new Decimal(0),
+    total: new Decimal(0)
   }
 
   const actual = reducer(initialState, action)
@@ -187,18 +185,16 @@ test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decre
 })
 
 test(`${ORDER_FILLED}, buy-side, should increase commission and decrease reservedCash`, (t) => {
-  const order = {
+  const placedOrder = {
     id: '0',
     identifier: 'MSFT',
     quantity: 100,
     price: 100,
     commission: 10,
-    expectedQuantity: 100,
-    expectedPrice: 100,
-    expectedCommission: 10,
     timestamp: 100
   }
-  const action = { type: ORDER_FILLED, payload: order }
+  const filledOrder = { ...placedOrder }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
   const initialState = {
     cash: new Decimal(0),
     reservedCash: new Decimal(10010),
@@ -218,18 +214,20 @@ test(`${ORDER_FILLED}, buy-side, should increase commission and decrease reserve
 })
 
 test(`${ORDER_FILLED}, buy-side, partial fill, should increase commission and decrease reservedCash`, (t) => {
-  const order = {
+  const placedOrder = {
     id: '0',
     identifier: 'MSFT',
-    quantity: 50,
-    price: 100,
-    commission: 5,
-    expectedQuantity: 100,
-    expectedPrice: 100,
-    expectedCommission: 10,
-    timestamp: 100
+    quantity: new Decimal(100),
+    price: new Decimal(100),
+    commission: new Decimal(10),
+    timestamp: new Decimal(100)
   }
-  const action = { type: ORDER_FILLED, payload: order }
+  const filledOrder = {
+    ...placedOrder,
+    quantity: new Decimal(50),
+    commission: new Decimal(5)
+  }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
   const initialState = {
     cash: new Decimal(0),
     reservedCash: new Decimal(10010),
@@ -249,18 +247,20 @@ test(`${ORDER_FILLED}, buy-side, partial fill, should increase commission and de
 })
 
 test(`${ORDER_FILLED}, sell-side, partial fill, increase cash and commission, and decrease reservedCash`, (t) => {
-  const order = {
+  const placedOrder = {
     id: '0',
     identifier: 'MSFT',
-    quantity: -50,
-    price: 100,
-    commission: 5,
-    expectedQuantity: -100,
-    expectedPrice: 100,
-    expectedCommission: 10,
-    timestamp: 100
+    quantity: new Decimal(-100),
+    price: new Decimal(100),
+    commission: new Decimal(10),
+    timestamp: new Decimal(100)
   }
-  const action = { type: ORDER_FILLED, payload: order }
+  const filledOrder = {
+    ...placedOrder,
+    quantity: new Decimal(-50),
+    commission: new Decimal(5)
+  }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
   const initialState = {
     cash: new Decimal(-10),
     reservedCash: new Decimal(10),
@@ -280,18 +280,21 @@ test(`${ORDER_FILLED}, sell-side, partial fill, increase cash and commission, an
 })
 
 test(`${ORDER_FILLED}, buy-side, better price, should increase commission and decrease reservedCash`, (t) => {
-  const order = {
+  const placedOrder = {
     id: '0',
     identifier: 'MSFT',
-    quantity: 100,
-    price: 90,
-    commission: 9,
-    expectedQuantity: 100,
-    expectedPrice: 100,
-    expectedCommission: 10,
-    timestamp: 100
+    quantity: new Decimal(100),
+    price: new Decimal(100),
+    commission: new Decimal(10),
+    timestamp: new Decimal(100)
   }
-  const action = { type: ORDER_FILLED, payload: order }
+  const filledOrder = {
+    ...placedOrder,
+    quantity: new Decimal(100),
+    price: new Decimal(90),
+    commission: new Decimal(9),
+  }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
   const initialState = {
     cash: new Decimal(0),
     reservedCash: new Decimal(10010),
@@ -311,18 +314,21 @@ test(`${ORDER_FILLED}, buy-side, better price, should increase commission and de
 })
 
 test(`${ORDER_FILLED}, sell-side, better price, increase cash and commission, and decrease reservedCash`, (t) => {
-  const order = {
+  const placedOrder = {
     id: '0',
     identifier: 'MSFT',
-    quantity: -100,
-    price: 110,
-    commission: 11,
-    expectedQuantity: -100,
-    expectedPrice: 100,
-    expectedCommission: 10,
+    quantity: new Decimal(-100),
+    price: new Decimal(100),
+    commission: new Decimal(10),
     timestamp: 100
   }
-  const action = { type: ORDER_FILLED, payload: order }
+  const filledOrder = {
+    ...placedOrder,
+    quantity: new Decimal(-100),
+    price: new Decimal(110),
+    commission: new Decimal(11),
+  }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
   const initialState = {
     cash: new Decimal(-10),
     reservedCash: new Decimal(10),

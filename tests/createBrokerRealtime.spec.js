@@ -1,5 +1,6 @@
 import test from 'ava'
 import sinon from 'sinon'
+import Decimal from 'decimal.js'
 import {
   ORDER_REQUESTED,
   ORDER_CREATED,
@@ -36,7 +37,8 @@ test('synchronously dispatch order created upon order requested', (t) => {
     payload: {
       identifier: 'GOOG',
       quantity: 10,
-      price: 20
+      price: 20,
+      timestamp: 0
     }
   }
   middleware(action)
@@ -74,36 +76,10 @@ test('build limit orders', (t) => {
   const actual = store.dispatch.firstCall.args[0].payload
   const expect = {
     identifier: 'MSFT',
-    quantity: 10,
-    price: 20,
-    commission: 0,
+    quantity: new Decimal(10),
+    price: new Decimal(20),
+    commission: new Decimal(0),
     timestamp
   }
   t.deepEqual(actual, expect)
-})
-
-test(`dispatch ${ORDER_FAILED} if missing price`, (t) => {
-  const { middleware, store } = t.context
-  const action = {
-    type: ORDER_REQUESTED,
-    payload: {
-      identifier: 'foo',
-      quantity: 100
-    }
-  }
-  middleware(action)
-  t.true(store.dispatch.lastCall.args[0].type === ORDER_FAILED)
-})
-
-test(`dispatch ${ORDER_FAILED} if missing quantity`, (t) => {
-  const { middleware, store } = t.context
-  const action = {
-    type: ORDER_REQUESTED,
-    payload: {
-      identifier: 'foo',
-      price: 100
-    }
-  }
-  middleware(action)
-  t.true(store.dispatch.lastCall.args[0].type === ORDER_FAILED)
 })

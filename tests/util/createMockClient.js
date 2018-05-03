@@ -14,11 +14,7 @@ module.exports = function createMockClient(fail = false) {
       } else {
         /* simulate market delay */
         setTimeout(() => {
-          onFill(Object.assign({}, builtOrder, {
-            expectedPrice: order.price,
-            expectedQuantity: order.quantity,
-            expectedCommission: order.commission
-          }))
+          onFill(builtOrder)
         }, 200)
       }
 

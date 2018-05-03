@@ -103,12 +103,10 @@ export type Consumer = (err: Error, item: StreamAction | Highland.Nil, push: Fun
 
 
 export interface Order {
-  identifier: string,
-  timestamp?: number
+  identifier: string
 }
 
 export interface LimitOrder extends Order { price: number }
-export interface MarketOrder extends Order { }
 
 export interface QuantityOrder extends Order { quantity: number }
 export interface PercentageOrder extends Order { percent: number }
@@ -116,30 +114,23 @@ export interface PercentageOrder extends Order { percent: number }
 export interface StopOrder extends Order { trigger: number }
 export interface TrailingOrder extends Order { threshold: number }
 
-export type PricedOrder = LimitOrder | MarketOrder
-export type ExecutingOrder = StopOrder | TrailingOrder
+export type AutomatedOrder = StopOrder | TrailingOrder
 export type SizedOrder = PercentageOrder | QuantityOrder
 
 export type RequestedOrder = (
-  (PricedOrder & SizedOrder) |
-  (PricedOrder & SizedOrder & ExecutingOrder)
+  (LimitOrder & SizedOrder) |
+  (LimitOrder & SizedOrder & AutomatedOrder)
 )
 
 export interface CreatedOrder extends Order {
-  commission: number,
-  quantity: number,
-  price: number,
+  commission: Decimal,
+  quantity: Decimal,
+  price: Decimal,
   timestamp: number
 }
 
 export interface ExecutedOrder extends CreatedOrder {
   id: string
-}
-
-export interface FilledOrder extends ExecutedOrder {
-  expectedPrice: number,
-  expectedQuantity: number,
-  expectedCommission: number
 }
 
 export type Strategy = (context: Context, action: StreamAction) => void
