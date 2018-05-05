@@ -30,7 +30,7 @@
     "dev": "NODE_ENV=development tsc --watch",
     "api": "documentation readme dist/**/* --section=API --markdown-toc=false",
     "start": "npm run build",
-    "lint": "tslint lib/**/*",
+    "lint": "tslint -c tslint.json 'lib/**/*.ts'",
     "test": "NODE_ENV=test jest --coverage"
   },
   "jest": {
