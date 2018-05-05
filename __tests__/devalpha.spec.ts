@@ -1,6 +1,4 @@
-import test from 'ava'
-import _ from 'highland'
-import sinon from 'sinon'
+import * as _ from 'highland'
 
 import {
   devalpha,
@@ -11,18 +9,20 @@ import {
   INITIALIZED,
   FINISHED
 } from '../dist'
-import createMockClient from './util/createMockClient'
+import { createMockClient } from './util/createMockClient'
 
-test.beforeEach((t) => {
+const t = { context: {} }
+
+beforeEach(() => {
   t.context.error = console.error
-  console.error = sinon.spy()
+  console.error = jest.fn()
 })
 
-test.afterEach((t) => {
+afterEach(() => {
   console.error = t.context.error
 })
 
-test.serial.cb('backtest event order', t => {
+test('backtest event order', done => {
   const executions = []
   const strategy = ({ order }, action) => {
     switch (action.type) {
@@ -75,13 +75,13 @@ test.serial.cb('backtest event order', t => {
   setTimeout(() => {
     const expected = 'abcdedeabcdede'
     const actual = executions.join('')
-    t.is(actual, expected)
-    t.end()
+    expect(actual).toBe(expected)
+    done()
   }, 100)
 
 })
 
-test.serial.cb('live trading event order', t => {
+test('live trading event order', done => {
 
   const executions = []
   const strategy = ({ order }, action) => {
@@ -135,17 +135,17 @@ test.serial.cb('live trading event order', t => {
   setTimeout(() => {
     const expected = 'abcabcddddeeee'
     const actual = executions.join('')
-    t.is(actual, expected)
-    t.end()
+    expect(actual).toBe(expected)
+    done()
   }, 1000)
 
 })
 
-test.serial.cb('state() returns an object', t => {
+test('state() returns an object', done => {
 
   const strategy = ({ state }, action) => {
-    t.is(typeof (state()), 'object')
-    t.end()
+    expect(typeof (state())).toBe('object')
+    done()
   }
 
   devalpha({
@@ -153,7 +153,7 @@ test.serial.cb('state() returns an object', t => {
   }, strategy).resume()
 })
 
-test.serial.cb('failing orders are dispatched', t => {
+test('failing orders are dispatched', done => {
   const strategy = ({ order }, action) => {
     switch (action.type) {
     case 'example':
@@ -164,7 +164,7 @@ test.serial.cb('failing orders are dispatched', t => {
       })
       break
     case ORDER_FAILED:
-      t.end()
+      done()
       break
     default:
       break
@@ -190,7 +190,7 @@ test.serial.cb('failing orders are dispatched', t => {
 
 })
 
-test.serial.cb('orders are cancellable', t => {
+test('orders are cancellable', done => {
   const strategy = ({ order, cancel, state }, action) => {
     switch (action.type) {
     case 'example':
@@ -206,8 +206,8 @@ test.serial.cb('orders are cancellable', t => {
     case ORDER_CANCELLED:
       const actual = state().orders
       const expected = {}
-      t.deepEqual(actual, expected)
-      t.end()
+      expect(actual).toEqual(expected)
+      done()
       break
     default:
       break
@@ -233,14 +233,14 @@ test.serial.cb('orders are cancellable', t => {
 
 })
 
-test.serial.cb('should not be able to cancel unknown orders', t => {
+test('should not be able to cancel unknown orders', done => {
   const strategy = ({ cancel }, action) => {
     switch (action.type) {
     case 'example':
       cancel('1')
       break
     case ORDER_FAILED:
-      t.end()
+      done()
       break
     default:
       break
@@ -328,7 +328,7 @@ test.serial.cb('correctly preloads stored state', (t) => {
 //     backtesting: false,
 //     onError: (err) => {
 //       const actual = err.message
-//       const expect = 'Skipped event from feed example due to missing timestamp property.'
+//       const expected = 'Skipped event from feed example due to missing timestamp property.'
 
 //       t.is(actual, expect)
 //       t.end()
@@ -347,7 +347,7 @@ test.serial.cb('correctly preloads stored state', (t) => {
 //     resume: true,
 //     onError: (err) => {
 //       const actual = err.message
-//       const expect = 'Skipped event from feed example due to missing timestamp property.'
+//       const expected = 'Skipped event from feed example due to missing timestamp property.'
 
 //       t.is(actual, expect)
 //       t.end()
@@ -356,50 +356,56 @@ test.serial.cb('correctly preloads stored state', (t) => {
 
 // })
 
-test('throws if strategy is not a function', (t) => {
-  t.throws(() => devalpha({
+test('throws if strategy is not a function', () => {
+  expect(() => devalpha({
     strategy: 'foobar'
-  }).resume())
+  }).resume()).toThrow()
 })
 
-test.serial.cb('stream returns items containing action and state during live trading', (t) => {
-  const events = []
-  const strat = devalpha({
-    feeds: {},
-    backtesting: false
-  }, () => {})
+test(
+  'stream returns items containing action and state during live trading',
+  done => {
+    const events = []
+    const strat = devalpha({
+      feeds: {},
+      backtesting: false
+    }, () => {})
 
-  strat.each(({ state, action }) => {
-    t.is(typeof state.capital, 'object')
-    t.is(typeof state.orders, 'object')
-    t.is(typeof state.positions, 'object')
-    t.is(typeof state.timestamp, 'number')
-    events.push(action.type)
-  }).done(() => {
-    t.deepEqual(events, [INITIALIZED, FINISHED])
-    t.end()
-  })
-})
+    strat.each(({ state, action }) => {
+      expect(typeof state.capital).toBe('object')
+      expect(typeof state.orders).toBe('object')
+      expect(typeof state.positions).toBe('object')
+      expect(typeof state.timestamp).toBe('number')
+      events.push(action.type)
+    }).done(() => {
+      expect(events).toEqual([INITIALIZED, FINISHED])
+      done()
+    })
+  }
+)
 
-test.serial.cb('stream returns items containing action and state during backtests', (t) => {
-  const events = []
-  const strat = devalpha({
-    feeds: {}
-  }, () => {})
+test(
+  'stream returns items containing action and state during backtests',
+  done => {
+    const events = []
+    const strat = devalpha({
+      feeds: {}
+    }, () => {})
 
-  strat.each(({ state, action }) => {
-    t.is(typeof state.capital, 'object')
-    t.is(typeof state.orders, 'object')
-    t.is(typeof state.positions, 'object')
-    t.is(typeof state.timestamp, 'number')
-    events.push(action.type)
-  }).done(() => {
-    t.deepEqual(events, [INITIALIZED, FINISHED])
-    t.end()
-  })
-})
+    strat.each(({ state, action }) => {
+      expect(typeof state.capital).toBe('object')
+      expect(typeof state.orders).toBe('object')
+      expect(typeof state.positions).toBe('object')
+      expect(typeof state.timestamp).toBe('number')
+      events.push(action.type)
+    }).done(() => {
+      expect(events).toEqual([INITIALIZED, FINISHED])
+      done()
+    })
+  }
+)
 
-test.serial.cb('errors can be extracted from the stream', (t) => {
+test('errors can be extracted from the stream', done => {
   const strat = devalpha({
     feeds: {
       events: [{ timestamp: 0 }]
@@ -409,13 +415,13 @@ test.serial.cb('errors can be extracted from the stream', (t) => {
   })
 
   strat.errors((err) => {
-    t.is(err.message, 'strat')
+    expect(err.message).toBe('strat')
   }).done(() => {
-    t.end()
+    done()
   })
 })
 
-test.serial.cb('errors can be extracted from merged streams', (t) => {
+test('errors can be extracted from merged streams', done => {
   const strat1 = devalpha({
     feeds: {
       events: [{ timestamp: 0 }]
@@ -432,13 +438,13 @@ test.serial.cb('errors can be extracted from merged streams', (t) => {
   _.merge([strat1, strat2]).errors((err) => {
     errors.push(err)
   }).done(() => {
-    t.is(errors[0].message, 'strat1')
-    t.is(errors[1].message, 'strat2')
-    t.end()
+    expect(errors[0].message).toBe('strat1')
+    expect(errors[1].message).toBe('strat2')
+    done()
   })
 })
 
-test.serial.cb('stream consumers recieve all events in the right order', (t) => {
+test('stream consumers recieve all events in the right order', done => {
   const events = []
   const strat = devalpha({
     feeds: {
@@ -451,12 +457,12 @@ test.serial.cb('stream consumers recieve all events in the right order', (t) => 
   strat.each(() => {
     events.push('b')
   }).done(() => {
-    t.deepEqual(events.join(''), 'abababab')
-    t.end()
+    expect(events.join('')).toEqual('abababab')
+    done()
   })
 })
 
-test.serial.cb('stream consumers can apply backpressure', (t) => {
+test('stream consumers can apply backpressure', done => {
   const events = []
   const strat = devalpha({
     feeds: {
@@ -481,8 +487,8 @@ test.serial.cb('stream consumers can apply backpressure', (t) => {
   })
 
   strat.fork().done(() => {
-    t.deepEqual(events.join(''), 'abcabcabcabc')
-    t.end()
+    expect(events.join('')).toEqual('abcabcabcabc')
+    done()
   })
 
   fork1.resume()

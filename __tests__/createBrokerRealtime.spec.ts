@@ -1,36 +1,36 @@
-import test from 'ava'
-import sinon from 'sinon'
 import Decimal from 'decimal.js'
 import {
   ORDER_REQUESTED,
   ORDER_CREATED,
   ORDER_PLACED,
   ORDER_FAILED
-} from '../dist/constants'
+} from '../lib/constants'
 
-import createMockClient from './util/createMockClient'
+import { createMockClient } from './util/createMockClient'
 
-import { createBrokerRealtime as createMiddleware } from '../dist/middleware/createBrokerRealtime'
+import { createBrokerRealtime as createMiddleware } from '../lib/middleware/createBrokerRealtime'
 
-test.beforeEach((t) => {
+const t = { context: {} }
+
+beforeEach(() => {
   const store = {
-    getState: sinon.spy(),
-    dispatch: sinon.spy()
+    getState: jest.fn(),
+    dispatch: jest.fn()
   }
-  const next = sinon.spy()
+  const next = jest.fn()
   t.context.store = store
   t.context.next = next
   t.context.middleware = createMiddleware(createMockClient())(store)(next)
 })
 
-test('pass the intercepted action to the next', (t) => {
+test('pass the intercepted action to the next', () => {
   const { middleware, next } = t.context
   const action = { type: 'FOO', payload: {} }
   middleware(action)
-  t.true(next.withArgs(action).calledOnce)
+  expect(next.mock.calls[0][0]).toBe(action)
 })
 
-test('synchronously dispatch order created upon order requested', (t) => {
+test('synchronously dispatch order created upon order requested', () => {
   const { middleware, store } = t.context
   const action = {
     type: ORDER_REQUESTED,
@@ -43,23 +43,23 @@ test('synchronously dispatch order created upon order requested', (t) => {
   }
   middleware(action)
 
-  t.true(store.dispatch.calledOnce)
-  t.true(store.dispatch.firstCall.args[0].type === ORDER_CREATED)
+  expect(store.dispatch.mock.calls.length).toBe(1)
+  expect(store.dispatch.mock.calls[0][0].type).toBe(ORDER_CREATED)
 })
 
-test.cb('asynchronously dispatch order placed upon order created', (t) => {
+test('asynchronously dispatch order placed upon order created', done => {
   const { middleware, store } = t.context
   const action = { type: ORDER_CREATED, payload: {} }
   middleware(action)
 
-  t.true(store.dispatch.firstCall === null)
+  expect(store.dispatch.mock.calls.length).toBe(0)
   setTimeout(() => {
-    t.true(store.dispatch.firstCall.args[0].type === ORDER_PLACED)
-    t.end()
+    expect(store.dispatch.mock.calls[0][0].type).toBe(ORDER_PLACED)
+    done()
   }, 20)
 })
 
-test('build limit orders', (t) => {
+test('build limit orders', () => {
   const { middleware, store } = t.context
   const timestamp = Date.now()
   const action = {
@@ -73,13 +73,13 @@ test('build limit orders', (t) => {
   }
   middleware(action)
 
-  const actual = store.dispatch.firstCall.args[0].payload
-  const expect = {
+  const actual = store.dispatch.mock.calls[0][0].payload
+  const expected = {
     identifier: 'MSFT',
     quantity: new Decimal(10),
     price: new Decimal(20),
     commission: new Decimal(0),
     timestamp
   }
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })

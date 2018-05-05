@@ -1,19 +1,18 @@
-import test from 'ava'
-import sinon from 'sinon'
-
 import {
   ORDER_CREATED,
   ORDER_REJECTED
-} from '../dist/constants'
+} from '../lib/constants'
 
-import { createGuard as createMiddleware } from '../dist/middleware/createGuard'
+import { createGuard as createMiddleware } from '../lib/middleware/createGuard'
 
-test.beforeEach((t) => {
+const t = { context: {} }
+
+beforeEach(() => {
   t.context.store = {
-    getState: sinon.spy(),
-    dispatch: sinon.spy()
+    getState: jest.fn(),
+    dispatch: jest.fn()
   }
-  t.context.next = sinon.spy()
+  t.context.next = jest.fn()
   t.context.settings = {
     shorting: false,
     margin: false,
@@ -21,17 +20,17 @@ test.beforeEach((t) => {
   }
 })
 
-test('pass the intercepted action to the next', (t) => {
+test('pass the intercepted action to the next', () => {
   const { store, next } = t.context
   const action = { type: 'FOO', payload: {} }
   const middleware = createMiddleware()(store)(next)
 
   middleware(action)
 
-  t.true(next.withArgs(action).calledOnce)
+  expect(next.mock.calls[0][0]).toBe(action)
 })
 
-test('reject order if placed on restricted asset', (t) => {
+test('reject order if placed on restricted asset', () => {
   const { store, next } = t.context
   const order = {
     identifier: '123',
@@ -47,11 +46,11 @@ test('reject order if placed on restricted asset', (t) => {
 
   middleware(action)
 
-  const actual = next.lastCall.args[0]
-  const expect = {
+  const actual = next.mock.calls[0][0]
+  const expected = {
     type: ORDER_REJECTED,
     payload: order
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })

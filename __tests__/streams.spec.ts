@@ -1,12 +1,13 @@
-import test from 'ava'
-import _ from 'highland'
+import * as _ from 'highland'
 
 import {
   createStreamMerged,
   createStreamSorted
-} from '../dist/streams'
+} from '../lib/streams'
 
-test.cb('createStreamMerged returns a merged stream of Redux actions', (t) => {
+const t = { context: {} }
+
+test('createStreamMerged returns a merged stream of Redux actions', done => {
   const streams = {
     foo: _(['FOO']),
     bar: _(['BAR'])
@@ -20,17 +21,17 @@ test.cb('createStreamMerged returns a merged stream of Redux actions', (t) => {
       const actual1 = actions[0]
       const actual2 = actions[1]
 
-      const expect1 = { type: 'foo', payload: 'FOO' }
-      const expect2 = { type: 'bar', payload: 'BAR' }
+      const expected1 = { type: 'foo', payload: 'FOO' }
+      const expected2 = { type: 'bar', payload: 'BAR' }
 
-      t.deepEqual(actual1, expect1)
-      t.deepEqual(actual2, expect2)
+      expect(actual1).toEqual(expected1)
+      expect(actual2).toEqual(expected2)
 
-      t.end()
+      done()
     })
 })
 
-test.cb('createStreamMerged runs event in arbitrary order', (t) => {
+test('createStreamMerged runs event in arbitrary order', done => {
   let i1
   let i2
 
@@ -54,17 +55,17 @@ test.cb('createStreamMerged runs event in arbitrary order', (t) => {
     clearInterval(i2)
 
     const actual = actions.map((x) => x.payload).join('')
-    const expect = 'babbabbab'
+    const expected = 'babbabbab'
 
-    t.is(actual, expect)
+    expect(actual).toBe(expected)
 
-    t.end()
+    done()
   }, 325)
 
   merged.each((x) => actions.push(x))
 })
 
-test.cb('createStreamSorted returns a sorted stream of Redux actions', (t) => {
+test('createStreamSorted returns a sorted stream of Redux actions', done => {
   const streams = {
     foo: _([{ timestamp: 10 }]),
     bar: _([{ timestamp: 5 }]),
@@ -81,7 +82,7 @@ test.cb('createStreamSorted returns a sorted stream of Redux actions', (t) => {
     .each((x) => actions.push(x.type))
     .done(() => {
       const actual = actions
-      const expect = [
+      const expected = [
         'grault',
         'bar',
         'foo',
@@ -91,12 +92,12 @@ test.cb('createStreamSorted returns a sorted stream of Redux actions', (t) => {
         'qux'
       ]
 
-      t.deepEqual(actual, expect)
-      t.end()
+      expect(actual).toEqual(expected)
+      done()
     })
 })
 
-test.cb('createStreamSorted does not emit errors', (t) => {
+test('createStreamSorted does not emit errors', done => {
   const streams = {
     foo: _.fromError(new Error())
   }
@@ -108,9 +109,9 @@ test.cb('createStreamSorted does not emit errors', (t) => {
     .doto((x) => actions.push(x))
     .errors((e) => {
       errors.push(e)
-      t.is(errors.length, 1)
-      t.deepEqual(actions, [])
-      t.end()
+      expect(errors.length).toBe(1)
+      expect(actions).toEqual([])
+      done()
     })
     .resume()
 })

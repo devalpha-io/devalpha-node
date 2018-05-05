@@ -1,4 +1,4 @@
-module.exports = function createMockStore(initialState = {}) {
+export const createMockStore = (initialState = {}) => {
   const state = initialState
   return {
     getState: () => state,

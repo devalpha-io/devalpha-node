@@ -1,6 +1,4 @@
-import test from 'ava'
-import sinon from 'sinon'
-import createMockStore from './util/createMockStore'
+import { createMockStore } from './util/createMockStore'
 import {
   ORDER_REQUESTED,
   ORDER_CREATED,
@@ -11,24 +9,26 @@ import {
 
 import { createBrokerBacktest as createMiddleware } from '../dist/middleware/createBrokerBacktest'
 
-test.beforeEach((t) => {
+const t = { context: {} }
+
+beforeEach(() => {
   const store = createMockStore({ orders: {} })
-  store.dispatch = sinon.spy()
-  const next = sinon.spy()
+  store.dispatch = jest.fn()
+  const next = jest.fn()
 
   t.context.store = store
   t.context.next = next
   t.context.middleware = createMiddleware(0)(store)(next)
 })
 
-test('pass the intercepted action to the next', (t) => {
+test('pass the intercepted action to the next', () => {
   const { middleware, next } = t.context
   const action = { type: 'FOO', payload: {} }
   middleware(action)
-  t.true(next.withArgs(action).calledOnce)
+  expect(next.mock.calls[0][0]).toBe(action)
 })
 
-test('synchronously dispatch order created upon order requested', (t) => {
+test('synchronously dispatch order created upon order requested', () => {
   const { middleware, store } = t.context
   const action = {
     type: ORDER_REQUESTED,
@@ -41,11 +41,11 @@ test('synchronously dispatch order created upon order requested', (t) => {
   }
   middleware(action)
 
-  t.true(store.dispatch.calledOnce)
-  t.true(store.dispatch.firstCall.args[0].type === ORDER_CREATED)
+  expect(store.dispatch.mock.calls.length).toBe(1)
+  expect(store.dispatch.mock.calls[0][0].type).toBe(ORDER_CREATED)
 })
 
-test('synchronously dispatch order placed and order filled upon order created', (t) => {
+test('synchronously dispatch order placed and order filled upon order created', () => {
   const { middleware, store } = t.context
   const action = {
     type: ORDER_CREATED,
@@ -59,7 +59,7 @@ test('synchronously dispatch order placed and order filled upon order created', 
   }
   middleware(action)
 
-  t.true(store.dispatch.calledTwice)
-  t.true(store.dispatch.firstCall.args[0].type === ORDER_PLACED)
-  t.true(store.dispatch.secondCall.args[0].type === ORDER_FILLED)
+  expect(store.dispatch.mock.calls.length).toBe(2)
+  expect(store.dispatch.mock.calls[0][0].type).toBe(ORDER_PLACED)
+  expect(store.dispatch.mock.calls[1][0].type).toBe(ORDER_FILLED)
 })

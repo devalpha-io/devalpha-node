@@ -1,25 +1,24 @@
-import test from 'ava'
 import Decimal from 'decimal.js'
-import { capitalReducer as reducer } from '../dist/reducers/capitalReducer'
+import { capitalReducer as reducer } from '../lib/reducers/capitalReducer'
 import {
   INITIALIZED,
   ORDER_PLACED,
   ORDER_FILLED,
   ORDER_CANCELLED
-} from '../dist/constants'
+} from '../lib/constants'
 
-test('return the initial state', (t) => {
+test('return the initial state', () => {
   const actual = reducer(undefined, {})
-  const expect = {
+  const expected = {
     cash: new Decimal(0),
     commission: new Decimal(0),
     reservedCash: new Decimal(0),
     total: new Decimal(0)
   }
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`set initial values on ${INITIALIZED}`, (t) => {
+test(`set initial values on ${INITIALIZED}`, () => {
   const action = {
     type: INITIALIZED,
     payload: {
@@ -36,17 +35,17 @@ test(`set initial values on ${INITIALIZED}`, (t) => {
   }
 
   const actual = reducer(undefined, action)
-  const expect = {
+  const expected = {
     cash: new Decimal(100),
     reservedCash: new Decimal(101),
     commission: new Decimal(102),
     total: new Decimal(103)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`set start capital on ${INITIALIZED}`, (t) => {
+test(`set start capital on ${INITIALIZED}`, () => {
   const action = {
     type: INITIALIZED,
     payload: {
@@ -62,17 +61,17 @@ test(`set start capital on ${INITIALIZED}`, (t) => {
   }
 
   const actual = reducer(undefined, action)
-  const expect = {
+  const expected = {
     cash: new Decimal(100),
     reservedCash: new Decimal(101),
     commission: new Decimal(102),
     total: new Decimal(100)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_PLACED} of a sell-side order correctly edits reservedCash`, (t) => {
+test(`${ORDER_PLACED} of a sell-side order correctly edits reservedCash`, () => {
   const order = {
     id: '1',
     identifier: 'MSFT',
@@ -83,17 +82,17 @@ test(`${ORDER_PLACED} of a sell-side order correctly edits reservedCash`, (t) =>
   const action = { type: ORDER_PLACED, payload: order }
 
   const actual = reducer(undefined, action)
-  const expect = {
+  const expected = {
     reservedCash: new Decimal(5.5),
     cash: new Decimal(-5.5),
     commission: new Decimal(0),
     total: new Decimal(0)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_PLACED} of a buy-side order correctly edits cash, commission and reservedCash`, (t) => {
+test(`${ORDER_PLACED} of a buy-side order correctly edits cash, commission and reservedCash`, () => {
   const order = {
     id: '0',
     identifier: 'MSFT',
@@ -104,17 +103,17 @@ test(`${ORDER_PLACED} of a buy-side order correctly edits cash, commission and r
   const action = { type: ORDER_PLACED, payload: order }
 
   const actual = reducer(undefined, action)
-  const expect = Object.assign(reducer(undefined, {}), {
+  const expected = Object.assign(reducer(undefined, {}), {
     reservedCash: new Decimal(10010),
     cash: new Decimal(-10010),
     commission: new Decimal(0),
     total: new Decimal(0)
   })
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_CANCELLED} of a sell-side order does not modify anything`, (t) => {
+test(`${ORDER_CANCELLED} of a sell-side order does not modify anything`, () => {
   const order = {
     id: '1',
     identifier: 'MSFT',
@@ -125,12 +124,12 @@ test(`${ORDER_CANCELLED} of a sell-side order does not modify anything`, (t) => 
   const action = { type: ORDER_CANCELLED, payload: order }
 
   const actual = reducer(undefined, action)
-  const expect = reducer(undefined, {})
+  const expected = reducer(undefined, {})
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reservedCash, also doesn't change commission or total`, (t) => {
+test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reservedCash, also doesn't change commission or total`, () => {
   const order = {
     id: '0',
     identifier: 'MSFT',
@@ -147,15 +146,15 @@ test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reserved
   }
 
   const actual = reducer(initialState, action)
-  const expect = Object.assign(reducer(initialState, {}), {
+  const expected = Object.assign(reducer(initialState, {}), {
     cash: new Decimal(10010),
     reservedCash: new Decimal(0)
   })
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decrease reservedCash`, (t) => {
+test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decrease reservedCash`, () => {
   const placedOrder = {
     id: '0',
     identifier: 'MSFT',
@@ -174,17 +173,17 @@ test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decre
   }
 
   const actual = reducer(initialState, action)
-  const expect = {
+  const expected = {
     cash: new Decimal(9990),
     reservedCash: new Decimal(0),
     commission: new Decimal(10),
     total: new Decimal(9990)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_FILLED}, buy-side, should increase commission and decrease reservedCash`, (t) => {
+test(`${ORDER_FILLED}, buy-side, should increase commission and decrease reservedCash`, () => {
   const placedOrder = {
     id: '0',
     identifier: 'MSFT',
@@ -203,17 +202,17 @@ test(`${ORDER_FILLED}, buy-side, should increase commission and decrease reserve
   }
 
   const actual = reducer(initialState, action)
-  const expect = {
+  const expected = {
     cash: new Decimal(0),
     reservedCash: new Decimal(0),
     commission: new Decimal(10),
     total: new Decimal(0)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_FILLED}, buy-side, partial fill, should increase commission and decrease reservedCash`, (t) => {
+test(`${ORDER_FILLED}, buy-side, partial fill, should increase commission and decrease reservedCash`, () => {
   const placedOrder = {
     id: '0',
     identifier: 'MSFT',
@@ -236,17 +235,17 @@ test(`${ORDER_FILLED}, buy-side, partial fill, should increase commission and de
   }
 
   const actual = reducer(initialState, action)
-  const expect = {
+  const expected = {
     cash: new Decimal(0),
     reservedCash: new Decimal(5005),
     commission: new Decimal(5),
     total: new Decimal(5005)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_FILLED}, sell-side, partial fill, increase cash and commission, and decrease reservedCash`, (t) => {
+test(`${ORDER_FILLED}, sell-side, partial fill, increase cash and commission, and decrease reservedCash`, () => {
   const placedOrder = {
     id: '0',
     identifier: 'MSFT',
@@ -269,17 +268,17 @@ test(`${ORDER_FILLED}, sell-side, partial fill, increase cash and commission, an
   }
 
   const actual = reducer(initialState, action)
-  const expect = {
+  const expected = {
     cash: new Decimal(4990),
     reservedCash: new Decimal(5),
     commission: new Decimal(5),
     total: new Decimal(4995)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_FILLED}, buy-side, better price, should increase commission and decrease reservedCash`, (t) => {
+test(`${ORDER_FILLED}, buy-side, better price, should increase commission and decrease reservedCash`, () => {
   const placedOrder = {
     id: '0',
     identifier: 'MSFT',
@@ -303,17 +302,17 @@ test(`${ORDER_FILLED}, buy-side, better price, should increase commission and de
   }
 
   const actual = reducer(initialState, action)
-  const expect = {
+  const expected = {
     cash: new Decimal(0),
     reservedCash: new Decimal(0),
     commission: new Decimal(9),
     total: new Decimal(0)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_FILLED}, sell-side, better price, increase cash and commission, and decrease reservedCash`, (t) => {
+test(`${ORDER_FILLED}, sell-side, better price, increase cash and commission, and decrease reservedCash`, () => {
   const placedOrder = {
     id: '0',
     identifier: 'MSFT',
@@ -337,12 +336,12 @@ test(`${ORDER_FILLED}, sell-side, better price, increase cash and commission, an
   }
 
   const actual = reducer(initialState, action)
-  const expect = {
+  const expected = {
     cash: new Decimal(10979),
     reservedCash: new Decimal(0),
     commission: new Decimal(11),
     total: new Decimal(10979)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })

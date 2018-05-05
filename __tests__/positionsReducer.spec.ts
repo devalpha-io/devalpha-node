@@ -1,22 +1,22 @@
-import test from 'ava'
-
 import Decimal from 'decimal.js'
-import { positionsReducer as reducer } from '../dist/reducers/positionsReducer'
+import { positionsReducer as reducer } from '../lib/reducers/positionsReducer'
 import {
   INITIALIZED,
   ORDER_FILLED
-} from '../dist/constants'
+} from '../lib/constants'
 
-test('return the initial state', (t) => {
+const t = { context: {} }
+
+test('return the initial state', () => {
   const actual = reducer(undefined, {})
-  const expect = {
+  const expected = {
     instruments: {},
     total: new Decimal(0)
   }
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`set initial values on ${INITIALIZED}`, (t) => {
+test(`set initial values on ${INITIALIZED}`, () => {
   const action = {
     type: INITIALIZED,
     payload: {
@@ -31,17 +31,17 @@ test(`set initial values on ${INITIALIZED}`, (t) => {
   }
 
   const actual = reducer(undefined, action)
-  const expect = {
+  const expected = {
     instruments: {
       foo: 'bar'
     },
     total: new Decimal(10)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_FILLED}, new position: add position to the state`, (t) => {
+test(`${ORDER_FILLED}, new position: add position to the state`, () => {
   const placedOrder = {
     id: '0',
     identifier: 'MSFT',
@@ -53,7 +53,7 @@ test(`${ORDER_FILLED}, new position: add position to the state`, (t) => {
   const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
 
   const actual = reducer(undefined, action)
-  const expect = {
+  const expected = {
     instruments: {
       [placedOrder.identifier]: {
         quantity: new Decimal(50),
@@ -64,10 +64,10 @@ test(`${ORDER_FILLED}, new position: add position to the state`, (t) => {
     total: new Decimal(5500)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_FILLED}, sell-side, existing position: only update quantity and value, not price`, (t) => {
+test(`${ORDER_FILLED}, sell-side, existing position: only update quantity and value, not price`, () => {
   const placedOrder = {
     id: '1',
     identifier: 'MSFT',
@@ -89,7 +89,7 @@ test(`${ORDER_FILLED}, sell-side, existing position: only update quantity and va
   }
 
   const actual = reducer(initialState, action)
-  const expect = {
+  const expected = {
     instruments: {
       [placedOrder.identifier]: {
         quantity: new Decimal(25),
@@ -100,10 +100,10 @@ test(`${ORDER_FILLED}, sell-side, existing position: only update quantity and va
     total: new Decimal(2750)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_FILLED}, buy-side, existing position: correctly update price, quantity and value`, (t) => {
+test(`${ORDER_FILLED}, buy-side, existing position: correctly update price, quantity and value`, () => {
   const placedOrder = {
     id: '1',
     identifier: 'MSFT',
@@ -125,7 +125,7 @@ test(`${ORDER_FILLED}, buy-side, existing position: correctly update price, quan
   }
 
   const actual = reducer(initialState, action)
-  const expect = {
+  const expected = {
     instruments: {
       [placedOrder.identifier]: {
         quantity: new Decimal(100),
@@ -136,10 +136,10 @@ test(`${ORDER_FILLED}, buy-side, existing position: correctly update price, quan
     total: new Decimal(11000)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_FILLED}, sell-side, existing position: delete the position if quantity 0`, (t) => {
+test(`${ORDER_FILLED}, sell-side, existing position: delete the position if quantity 0`, () => {
   const placedOrder = {
     id: '1',
     identifier: 'MSFT',
@@ -160,10 +160,10 @@ test(`${ORDER_FILLED}, sell-side, existing position: delete the position if quan
     total: new Decimal(5000)
   }
 
-  t.is(reducer(initialState, action).instruments[placedOrder.identifier], undefined)
+  expect(reducer(initialState, action).instruments[placedOrder.identifier]).toBe(undefined)
 })
 
-test(`default: correctly update price, quantity and value`, (t) => {
+test(`default: correctly update price, quantity and value`, () => {
   const bar = {
     identifier: 'MSFT',
     timestamp: 0,
@@ -185,7 +185,7 @@ test(`default: correctly update price, quantity and value`, (t) => {
   }
 
   const actual = reducer(initialState, action)
-  const expect = {
+  const expected = {
     instruments: {
       [bar.identifier]: {
         quantity: new Decimal(50),
@@ -196,10 +196,10 @@ test(`default: correctly update price, quantity and value`, (t) => {
     total: new Decimal(5000)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`default: dont break if non-existent position`, (t) => {
+test(`default: dont break if non-existent position`, () => {
   const bar = {
     identifier: 'MSFT',
     timestamp: 0,
@@ -211,10 +211,10 @@ test(`default: dont break if non-existent position`, (t) => {
   const action = { type: 'foobar', payload: bar }
 
   const actual = reducer(undefined, action)
-  const expect = {
+  const expected = {
     instruments: {},
     total: new Decimal(0)
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })

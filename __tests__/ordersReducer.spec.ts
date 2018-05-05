@@ -1,21 +1,20 @@
-import test from 'ava'
 import Decimal from 'decimal.js'
 
-import { ordersReducer as reducer } from '../dist/reducers/ordersReducer'
+import { ordersReducer as reducer } from '../lib/reducers/ordersReducer'
 import {
   ORDER_PLACED,
   ORDER_FILLED,
   ORDER_CANCELLED,
   INITIALIZED
-} from '../dist/constants'
+} from '../lib/constants'
 
-test('return the initial state', (t) => {
+test('return the initial state', () => {
   const actual = reducer(undefined, {})
-  const expect = {}
-  t.deepEqual(actual, expect)
+  const expected = {}
+  expect(actual).toEqual(expected)
 })
 
-test(`set initial values on ${INITIALIZED}`, (t) => {
+test(`set initial values on ${INITIALIZED}`, () => {
   const action = {
     type: INITIALIZED,
     payload: {
@@ -27,12 +26,12 @@ test(`set initial values on ${INITIALIZED}`, (t) => {
   }
 
   const actual = reducer(undefined, action)
-  const expect = { foo: 'bar' }
+  const expected = { foo: 'bar' }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_PLACED} adds an order to the Map of orders`, (t) => {
+test(`${ORDER_PLACED} adds an order to the Map of orders`, () => {
   const order = {
     id: '0',
     identifier: 'MSFT',
@@ -43,14 +42,14 @@ test(`${ORDER_PLACED} adds an order to the Map of orders`, (t) => {
   const action = { type: ORDER_PLACED, payload: order }
 
   const actual = reducer(undefined, action)
-  const expect = {
+  const expected = {
     '0': order
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_FILLED} removes an order from the map of orders if completely filled`, (t) => {
+test(`${ORDER_FILLED} removes an order from the map of orders if completely filled`, () => {
   const placedOrder = {
     id: '0',
     identifier: 'MSFT',
@@ -65,12 +64,12 @@ test(`${ORDER_FILLED} removes an order from the map of orders if completely fill
   }
 
   const actual = reducer(initialState, action)
-  const expect = {}
+  const expected = {}
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_FILLED} retains an order in the map of orders if partially filled`, (t) => {
+test(`${ORDER_FILLED} retains an order in the map of orders if partially filled`, () => {
   const placedOrder = {
     id: '0',
     identifier: 'MSFT',
@@ -91,7 +90,7 @@ test(`${ORDER_FILLED} retains an order in the map of orders if partially filled`
   }
 
   const actual = reducer(initialState, action)
-  const expect = {
+  const expected = {
     '0': {
       id: '0',
       identifier: 'MSFT',
@@ -101,10 +100,10 @@ test(`${ORDER_FILLED} retains an order in the map of orders if partially filled`
     }
   }
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_CANCELLED} removes an order from the map of orders`, (t) => {
+test(`${ORDER_CANCELLED} removes an order from the map of orders`, () => {
   const order = {
     id: '0',
     identifier: 'MSFT',
@@ -118,7 +117,7 @@ test(`${ORDER_CANCELLED} removes an order from the map of orders`, (t) => {
   }
 
   const actual = reducer(initialState, action)
-  const expect = {}
+  const expected = {}
 
-  t.deepEqual(actual, expect)
+  expect(actual).toEqual(expected)
 })

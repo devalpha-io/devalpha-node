@@ -14,13 +14,13 @@
   },
   "devDependencies": {
     "@types/highland": "^2.10.8",
+    "@types/jest": "^22.2.3",
     "@types/mathjs": "0.0.39",
     "@types/node": "^9.6.2",
     "@types/socket.io": "^1.4.33",
-    "ava": "^1.0.0-beta.4",
     "documentation": "^6.2.0",
-    "nyc": "^11.1.0",
-    "sinon": "^4.1.2",
+    "jest": "^22.4.3",
+    "ts-jest": "^22.4.4",
     "tslint": "^5.9.1",
     "tslint-config-airbnb": "^5.8.0",
     "typescript": "^2.8.1"
@@ -31,18 +31,22 @@
     "api": "documentation readme dist/**/* --section=API --markdown-toc=false",
     "start": "npm run build",
     "lint": "tslint lib/**/*",
-    "test": "npm run build && NODE_ENV=test ava tests/**/*.spec.js",
-    "test-only": "NODE_ENV=test ava",
-    "coverage": "NODE_ENV=test nyc ava tests/**/*.spec.js"
+    "test": "NODE_ENV=test jest --coverage"
   },
-  "nyc": {
-    "exclude": [
-      "tests/",
-      "**/*.d.ts"
+  "jest": {
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*\\.(test|spec))\\.(ts)",
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
     ],
-    "extension": [
-      ".ts",
-      ".tsx"
+    "coveragePathIgnorePatterns": [
+      "node_modules",
+      "dist",
+      "__tests__"
     ]
   }
 }

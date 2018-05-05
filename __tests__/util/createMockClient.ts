@@ -1,4 +1,4 @@
-module.exports = function createMockClient(fail = false) {
+export const createMockClient = (fail = false) => {
   let orderIdCounter = 0
   return ({ onFill }) => ({
     executeOrder: async (order) => {
