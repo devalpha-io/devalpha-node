@@ -163,23 +163,22 @@ export function devalpha(settings: any, strategy: Strategy) {
 
   const isValidAction = (item: StreamAction) => item.payload && typeof item.payload.timestamp !== 'undefined'
 
-  // @ts-ignore
-  const pipeline = _.pipeline(s => s
-    .consume(finishedConsumer)
-    .filter(isValidAction)
-    .consume(createConsumer(guardMiddleware))
-    .consume(createConsumer(brokerMiddleware))
-    .consume(createConsumer(reducerMiddleware))
-    .consume(createConsumer(strategyMiddleware))
-  )
-
   let output = input
     .doto(() => {
       if (config.backtesting !== false) {
         input.pause()
       }
     })
-    .through(pipeline)
+    .through(
+      _.seq(
+        _.consume(finishedConsumer),
+        _.filter(isValidAction),
+        _.consume(createConsumer(guardMiddleware)),
+        _.consume(createConsumer(brokerMiddleware)),
+        _.consume(createConsumer(reducerMiddleware)),
+        _.consume(createConsumer(strategyMiddleware))
+      )
+    )
     .doto(() => {
       // @ts-ignore
       if (config.backtesting !== false && input._outgoing.length === 0) {
