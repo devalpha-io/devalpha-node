@@ -3,7 +3,7 @@ import * as _ from 'highland'
 import {
   createStreamMerged,
   createStreamSorted
-} from '../lib/streams'
+} from '../lib/util/streams'
 
 const t = { context: {} }
 
@@ -57,7 +57,7 @@ test('createStreamMerged runs event in arbitrary order', done => {
     const actual = actions.map((x) => x.payload).join('')
     const expected = 'babbabbab'
 
-    expect(actual).toBe(expected)
+    expect(actual).toEqual(expected)
 
     done()
   }, 325)
@@ -90,6 +90,31 @@ test('createStreamSorted returns a sorted stream of Redux actions', done => {
         'quux',
         'baz',
         'qux'
+      ]
+
+      expect(actual).toEqual(expected)
+      done()
+    })
+})
+
+test.only('createStreamSorted pushes all remaining events on the stream when it ends', done => {
+  const streams = {
+    foo: _([{ timestamp: 10 }, { timestamp: 15 }]),
+    bar: _([{ timestamp: 20 }]),
+    baz: _([{ timestamp: 25 }]),
+  }
+  const sorted = createStreamSorted(streams)
+  const actions = []
+
+  sorted
+    .each((x) => actions.push(x.type))
+    .done(() => {
+      const actual = actions
+      const expected = [
+        'foo',
+        'foo',
+        'bar',
+        'baz'
       ]
 
       expect(actual).toEqual(expected)

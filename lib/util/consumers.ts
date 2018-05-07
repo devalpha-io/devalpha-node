@@ -22,6 +22,7 @@ export const createConsumerCreator = (store: Store) => createConsumer(store)
  * @param {Store} store An Store object.
  * @return {Function} A function which takes a middleware as parameter, which then returns a Consumer.
  */
+// tslint:disable-next-line:max-line-length
 export const createConsumer = (store: Store) => (middleware: Middleware) => (err: Error, item: StreamAction | Highland.Nil, push: Function, next: Function): void => {
   if (err) {
     push(err)

@@ -20,6 +20,7 @@
     "@types/socket.io": "^1.4.33",
     "documentation": "^6.2.0",
     "jest": "^22.4.3",
+    "socket.io-client": "^2.1.0",
     "ts-jest": "^22.4.4",
     "tslint": "^5.9.1",
     "tslint-config-airbnb": "^5.8.0",

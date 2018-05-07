@@ -18,3 +18,5 @@ export const SOCKETIO_CONNECT = 'connect'
 export const SOCKETIO_CONNECTION = 'connection'
 export const SOCKETIO_RECONNECT = 'reconnect'
 export const SOCKETIO_DISCONNECT = 'disconnect'
+
+export const SOCKET_PORT = '4449'

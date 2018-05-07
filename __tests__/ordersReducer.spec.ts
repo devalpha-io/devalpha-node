@@ -121,3 +121,51 @@ test(`${ORDER_CANCELLED} removes an order from the map of orders`, () => {
 
   expect(actual).toEqual(expected)
 })
+
+
+test(`${ORDER_FILLED} throws error if we received more volume than we wanted to buy`, () => {
+  const placedOrder = {
+    id: '0',
+    identifier: 'MSFT',
+    quantity: new Decimal(100),
+    price: new Decimal(100),
+    commission: new Decimal(10)
+  }
+  const filledOrder = {
+    id: '0',
+    identifier: 'MSFT',
+    quantity: new Decimal(101),
+    price: new Decimal(100),
+    commission: new Decimal(10.01)
+  }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
+  const initialState = {
+    '0': { ...placedOrder }
+  }
+
+  expect(() => reducer(initialState, action)).toThrow()
+})
+
+
+test(`${ORDER_FILLED} throws error if we received more volume than we wanted to sell`, () => {
+  const placedOrder = {
+    id: '0',
+    identifier: 'MSFT',
+    quantity: new Decimal(-100),
+    price: new Decimal(100),
+    commission: new Decimal(10)
+  }
+  const filledOrder = {
+    id: '0',
+    identifier: 'MSFT',
+    quantity: new Decimal(-101),
+    price: new Decimal(100),
+    commission: new Decimal(10.01)
+  }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
+  const initialState = {
+    '0': { ...placedOrder }
+  }
+
+  expect(() => reducer(initialState, action)).toThrow()
+})

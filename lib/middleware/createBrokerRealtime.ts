@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js'
-import { createOrderCreator } from '../order'
+import { createOrderCreator } from '../util/orders'
 import {
   Store,
   StreamAction,
@@ -34,18 +34,20 @@ export function createBrokerRealtime(createClient: Function): Middleware {
     const client = createClient({
       // @todo Don't require the client to provide expectedPrice/Quantity/Commission
       onFill: (order: ExecutedOrder) => {
+        const placedOrder = store.getState().orders[order.id]
+        const filledOrder = {
+          id: order.id,
+          identifier: order.identifier,
+          price: new Decimal(order.price),
+          quantity: new Decimal(order.quantity),
+          commission: new Decimal(order.commission),
+          timestamp: order.timestamp
+        }
         store.dispatch({
           type: ORDER_FILLED,
           payload: {
-            placedOrder: { ...store.getState().orders[order.id] },
-            filledOrder: {
-              id: order.id,
-              identifier: order.identifier,
-              price: new Decimal(order.price),
-              quantity: new Decimal(order.quantity),
-              commission: new Decimal(order.commission),
-              timestamp: order.timestamp
-            },
+            placedOrder,
+            filledOrder,
             timestamp: order.timestamp
           }
         })

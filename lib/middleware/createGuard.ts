@@ -52,7 +52,7 @@ export function createGuard(options: GuardOptions): Middleware {
         const cash = store.getState().capital.cash
         const cost = Decimal.mul(quantity, price).add(commission)
 
-        if (cash.lessThan(cost)) {
+        if (cash.lt(cost)) {
           return true
         }
       }

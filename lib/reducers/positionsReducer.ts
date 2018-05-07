@@ -29,7 +29,11 @@ export function parseBar(maybeBar: any) {
     throw new TypeError('Invalid argument')
   }
   for (const key of ['open', 'high', 'low', 'close']) {
-    bar[key] = new Decimal(maybeBar[key])
+    if (typeof maybeBar[key] === 'undefined') {
+      throw new TypeError('Invalid argument')
+    } else {
+      bar[key] = new Decimal(maybeBar[key])
+    }
   }
   return bar
 }

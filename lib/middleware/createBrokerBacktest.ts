@@ -1,6 +1,6 @@
 import {
   createOrderCreator
-} from '../order'
+} from '../util/orders'
 import {
   Store,
   StreamAction,

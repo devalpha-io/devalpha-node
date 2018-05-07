@@ -1,26 +1,21 @@
 import * as _ from 'highland'
-
+import * as io from 'socket.io-client'
 import {
-  devalpha,
+  createTrader,
   ORDER_PLACED,
   ORDER_FILLED,
   ORDER_FAILED,
   ORDER_CANCELLED,
   INITIALIZED,
-  FINISHED
-} from '../dist'
+  FINISHED,
+  DASHBOARD_INITIALIZE,
+  DASHBOARD_EVENTS,
+  DASHBOARD_FINISHED,
+  SOCKET_PORT
+} from '../lib'
 import { createMockClient } from './util/createMockClient'
 
 const t = { context: {} }
-
-beforeEach(() => {
-  t.context.error = console.error
-  console.error = jest.fn()
-})
-
-afterEach(() => {
-  console.error = t.context.error
-})
 
 test('backtest event order', done => {
   const executions = []
@@ -52,7 +47,7 @@ test('backtest event order', done => {
     }
   }
 
-  devalpha({
+  createTrader({
     feeds: {
       example: [
         {
@@ -112,7 +107,7 @@ test('live trading event order', done => {
     }
   }
 
-  devalpha({
+  createTrader({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -148,7 +143,7 @@ test('state() returns an object', done => {
     done()
   }
 
-  devalpha({
+  createTrader({
     backtesting: false
   }, strategy).resume()
 })
@@ -171,7 +166,7 @@ test('failing orders are dispatched', done => {
     }
   }
 
-  devalpha({
+  createTrader({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -214,7 +209,7 @@ test('orders are cancellable', done => {
     }
   }
 
-  devalpha({
+  createTrader({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -247,7 +242,7 @@ test('should not be able to cancel unknown orders', done => {
     }
   }
 
-  devalpha({
+  createTrader({
     feeds: {
       example: _((push, next) => {
         setTimeout(() => {
@@ -261,103 +256,8 @@ test('should not be able to cancel unknown orders', done => {
 
 })
 
-/*
-test.serial.cb('correctly preloads stored state', (t) => {
-
-  devalpha({
-    feeds: {
-      example: _((push, next) => {
-        setTimeout(() => {
-          push(null, { value: 'event 1', timestamp: 100 })
-        }, 0)
-        setTimeout(() => {
-          push(null, { value: 'event 1', timestamp: 101 })
-        }, 1)
-      })
-    },
-    initialStates: {
-      capital: {
-        cash: 999
-      }
-    },
-    client: createMockClient(),
-    strategy: () => {},
-    journal: t.context.journal,
-    backtesting: false
-  })
-
-  setTimeout(() => {
-    devalpha({
-      feeds: {
-        example: _((push, next) => {
-          setTimeout(() => {
-            push(null, { value: 'event 1', timestamp: 503 })
-          }, 0)
-        })
-      },
-      client: createMockClient(),
-      strategy: ({ state }) => {
-        const actual = state().capital.cash
-        const expected = 999
-
-        fs.unlinkSync(t.context.journal)
-
-        t.is(actual, expected)
-        t.end()
-      },
-      journal: t.context.journal,
-      backtesting: false
-    })
-  }, 500)
-
-})
-*/
-
-// test.serial.cb('logs errors on skipped events during live trading', (t) => {
-//   devalpha({
-//     feeds: {
-//       example: _((push, next) => {
-//         setTimeout(() => {
-//           push(null, { value: 'event 1' })
-//         }, 0)
-//       })
-//     },
-//     client: createMockClient(),
-//     strategy: () => {},
-//     resume: true,
-//     backtesting: false,
-//     onError: (err) => {
-//       const actual = err.message
-//       const expected = 'Skipped event from feed example due to missing timestamp property.'
-
-//       t.is(actual, expect)
-//       t.end()
-//     }
-//   })
-// })
-
-// test.serial.cb('logs errors on skipped events during backtests', (t) => {
-
-//   devalpha({
-//     feeds: {
-//       example: [{ value: 'event 1' }]
-//     },
-//     client: createMockClient(),
-//     strategy: () => {},
-//     resume: true,
-//     onError: (err) => {
-//       const actual = err.message
-//       const expected = 'Skipped event from feed example due to missing timestamp property.'
-
-//       t.is(actual, expect)
-//       t.end()
-//     }
-//   })
-
-// })
-
 test('throws if strategy is not a function', () => {
-  expect(() => devalpha({
+  expect(() => createTrader({
     strategy: 'foobar'
   }).resume()).toThrow()
 })
@@ -366,7 +266,7 @@ test(
   'stream returns items containing action and state during live trading',
   done => {
     const events = []
-    const strat = devalpha({
+    const strat = createTrader({
       feeds: {},
       backtesting: false
     }, () => {})
@@ -388,7 +288,7 @@ test(
   'stream returns items containing action and state during backtests',
   done => {
     const events = []
-    const strat = devalpha({
+    const strat = createTrader({
       feeds: {}
     }, () => {})
 
@@ -406,7 +306,7 @@ test(
 )
 
 test('errors can be extracted from the stream', done => {
-  const strat = devalpha({
+  const strat = createTrader({
     feeds: {
       events: [{ timestamp: 0 }]
     }
@@ -422,13 +322,13 @@ test('errors can be extracted from the stream', done => {
 })
 
 test('errors can be extracted from merged streams', done => {
-  const strat1 = devalpha({
+  const strat1 = createTrader({
     feeds: {
       events: [{ timestamp: 0 }]
     }
   }, () => { throw new Error('strat1') })
 
-  const strat2 = devalpha({
+  const strat2 = createTrader({
     feeds: {
       events: [{ timestamp: 0 }]
     }
@@ -446,7 +346,7 @@ test('errors can be extracted from merged streams', done => {
 
 test('stream consumers recieve all events in the right order', done => {
   const events = []
-  const strat = devalpha({
+  const strat = createTrader({
     feeds: {
       events: [{ timestamp: 0 }, { timestamp: 1 }]
     }
@@ -464,7 +364,7 @@ test('stream consumers recieve all events in the right order', done => {
 
 test('stream consumers can apply backpressure', done => {
   const events = []
-  const strat = devalpha({
+  const strat = createTrader({
     feeds: {
       events: [{ timestamp: 0 }, { timestamp: 1 }]
     }
@@ -493,4 +393,52 @@ test('stream consumers can apply backpressure', done => {
 
   fork1.resume()
   fork2.resume()
+})
+
+test('dashboard works as expected', (done) => {
+  let clientEvents = []
+  const serverEvents = []
+  const runTime = -1
+
+  const trader = createTrader({
+    feeds: {
+      events: [{ timestamp: 0 }, { timestamp: 1 }]
+    },
+    dashboard: {
+      active: true
+    }
+  }, () => {
+    serverEvents.push('a')
+  }).resume()
+
+  const socket = io(`http://localhost:${SOCKET_PORT}`, {
+    autoConnect: false,
+    extraHeaders: {
+      referer: 'https://devalpha.io',
+      origin: 'https://devalpha.io'
+    }
+  })
+
+  expect(serverEvents.length).toBe(0)
+  expect(clientEvents.length).toBe(0)
+
+  socket.on(DASHBOARD_EVENTS, ({ events }) => {
+    clientEvents = [...clientEvents, ...events]
+  })
+
+  socket.on(DASHBOARD_FINISHED, ({ startedAt, finishedAt }) => {
+    runTime = finishedAt - startedAt
+
+    expect(serverEvents.length).toBe(4)
+    expect(clientEvents.length).toBe(4)
+    expect(runTime > 0).toBe(true)
+
+    done()
+  })
+
+  socket.on('connect', () => {
+    socket.emit(DASHBOARD_INITIALIZE)
+  })
+
+  socket.open()
 })

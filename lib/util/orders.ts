@@ -13,6 +13,7 @@ import {
  * @param {Function} calculateCommission A function for calculating the expected commission of an order.
  * @return {Function} A partially applied createOrder-function which only takes an order as parameter.
  */
+// @tslint-disable-next-line:max-line-length
 export const createOrderCreator = (store: Store) => (calculateCommission: Function) => createOrder(store)(calculateCommission)
 
 /**
@@ -40,7 +41,7 @@ export const createOrder = (store: Store) => (calculateCommission: Function) => 
   }
   
   if (typeof order.price === 'undefined') {
-    throw new Error('missing order price')
+    throw new Error('market orders not yet supported')
   } else {
     createdOrder.price = new Decimal(order.price)
   }
