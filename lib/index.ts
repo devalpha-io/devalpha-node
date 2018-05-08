@@ -223,7 +223,7 @@ export function createTrader(settings: any, strategy: Strategy) {
               finishedAt
             })
 
-            client.disconnect()
+            client.disconnect(true)
             io.close()
           })
       })
