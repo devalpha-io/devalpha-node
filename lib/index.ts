@@ -1,5 +1,4 @@
 import * as _ from 'highland'
-import { combineReducers } from 'redux'
 import * as http from 'http'
 import * as socket from 'socket.io'
 
@@ -14,7 +13,7 @@ import {
   Consumer
 } from './types'
 
-import rootReducer from './reducers'
+import { rootReducer } from './reducers'
 import {
   createGuard,
   createStrategy,
@@ -44,7 +43,7 @@ export * from './types'
  * @returns {Stream}
  */
 export function createTrader(settings: any, strategy: Strategy) {
-  let config: DevAlphaOptions = {
+  const config: DevAlphaOptions = {
     backtesting: true,
     client: null,
     startCapital: 0,
@@ -95,7 +94,7 @@ export function createTrader(settings: any, strategy: Strategy) {
   // Consumers
   const createConsumer = createConsumerCreator(store)
   
-  const reducerMiddleware: Middleware = (store) => (next) => (action) => {
+  const reducerMiddleware: Middleware = store => next => (action) => {
     reducing = true
     store.setState(rootReducer(store.getState(), action))
     reducing = false
@@ -171,15 +170,16 @@ export function createTrader(settings: any, strategy: Strategy) {
         input.pause()
       }
     })
-    .through(
+    .through<StreamAction, StreamAction>(
       _.seq(
-        _.consume(finishedConsumer),
-        _.filter(isValidAction),
-        _.consume(createConsumer(guardMiddleware)),
-        _.consume(createConsumer(brokerMiddleware)),
-        _.consume(createConsumer(reducerMiddleware)),
-        _.consume(createConsumer(strategyMiddleware))
-      )
+        // use "as any" since functions does actually exist on _
+        (_ as any).consume(finishedConsumer),
+        (_ as any).filter(isValidAction),
+        (_ as any).consume(createConsumer(guardMiddleware)),
+        (_ as any).consume(createConsumer(brokerMiddleware)),
+        (_ as any).consume(createConsumer(reducerMiddleware)),
+        (_ as any).consume(createConsumer(strategyMiddleware))
+      ) as (x: StreamAction) => StreamAction
     )
     .doto(() => {
       // @ts-ignore
@@ -199,7 +199,7 @@ export function createTrader(settings: any, strategy: Strategy) {
       pingTimeout: 1000,
       pingInterval: 400,
       origins: /* istanbul ignore next: must be manually tested for now */ 
-        process.env.NODE_ENV === 'production' ? 'devalpha.io:*' : '*:*'
+        process.env.NODE_ENV === 'test' ? '*:*' : 'devalpha.io:*'
     })
 
     app.listen(config.dashboard.port)
@@ -233,7 +233,7 @@ export function createTrader(settings: any, strategy: Strategy) {
   return output
 }
 
-export const devalpha = (...args) => {
+export const devalpha = (settings: any, strategy: Strategy) => {
   console.error('the devalpha function is deprecated, please use createTrader() instead')
-  return createTrader(...args)
+  return createTrader(settings, strategy)
 }

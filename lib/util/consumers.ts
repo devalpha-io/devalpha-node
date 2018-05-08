@@ -3,7 +3,7 @@ import {
   Store,
   Middleware,
   StreamAction
-} from './types'
+} from '../types'
 
 /**
  * A convenience function which partially applies the createConsumer function with the given store.
@@ -44,5 +44,7 @@ export const createConsumer = (store: Store) => (middleware: Middleware) => (err
       next()
     }
   }
-}
 
+  // https://github.com/buzinas/tslint-eslint-rules/issues/247
+  // tslint:disable-next-line
+}

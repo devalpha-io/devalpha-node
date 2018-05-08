@@ -2,10 +2,9 @@ import {
   StreamAction,
   Feeds,
   FeedItem
-} from './types'
+} from '../types'
 
 import * as _ from 'highland'
-import { FastPriorityQueue } from 'fastpriorityqueue.ts'
 
 /**
  * The createStreams function creates Highland Streams from other objects such as Arrays and Promises.
@@ -32,8 +31,8 @@ function createStreams(feeds: any): Feeds<FeedItem> {
  * they are received.
  *
  * @private
- * @param  {Feeds<FeedItem>}               feeds A Feeds object containing multiple streams.
- * @return {Highland.Stream<StreamAction>}       A single Highland Stream made from merged streams.
+ * @param  {Feeds<FeedItem>} feeds A Feeds object containing multiple streams.
+ * @return {Highland.Stream<StreamAction>} A single Highland Stream made from merged streams.
  */
 export function createStreamMerged(feeds: Feeds<FeedItem>): Highland.Stream<StreamAction> {
   const streams: Feeds<FeedItem> = createStreams(feeds)
@@ -56,10 +55,10 @@ export function createStreamMerged(feeds: Feeds<FeedItem>): Highland.Stream<Stre
  */
 export function createStreamSorted(feeds: Feeds<FeedItem>): Highland.Stream<StreamAction> {
   const buffer = new Map()
-  const streams: Feeds<Highland.Stream<FeedItem>> = createStreams(feeds)
-  const pred = (x1, x2) => {
-    const t1 = x1.payload.timestamp
-    const t2 = x2.payload.timestamp
+  const streams: Feeds<FeedItem> = createStreams(feeds)
+  const pred = (x1: any, x2: any) => {
+    const t1 = x1.payload && x1.payload.timestamp
+    const t2 = x2.payload && x2.payload.timestamp
 
     if (typeof t1 === 'undefined' && typeof t2 === 'undefined') {
       return false
@@ -73,19 +72,20 @@ export function createStreamSorted(feeds: Feeds<FeedItem>): Highland.Stream<Stre
     return t1 < t2
   }
 
-  const sources = Object.keys(streams)
-    .map(key => streams[key].map((item: FeedItem) => ({
+  // Highland typings does not like streams of streams, so we solve it using "as any"
+  const sources: Highland.Stream<Highland.Stream<StreamAction>> = _(Object.keys(streams)
+    .map(key => streams[key].map<StreamAction>((item: FeedItem) => ({
       type: key,
       payload: item
-    }))
+    })))) as any
 
-  return _(sources).collect().flatMap((srcs) => {
-    function nextValue(src, push, next) {
+  return sources.collect().flatMap((srcs: Highland.Stream<StreamAction>[]) => {
+    const nextValue = (src: Highland.Stream<StreamAction>, push: Function, next: Function) => {
       src.pull((err, x) => {
         if (err) {
           push(err)
           nextValue(src, push, next)
-        } else if (x === _.nil) {
+        } else if (x === _.nil as any) {
           // push last element in buffer
           if (buffer.get(src)) {
             push(null, buffer.get(src))
@@ -131,8 +131,9 @@ export function createStreamSorted(feeds: Feeds<FeedItem>): Highland.Stream<Stre
         for (const pair of Array.from(buffer.entries())) {
           srcToPull = srcToPull === undefined || pred(pair[1], srcToPull[1]) ? pair : srcToPull
         }
+        // @ts-ignore
         nextValue(srcToPull[0], push, next)
       }
-    })
+    }) as Highland.Stream<StreamAction>
   })
 }

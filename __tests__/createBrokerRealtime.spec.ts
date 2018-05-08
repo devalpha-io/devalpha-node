@@ -8,7 +8,7 @@ import {
   ORDER_CANCELLED
 } from '../lib/constants'
 
-import rootReducer from '../lib/reducers'
+import { rootReducer } from '../lib/reducers'
 
 import { createMockStore } from './util/createMockStore'
 import { createMockClient } from './util/createMockClient'
@@ -168,7 +168,7 @@ test(`dispatch ${ORDER_CANCELLED} if cancelling succeeds`, (done) => {
 })
 
 
-test.only(`dispatch ${ORDER_FAILED} if cancelling fails even though we have an order placed`, (done) => {
+test(`dispatch ${ORDER_FAILED} if cancelling fails even though we have an order placed`, (done) => {
   const next = jest.fn()
   const initialState = rootReducer(undefined, { type: 'foobar', payload: {} })
   const store = createMockStore({

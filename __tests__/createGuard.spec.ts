@@ -7,7 +7,7 @@ import {
 import { createGuard as createMiddleware } from '../lib/middleware/createGuard'
 import { createMockStore } from './util/createMockStore'
 
-import rootReducer from '../lib/reducers'
+import { rootReducer } from '../lib/reducers'
 
 const t = { context: {} }
 
