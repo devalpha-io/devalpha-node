@@ -1,8 +1,9 @@
 # DevAlpha
 
-<a href="https://travis-ci.org/devalpha-io/devalpha-node"><img src="https://img.shields.io/travis/devalpha-io/devalpha-node.svg"></a>
-<a href="https://david-dm.org/devalpha-io/devalpha-node"><img src="https://img.shields.io/david/devalpha-io/devalpha-node.svg"></a>
-<a href="https://www.npmjs.com/package/devalpha"><img src="https://img.shields.io/npm/v/devalpha.svg"></a>
+[![Build Status](https://travis-ci.org/devalpha-io/devalpha-node.svg?branch=master)](https://travis-ci.org/devalpha-io/devalpha-node)
+[![Dependencies](https://david-dm.org/devalpha-io/devalpha-node/status.svg)](https://david-dm.org/devalpha-io/devalpha-node)
+[![NPM Version](https://img.shields.io/npm/v/devalpha.svg)](https://www.npmjs.com/package/devalpha)
+[![Coverage Status](https://coveralls.io/repos/github/devalpha-io/devalpha-node/badge.svg?branch=master)](https://coveralls.io/github/devalpha-io/devalpha-node?branch=master)
 
 DevAlpha is a Javascript framework for creating and running your own algorithmic trading systems. It is built using TypeScript, weighs in at a less than 1500 lines of code, and is speedy as hell.
 
@@ -60,12 +61,12 @@ const strategy = (context, action) {
 }
 
 // Create the trading stream
-const trader = createTrader({ feeds }, strategy).done(() => {
+const stream = createTrader({ feeds }, strategy).done(() => {
   console.log('Finished!')
 })
 
 // Make money!
-trader.resume()
+stream.resume()
 ```
 
 ## Settings
