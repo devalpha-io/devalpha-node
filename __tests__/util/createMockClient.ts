@@ -23,7 +23,6 @@ export const createMockClient = (fail = false) => {
     cancelOrder: async ({ id }) => {
       /* simulate network delay */
       await new Promise(r => setTimeout(r, 10))
-
       if (fail) {
         throw new Error()
       } else {

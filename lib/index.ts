@@ -198,7 +198,8 @@ export function createTrader(settings: any, strategy: Strategy) {
     const io = socket(app, {
       pingTimeout: 1000,
       pingInterval: 400,
-      origins: process.env.NODE_ENV === 'production' ? 'devalpha.io:*' : '*:*'
+      origins: /* istanbul ignore next: must be manually tested for now */ 
+        process.env.NODE_ENV === 'production' ? 'devalpha.io:*' : '*:*'
     })
 
     app.listen(config.dashboard.port)

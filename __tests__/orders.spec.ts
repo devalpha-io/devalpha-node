@@ -46,6 +46,52 @@ test('createOrder throws on missing quantity', () => {
   })).toThrow()
 })
 
+test('createOrder throws on missing price', () => {
+  expect(() => createOrder(store)(calculateCommission)({
+    identifier: 'GOOG',
+    timestamp: 100,
+    quantity: 100
+  })).toThrow()
+})
+
+test('createOrder does not support percentage orders', () => {
+  expect(() => createOrder(store)(calculateCommission)({
+    identifier: 'GOOG',
+    timestamp: 100,
+    price: 100,
+    percent: 0.5
+  })).toThrow()
+})
+
+test('createOrder does not support trailing stop loss orders', () => {
+  expect(() => createOrder(store)(calculateCommission)({
+    identifier: 'GOOG',
+    timestamp: 100,
+    price: 100,
+    threshold: 0.5,
+    quantity: 100
+  })).toThrow()
+})
+
+test('createOrder does not support fixed price stop loss orders', () => {
+  expect(() => createOrder(store)(calculateCommission)({
+    identifier: 'GOOG',
+    timestamp: 100,
+    trigger: 100,
+    price: 100,
+    quantity: 100
+  })).toThrow()
+})
+
+test('createOrder throws if both quantity and percent is specified', () => {
+  expect(() => createOrder(store)(calculateCommission)({
+    identifier: 'GOOG',
+    timestamp: 100,
+    quantity: 100,
+    percent: 0.5
+  })).toThrow()
+})
+
 test('createOrder returns a proper order', () => {
   const actual = createOrder(store)(calculateCommission)({
     identifier: 'GOOG',

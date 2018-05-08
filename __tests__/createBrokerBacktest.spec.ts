@@ -5,9 +5,9 @@ import {
   ORDER_PLACED,
   ORDER_FILLED,
   ORDER_FAILED
-} from '../dist/constants'
+} from '../lib/constants'
 
-import { createBrokerBacktest as createMiddleware } from '../dist/middleware/createBrokerBacktest'
+import { createBrokerBacktest as createMiddleware } from '../lib/middleware/createBrokerBacktest'
 
 const t = { context: {} }
 
@@ -30,6 +30,24 @@ test('pass the intercepted action to the next', () => {
 
 test('synchronously dispatch order created upon order requested', () => {
   const { middleware, store } = t.context
+  const action = {
+    type: ORDER_REQUESTED,
+    payload: {
+      identifier: 'GOOG',
+      quantity: 10,
+      price: 20,
+      timestamp: 0
+    }
+  }
+  middleware(action)
+
+  expect(store.dispatch.mock.calls.length).toBe(1)
+  expect(store.dispatch.mock.calls[0][0].type).toBe(ORDER_CREATED)
+})
+
+test('can use function as calculateCommission', () => {
+  const { store, next } = t.context
+  const middleware = createMiddleware(() => 5)(store)(next)
   const action = {
     type: ORDER_REQUESTED,
     payload: {

@@ -5,7 +5,7 @@
       "moduleResolution": "node",
       "target": "es5",
       "declaration": true,
-      "lib": ["ES2018"],
+      "lib": ["ES2017", "ES2018"],
       "sourceMap": true,
       "strict": true,
       "noUnusedLocals": true,

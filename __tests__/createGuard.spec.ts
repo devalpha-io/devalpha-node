@@ -117,7 +117,7 @@ test('reject short order if instrument owned and shorting is disallowed', () => 
   expect(next.mock.calls[0][0].type).toBe(ORDER_REJECTED)
 })
 
-test('reject order if it buying on margin is disallowed', () => {
+test('reject order if buying on margin is disallowed', () => {
   const next = t.context.next
   
   const initialState = rootReducer(undefined, { type: 'foobar', payload: {} })
@@ -139,4 +139,28 @@ test('reject order if it buying on margin is disallowed', () => {
 
   expect(next.mock.calls.length).toBe(1)
   expect(next.mock.calls[0][0].type).toBe(ORDER_REJECTED)
+})
+
+test('allow margin order if buying on margin is allowed', () => {
+  const next = t.context.next
+  
+  const initialState = rootReducer(undefined, { type: 'foobar', payload: {} })
+  const store = createMockStore(initialState)
+
+  const order = {
+    identifier: '123',
+    price: new Decimal(100),
+    quantity: new Decimal(100),
+    commission: new Decimal(5)
+  }
+  const action = { type: ORDER_CREATED, payload: order }
+
+  const middleware = createMiddleware({
+    margin: true
+  })(store)(next)
+
+  middleware(action)
+
+  expect(next.mock.calls.length).toBe(1)
+  expect(next.mock.calls[0][0].type).toBe(ORDER_CREATED)
 })

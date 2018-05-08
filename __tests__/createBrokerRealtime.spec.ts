@@ -168,10 +168,21 @@ test(`dispatch ${ORDER_CANCELLED} if cancelling succeeds`, (done) => {
 })
 
 
-test(`dispatch ${ORDER_FAILED} if cancelling fails`, (done) => {
+test.only(`dispatch ${ORDER_FAILED} if cancelling fails even though we have an order placed`, (done) => {
   const next = jest.fn()
   const initialState = rootReducer(undefined, { type: 'foobar', payload: {} })
-  const store = createMockStore(initialState)
+  const store = createMockStore({
+    ...initialState,
+    orders: {
+      '1': {
+        identifier: 'MSFT',
+        quantity: new Decimal(10),
+        price: new Decimal(20),
+        commission: new Decimal(0),
+        timestamp
+      }
+    }
+  })
   store.dispatch = jest.fn()
   const middleware = createMiddleware(createMockClient(true))(store)(next)
   const timestamp = Date.now()

@@ -26,6 +26,7 @@ export const createConsumerCreator = (store: Store) => createConsumer(store)
 export const createConsumer = (store: Store) => (middleware: Middleware) => (err: Error, item: StreamAction | Highland.Nil, push: Function, next: Function): void => {
   if (err) {
     push(err)
+    next()
   } else if (item === _.nil) {
     push(null, _.nil)
   } else {

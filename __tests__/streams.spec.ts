@@ -39,7 +39,7 @@ test('createStreamMerged runs event in arbitrary order', done => {
     foo: _((push, next) => {
       i1 = setInterval(() => {
         push(null, 'a')
-      }, 100)
+      }, 95)
     }),
     bar: _((push, next) => {
       i2 = setInterval(() => {
@@ -69,8 +69,8 @@ test('createStreamSorted returns a sorted stream of Redux actions', done => {
   const streams = {
     foo: _([{ timestamp: 10 }]),
     bar: _([{ timestamp: 5 }]),
-    qux: _([{}]),
     baz: _([{}]),
+    qux: _([{}]),
     quux: _([{ timestamp: 15 }]),
     corge: _([{ timestamp: 10 }]),
     grault: _([{ timestamp: -Infinity }])
@@ -97,32 +97,7 @@ test('createStreamSorted returns a sorted stream of Redux actions', done => {
     })
 })
 
-test.only('createStreamSorted pushes all remaining events on the stream when it ends', done => {
-  const streams = {
-    foo: _([{ timestamp: 10 }, { timestamp: 15 }]),
-    bar: _([{ timestamp: 20 }]),
-    baz: _([{ timestamp: 25 }]),
-  }
-  const sorted = createStreamSorted(streams)
-  const actions = []
-
-  sorted
-    .each((x) => actions.push(x.type))
-    .done(() => {
-      const actual = actions
-      const expected = [
-        'foo',
-        'foo',
-        'bar',
-        'baz'
-      ]
-
-      expect(actual).toEqual(expected)
-      done()
-    })
-})
-
-test('createStreamSorted does not emit errors', done => {
+test('createStreamSorted handles errors', done => {
   const streams = {
     foo: _.fromError(new Error())
   }
