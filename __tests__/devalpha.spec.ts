@@ -1,6 +1,7 @@
 import * as _ from 'highland'
 import * as io from 'socket.io-client'
 import {
+  devalpha,
   createTrader,
   ORDER_PLACED,
   ORDER_FILLED,
@@ -412,11 +413,7 @@ test('dashboard works as expected', (done) => {
   }).resume()
 
   const socket = io(`http://localhost:${SOCKET_PORT}`, {
-    autoConnect: false,
-    extraHeaders: {
-      referer: 'https://devalpha.io',
-      origin: 'https://devalpha.io'
-    }
+    autoConnect: false
   })
 
   expect(serverEvents.length).toBe(0)
@@ -441,4 +438,28 @@ test('dashboard works as expected', (done) => {
   })
 
   socket.open()
+})
+
+test('calling devalpha logs to console', (done) => {
+  const actions = []
+  const strategy = ({ order }, action) => {}
+  console.error = jest.fn()
+  devalpha({
+    feeds: {
+      example: [
+        {
+          value: 'event 1',
+          timestamp: 100
+        }
+      ]
+    }
+  }, strategy).each((x) => {
+    actions.push(x)
+  })
+
+  setTimeout(() => {
+    expect(console.error.mock.calls.length).toBe(1)
+    expect(actions.length).toBe(3)
+    done()
+  }, 100)
 })

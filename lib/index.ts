@@ -233,4 +233,7 @@ export function createTrader(settings: any, strategy: Strategy) {
   return output
 }
 
-export const devalpha = createTrader
+export const devalpha = (...args) => {
+  console.error('the devalpha function is deprecated, please use createTrader() instead')
+  return createTrader(...args)
+}
