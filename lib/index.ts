@@ -1,10 +1,9 @@
 import * as _ from 'highland'
-import { combineReducers } from 'redux'
 import * as http from 'http'
 import * as socket from 'socket.io'
 
-import { createStreamMerged, createStreamSorted } from './streams'
-import { createConsumerCreator } from './consumer'
+import { createStreamMerged, createStreamSorted } from './util/streams'
+import { createConsumerCreator } from './util/consumers'
 import {
   DevAlphaOptions,
   StreamAction,
@@ -14,7 +13,7 @@ import {
   Consumer
 } from './types'
 
-import reducers from './reducers'
+import { rootReducer } from './reducers'
 import {
   createGuard,
   createStrategy,
@@ -28,22 +27,23 @@ import {
   SOCKETIO_CONNECTION,
   DASHBOARD_INITIALIZE,
   DASHBOARD_EVENTS,
-  DASHBOARD_FINISHED
+  DASHBOARD_FINISHED,
+  SOCKET_PORT
 } from './constants'
 
 export * from './constants'
 export * from './types'
 
 /**
- * DevAlpha only exports one function, and this is the one. It takes two parameters as input: a settings
- * object and your strategy function.
+ * Create a trading stream, which uses supplied feeds as sources, and outputs feed events as well as
+ * events produced by the supplied strategy.
  * 
  * @param {any}      settings An object containing settings.
  * @param {Strategy} strategy A Strategy function.
- * @returns {void}
+ * @returns {Stream}
  */
-export function devalpha(settings: any, strategy: Strategy) {
-  let config: DevAlphaOptions = {
+export function createTrader(settings: any, strategy: Strategy) {
+  const config: DevAlphaOptions = {
     backtesting: true,
     client: null,
     startCapital: 0,
@@ -67,7 +67,7 @@ export function devalpha(settings: any, strategy: Strategy) {
     },
     dashboard: {
       active: false,
-      port: 4449,
+      port: SOCKET_PORT,
       ...settings.dashboard
     }
   }
@@ -83,6 +83,7 @@ export function devalpha(settings: any, strategy: Strategy) {
     dispatch: (action: StreamAction) => input.write(action),
     getState: () => state,
     setState: (nextState: RootState) => {
+      /* istanbul ignore if */
       if (!reducing) {
         throw new Error('Cannot set state outside of reducer.')
       }
@@ -93,16 +94,16 @@ export function devalpha(settings: any, strategy: Strategy) {
   // Consumers
   const createConsumer = createConsumerCreator(store)
   
-  const reducer = combineReducers(reducers as any)
-  const reducerMiddleware: Middleware = (store) => (next) => (action) => {
+  const reducerMiddleware: Middleware = store => next => (action) => {
     reducing = true
-    store.setState(reducer(store.getState(), action))
+    store.setState(rootReducer(store.getState(), action))
     reducing = false
     next(action)
   }
 
   // Check if finished
   const finishedConsumer: Consumer = (err, item, push, next) => {
+    /* istanbul ignore if */
     if (err) {
       push(err)
       next()
@@ -169,15 +170,16 @@ export function devalpha(settings: any, strategy: Strategy) {
         input.pause()
       }
     })
-    .through(
+    .through<StreamAction, StreamAction>(
       _.seq(
-        _.consume(finishedConsumer),
-        _.filter(isValidAction),
-        _.consume(createConsumer(guardMiddleware)),
-        _.consume(createConsumer(brokerMiddleware)),
-        _.consume(createConsumer(reducerMiddleware)),
-        _.consume(createConsumer(strategyMiddleware))
-      )
+        // use "as any" since functions does actually exist on _
+        (_ as any).consume(finishedConsumer),
+        (_ as any).filter(isValidAction),
+        (_ as any).consume(createConsumer(guardMiddleware)),
+        (_ as any).consume(createConsumer(brokerMiddleware)),
+        (_ as any).consume(createConsumer(reducerMiddleware)),
+        (_ as any).consume(createConsumer(strategyMiddleware))
+      ) as (x: StreamAction) => StreamAction
     )
     .doto(() => {
       // @ts-ignore
@@ -192,14 +194,12 @@ export function devalpha(settings: any, strategy: Strategy) {
 
 
   if (config.dashboard.active) {
-    const app = http.createServer((_, res) => {
-      res.writeHead(200)
-      res.end()
-    })
+    const app = http.createServer()
     const io = socket(app, {
       pingTimeout: 1000,
       pingInterval: 400,
-      origins: 'localhost:* devalpha.io:*'
+      origins: /* istanbul ignore next: must be manually tested for now */ 
+        process.env.NODE_ENV === 'test' ? '*:*' : 'devalpha.io:*'
     })
 
     app.listen(config.dashboard.port)
@@ -231,4 +231,9 @@ export function devalpha(settings: any, strategy: Strategy) {
   }
 
   return output
+}
+
+export const devalpha = (settings: any, strategy: Strategy) => {
+  console.error('the devalpha function is deprecated, please use createTrader() instead')
+  return createTrader(settings, strategy)
 }

@@ -25,3 +25,12 @@ test('update timestamp if valid value in payload', () => {
   const expected = 100
   expect(actual).toBe(expected)
 })
+
+test('state remains unchanged if missing timestamp', () => {
+  const actual = reducer(50, {
+    type: 'FOO',
+    payload: {}
+  })
+  const expected = 50
+  expect(actual).toBe(expected)
+})

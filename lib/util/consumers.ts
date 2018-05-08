@@ -3,7 +3,7 @@ import {
   Store,
   Middleware,
   StreamAction
-} from './types'
+} from '../types'
 
 /**
  * A convenience function which partially applies the createConsumer function with the given store.
@@ -22,9 +22,11 @@ export const createConsumerCreator = (store: Store) => createConsumer(store)
  * @param {Store} store An Store object.
  * @return {Function} A function which takes a middleware as parameter, which then returns a Consumer.
  */
+// tslint:disable-next-line:max-line-length
 export const createConsumer = (store: Store) => (middleware: Middleware) => (err: Error, item: StreamAction | Highland.Nil, push: Function, next: Function): void => {
   if (err) {
     push(err)
+    next()
   } else if (item === _.nil) {
     push(null, _.nil)
   } else {
@@ -42,5 +44,7 @@ export const createConsumer = (store: Store) => (middleware: Middleware) => (err
       next()
     }
   }
-}
 
+  // https://github.com/buzinas/tslint-eslint-rules/issues/247
+  // tslint:disable-next-line
+}

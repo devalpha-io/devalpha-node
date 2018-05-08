@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js'
-import { positionsReducer as reducer } from '../lib/reducers/positionsReducer'
+import { positionsReducer as reducer, parseBar } from '../lib/reducers/positionsReducer'
 import {
   INITIALIZED,
   ORDER_FILLED
@@ -217,4 +217,19 @@ test(`default: dont break if non-existent position`, () => {
   }
 
   expect(actual).toEqual(expected)
+})
+
+
+test(`parseBar should throw TypeError upon receiving an invalid argument`, () => {
+  const identifier = { open: 0, high: 0, low: 0, close: 0 }
+  const open = { identifier: 'a', high: 0, low: 0, close: 0 }
+  const high = { open: 0, identifier: 'a', low: 0, close: 0 }
+  const low = { open: 0, high: 0, identifier: 'a', close: 0 }
+  const close = { open: 0, high: 0, low: 0, identifier: 'a' }
+  
+  expect(() => parseBar(identifier)).toThrow()
+  expect(() => parseBar(open)).toThrow()
+  expect(() => parseBar(high)).toThrow()
+  expect(() => parseBar(low)).toThrow()
+  expect(() => parseBar(close)).toThrow()
 })

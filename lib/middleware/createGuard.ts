@@ -32,16 +32,8 @@ export function createGuard(options: GuardOptions): Middleware {
     const isDisallowedShort = (order: CreatedOrder) => {
       const { quantity, identifier } = order
       if ((!options.shorting) && quantity.isNegative()) {
-
         const instrument = store.getState().positions.instruments[identifier]
-
-        if (!instrument) {
-          return true
-        }
-
-        if (new Decimal(instrument.quantity).lt(Decimal.abs(quantity))) {
-          return true
-        }
+        return !instrument || new Decimal(instrument.quantity).lt(Decimal.abs(quantity))
       }
       return false
     }
@@ -52,7 +44,7 @@ export function createGuard(options: GuardOptions): Middleware {
         const cash = store.getState().capital.cash
         const cost = Decimal.mul(quantity, price).add(commission)
 
-        if (cash.lessThan(cost)) {
+        if (cash.lt(cost)) {
           return true
         }
       }

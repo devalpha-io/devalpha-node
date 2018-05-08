@@ -30,7 +30,7 @@ Install using NPM:
 Getting started is easy as pie. Hook up any source of data you like and start trading in seconds.
 
 ```javascript
-import { devalpha } from 'devalpha'
+import { createTrader } from 'devalpha'
 
 const feeds = {
   myQuandlFeed: [1, 2, 3, 4],
@@ -59,10 +59,13 @@ const strategy = (context, action) {
   }
 }
 
-// Make money!
-devalpha({ feeds }, strategy).done(() => {
+// Create the trading stream
+const trader = createTrader({ feeds }, strategy).done(() => {
   console.log('Finished!')
 })
+
+// Make money!
+trader.resume()
 ```
 
 ## Settings
@@ -135,24 +138,24 @@ const settings = {
 
 ## Usage
 
-The `devalpha`-function returns an unconsumed stream, and so it is up to you to consume it (thereby running the strategy). Highland provides a number of ways of doing this ([see here](https://highlandjs.org/#Consumption)), but the easiest one is probably just to use `.resume()` like so:
+The `createTrader`-function returns an unconsumed stream, and so it is up to you to consume it (thereby running the strategy). Highland provides a number of ways of doing this ([see here](https://highlandjs.org/#Consumption)), but the easiest one is probably just to use `.resume()` like so:
 
 ```javascript
 const settings = {...}
 const strategy = (context, action) => {...}
 
-devalpha(settings, strategy).resume()
+createTrader(settings, strategy).resume()
 ```
 
 However, you could also do crazy things like this:
 
 ```javascript
-import { devalpha, ORDER_FILLED, ORDER_FAILED } from 'devalpha'
+import { createTrader, ORDER_FILLED, ORDER_FAILED } from 'devalpha'
 
 const settings = {...}
 const strategy = (context, action) => {...}
 
-const stream = devalpha(settings, strategy)
+const stream = createTrader(settings, strategy)
 
 const slackStream = stream.fork()
 const redisStream = stream.fork()
