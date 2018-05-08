@@ -16,6 +16,7 @@
     "@types/mathjs": "0.0.39",
     "@types/node": "^9.6.2",
     "@types/socket.io": "^1.4.33",
+    "coveralls": "^3.0.1",
     "documentation": "^6.2.0",
     "jest": "^22.4.3",
     "socket.io-client": "^2.1.0",
@@ -30,7 +31,7 @@
     "api": "documentation readme dist/**/* --section=API --markdown-toc=false",
     "start": "npm run build",
     "lint": "tslint -c tslint.json 'lib/**/*.ts'",
-    "test": "NODE_ENV=test jest --coverage"
+    "test": "NODE_ENV=test jest"
   },
   "jest": {
     "transform": {
@@ -46,6 +47,8 @@
       "node_modules",
       "dist",
       "__tests__"
-    ]
+    ],
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true
   }
 }
