@@ -2,7 +2,7 @@ language: node_js
 node_js:
   - "8"
 script:
-  - NODE_ENV=test jest --coverage --coverageReporters=text-lcov | coveralls
+  - NODE_ENV=test jest --coverage --coverageReporters=text-lcov | npx coveralls
 after_success: 
   - npm run build
 notifications:
