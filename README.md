@@ -38,7 +38,7 @@ const feeds = {
   myStreamFeed: fs.createReadStream(...)
 }
 
-const strategy = (context, action) {
+const strategy = (context, action) => {
 
   // Place an order
   if (action.type === 'myQuandlFeed') {
