@@ -61,12 +61,12 @@ const strategy = (context, action) => {
 }
 
 // Create the trading stream
-const stream = createTrader({ feeds }, strategy).done(() => {
+const stream = createTrader({ feeds }, strategy)
+
+// Consumer the stream and make money!
+stream.done(() => {
   console.log('Finished!')
 })
-
-// Make money!
-stream.resume()
 ```
 
 ## Settings
