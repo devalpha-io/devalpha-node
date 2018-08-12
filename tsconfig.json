@@ -2,10 +2,9 @@
     "compilerOptions": {
       "outDir": "dist",
       "module": "commonjs",
-      "moduleResolution": "node",
       "target": "es5",
       "declaration": true,
-      "lib": ["ES2017", "ES2018"],
+      "lib": ["es2015"],
       "sourceMap": true,
       "strict": true,
       "noUnusedLocals": true,
