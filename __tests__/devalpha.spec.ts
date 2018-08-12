@@ -399,7 +399,7 @@ test('stream consumers can apply backpressure', done => {
 test('dashboard works as expected', (done) => {
   let clientEvents = []
   const serverEvents = []
-  const runTime = -1
+  let runTime = -1
 
   const trader = createTrader({
     feeds: {
@@ -434,7 +434,9 @@ test('dashboard works as expected', (done) => {
   })
 
   socket.on('connect', () => {
-    socket.emit(DASHBOARD_INITIALIZE)
+    setTimeout(() => {
+      socket.emit(DASHBOARD_INITIALIZE)
+    }, 100)
   })
 
   socket.open()
