@@ -67,3 +67,6 @@ dist/
 
 # old
 _old/
+
+# visual studio
+.vscode/
