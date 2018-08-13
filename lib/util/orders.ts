@@ -39,13 +39,13 @@ export const createOrder = (store: Store) => (calculateCommission: Function) => 
   } else {
     createdOrder.identifier = order.identifier
   }
-  
+
   if (typeof order.price === 'undefined') {
     throw new Error('market orders not yet supported')
   } else {
     createdOrder.price = new Decimal(order.price)
   }
-  
+
   if (typeof order.quantity !== 'undefined' && typeof order.percent === 'undefined') {
     createdOrder.quantity = new Decimal(order.quantity)
   } else if (typeof order.quantity === 'undefined' && typeof order.percent !== 'undefined') {

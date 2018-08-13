@@ -104,7 +104,7 @@ export function positionsReducer(state: PositionsState = initialState, action: S
       /* update value */
       /* value = order.price * (instrument.quantity + order.quantity) */
       const value = Decimal.mul(filledOrder.price, Decimal.add(instrument.quantity, filledOrder.quantity))
-        
+
       const oldValue = instrument.value
 
       instrument = { ...instrument, quantity, value }
@@ -119,7 +119,7 @@ export function positionsReducer(state: PositionsState = initialState, action: S
       state.instruments[identifier] = instrument
 
       state.total = Decimal.add(state.total, Decimal.sub(value, oldValue))
-        
+
       break
     }
 
@@ -148,6 +148,6 @@ export function positionsReducer(state: PositionsState = initialState, action: S
       break
     }
   }
-  
+
   return { ...state }
 }

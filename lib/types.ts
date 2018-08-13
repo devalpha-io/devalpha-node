@@ -101,7 +101,6 @@ export type Middleware = (store: Store) => (next: Function) => (action: StreamAc
 
 export type Consumer = (err: Error, item: StreamAction | Highland.Nil, push: Function, next: Function) => void
 
-
 export interface Order {
   identifier: string
 }

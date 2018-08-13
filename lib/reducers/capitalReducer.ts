@@ -40,7 +40,7 @@ export function capitalReducer(
       }
       if (action.payload.initialStates.capital) {
         const initial = action.payload.initialStates.capital
-        
+
         if (typeof initial.cash !== 'undefined') {
           state.cash = new Decimal(initial.cash)
         }
@@ -116,7 +116,7 @@ export function capitalReducer(
         /* we might get filled at a higher price than expected, and thus pay higher commission */
         /* extraCommission = max(0, (commission - expectedCommission) * quantity) */
         const extraCommission = Decimal.max(
-          0, 
+          0,
           Decimal.sub(filledOrder.commission, placedOrder.commission).mul(filledOrder.commission)
         )
 

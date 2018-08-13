@@ -37,7 +37,7 @@ export * from './types'
 /**
  * Create a trading stream, which uses supplied feeds as sources, and outputs feed events as well as
  * events produced by the supplied strategy.
- * 
+ *
  * @param {any}      settings An object containing settings.
  * @param {Strategy} strategy A Strategy function.
  * @returns {Stream}
@@ -93,7 +93,7 @@ export function createTrader(settings: any, strategy: Strategy) {
 
   // Consumers
   const createConsumer = createConsumerCreator(store)
-  
+
   const reducerMiddleware: Middleware = store => next => (action) => {
     reducing = true
     store.setState(rootReducer(store.getState(), action))
@@ -192,13 +192,12 @@ export function createTrader(settings: any, strategy: Strategy) {
       action
     }))
 
-
   if (config.dashboard.active) {
     const app = http.createServer()
     const io = socket(app, {
       pingTimeout: 1000,
       pingInterval: 400,
-      origins: /* istanbul ignore next: must be manually tested for now */ 
+      origins: /* istanbul ignore next: must be manually tested for now */
         process.env.NODE_ENV === 'test' ? '*:*' : 'devalpha.io:*'
     })
 
