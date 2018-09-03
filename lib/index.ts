@@ -198,7 +198,7 @@ export function createTrader(settings: any, strategy: Strategy) {
       pingTimeout: 1000,
       pingInterval: 400,
       origins: /* istanbul ignore next: must be manually tested for now */
-        process.env.NODE_ENV === 'test' ? '*:*' : 'devalpha.io:*,beta.devalpha.io:*'
+        process.env.NODE_ENV === 'test' ? '*:*' : 'beta.devalpha.io:*'
     })
 
     app.listen(config.dashboard.port)
