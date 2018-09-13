@@ -1,7 +1,6 @@
 import * as _ from 'highland'
-import * as http from 'http'
-import * as socket from 'socket.io'
 
+import { createServer } from './socket'
 import { createStreamMerged, createStreamSorted } from './util/streams'
 import { createConsumerCreator } from './util/consumers'
 import {
@@ -24,7 +23,6 @@ import {
 import {
   INITIALIZED,
   FINISHED,
-  SOCKETIO_CONNECTION,
   DASHBOARD_INITIALIZE,
   DASHBOARD_EVENTS,
   DASHBOARD_FINISHED,
@@ -193,40 +191,40 @@ export function createTrader(settings: any, strategy: Strategy) {
     }))
 
   if (config.dashboard.active) {
-    const app = http.createServer()
-    const io = socket(app, {
-      pingTimeout: 1000,
-      pingInterval: 400,
-      origins: /* istanbul ignore next: must be manually tested for now */
-        process.env.NODE_ENV === 'test' ? '*:*' : 'beta.devalpha.io:*'
-    })
-
-    app.listen(config.dashboard.port)
-
     const socketStream = output.fork()
     output = output.fork()
 
-    io.on(SOCKETIO_CONNECTION, (client) => {
-      client.on(DASHBOARD_INITIALIZE, () => {
-        startedAt = Date.now()
-        socketStream
-          .batchWithTimeOrCount(500, 1000)
-          .each((events) => {
-            io.emit(DASHBOARD_EVENTS, { events })
-          })
-          .done(() => {
-            finishedAt = Date.now()
+    const server = createServer({
+      port: config.dashboard.port
+    });
 
-            io.emit(DASHBOARD_FINISHED, {
-              startedAt,
-              finishedAt
-            })
-
-            client.disconnect(true)
-            io.close()
-          })
+    server.on('connection', (spark: any) => {
+        spark.on('data', ({ type }: any) => {
+          /* istanbul ignore next */
+          if (type === DASHBOARD_INITIALIZE) {
+            startedAt = Date.now()
+            socketStream
+              .batchWithTimeOrCount(500, 1000)
+              .each((events) => {
+                spark.write({
+                  type: DASHBOARD_EVENTS,
+                  payload: { events }
+                })
+              })
+              .done(() => {
+                finishedAt = Date.now()
+                spark.end({
+                  type: DASHBOARD_FINISHED,
+                  payload: {
+                    startedAt,
+                    finishedAt
+                  }
+                })
+                server.destroy()
+              })
+          }
+        })
       })
-    })
   }
 
   return output

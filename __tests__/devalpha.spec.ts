@@ -1,5 +1,5 @@
 import * as _ from 'highland'
-import * as io from 'socket.io-client'
+import * as primus from 'primus'
 import {
   devalpha,
   createTrader,
@@ -22,29 +22,29 @@ test('backtest event order', done => {
   const executions = []
   const strategy = ({ order }, action) => {
     switch (action.type) {
-    case 'example':
-      executions.push('a')
-      order({
-        identifier: 'GOOG',
-        price: 100,
-        quantity: 50
-      })
-      executions.push('b')
-      order({
-        identifier: 'MSFT',
-        price: 100,
-        quantity: 30
-      })
-      executions.push('c')
-      break
-    case ORDER_PLACED:
-      executions.push('d')
-      break
-    case ORDER_FILLED:
-      executions.push('e')
-      break
-    default:
-      break
+      case 'example':
+        executions.push('a')
+        order({
+          identifier: 'GOOG',
+          price: 100,
+          quantity: 50
+        })
+        executions.push('b')
+        order({
+          identifier: 'MSFT',
+          price: 100,
+          quantity: 30
+        })
+        executions.push('c')
+        break
+      case ORDER_PLACED:
+        executions.push('d')
+        break
+      case ORDER_FILLED:
+        executions.push('e')
+        break
+      default:
+        break
     }
   }
 
@@ -82,29 +82,29 @@ test('live trading event order', done => {
   const executions = []
   const strategy = ({ order }, action) => {
     switch (action.type) {
-    case 'example':
-      executions.push('a')
-      order({
-        identifier: 'GOOG',
-        price: 100,
-        quantity: 50
-      })
-      executions.push('b')
-      order({
-        identifier: 'MSFT',
-        price: 100,
-        quantity: 50
-      })
-      executions.push('c')
-      break
-    case ORDER_PLACED:
-      executions.push('d')
-      break
-    case ORDER_FILLED:
-      executions.push('e')
-      break
-    default:
-      break
+      case 'example':
+        executions.push('a')
+        order({
+          identifier: 'GOOG',
+          price: 100,
+          quantity: 50
+        })
+        executions.push('b')
+        order({
+          identifier: 'MSFT',
+          price: 100,
+          quantity: 50
+        })
+        executions.push('c')
+        break
+      case ORDER_PLACED:
+        executions.push('d')
+        break
+      case ORDER_FILLED:
+        executions.push('e')
+        break
+      default:
+        break
     }
   }
 
@@ -152,18 +152,18 @@ test('state() returns an object', done => {
 test('failing orders are dispatched', done => {
   const strategy = ({ order }, action) => {
     switch (action.type) {
-    case 'example':
-      order({
-        identifier: 'GOOG',
-        price: 100,
-        quantity: 50
-      })
-      break
-    case ORDER_FAILED:
-      done()
-      break
-    default:
-      break
+      case 'example':
+        order({
+          identifier: 'GOOG',
+          price: 100,
+          quantity: 50
+        })
+        break
+      case ORDER_FAILED:
+        done()
+        break
+      default:
+        break
     }
   }
 
@@ -189,24 +189,24 @@ test('failing orders are dispatched', done => {
 test('orders are cancellable', done => {
   const strategy = ({ order, cancel, state }, action) => {
     switch (action.type) {
-    case 'example':
-      order({
-        identifier: 'GOOG',
-        price: 100,
-        quantity: 50
-      })
-      break
-    case ORDER_PLACED:
-      cancel('1')
-      break
-    case ORDER_CANCELLED:
-      const actual = state().orders
-      const expected = {}
-      expect(actual).toEqual(expected)
-      done()
-      break
-    default:
-      break
+      case 'example':
+        order({
+          identifier: 'GOOG',
+          price: 100,
+          quantity: 50
+        })
+        break
+      case ORDER_PLACED:
+        cancel('1')
+        break
+      case ORDER_CANCELLED:
+        const actual = state().orders
+        const expected = {}
+        expect(actual).toEqual(expected)
+        done()
+        break
+      default:
+        break
     }
   }
 
@@ -232,14 +232,14 @@ test('orders are cancellable', done => {
 test('should not be able to cancel unknown orders', done => {
   const strategy = ({ cancel }, action) => {
     switch (action.type) {
-    case 'example':
-      cancel('1')
-      break
-    case ORDER_FAILED:
-      done()
-      break
-    default:
-      break
+      case 'example':
+        cancel('1')
+        break
+      case ORDER_FAILED:
+        done()
+        break
+      default:
+        break
     }
   }
 
@@ -270,7 +270,7 @@ test(
     const strat = createTrader({
       feeds: {},
       backtesting: false
-    }, () => {})
+    }, () => { })
 
     strat.each(({ state, action }) => {
       expect(typeof state.capital).toBe('object')
@@ -291,7 +291,7 @@ test(
     const events = []
     const strat = createTrader({
       feeds: {}
-    }, () => {})
+    }, () => { })
 
     strat.each(({ state, action }) => {
       expect(typeof state.capital).toBe('object')
@@ -375,14 +375,14 @@ test('stream consumers can apply backpressure', done => {
 
   const fork1 = strat.fork().map((item) => {
     // eslint-disable-next-line no-empty
-    for (let i = 0; i < 5000000; i += 1) {}
+    for (let i = 0; i < 5000000; i += 1) { }
     events.push('b')
     return item
   })
 
   const fork2 = strat.fork().map((item) => {
     // eslint-disable-next-line no-empty
-    for (let i = 0; i < 100; i += 1) {}
+    for (let i = 0; i < 100; i += 1) { }
     events.push('c')
     return item
   })
@@ -412,31 +412,39 @@ test('dashboard works as expected', (done) => {
     serverEvents.push('a')
   }).resume()
 
-  const socket = io(`http://localhost:${SOCKET_PORT}`, {
-    autoConnect: false
+  const Socket = primus.createSocket({
+    transformer: 'sockjs'
+  });
+
+  const socket = new Socket(`http://localhost:${SOCKET_PORT}`, {
+    manual: true
   })
 
   expect(serverEvents.length).toBe(0)
   expect(clientEvents.length).toBe(0)
 
-  socket.on(DASHBOARD_EVENTS, ({ events }) => {
-    clientEvents = [...clientEvents, ...events]
+  socket.on('data', ({ type, payload }: any) => {
+    if (type === DASHBOARD_EVENTS) {
+      clientEvents = [...clientEvents, ...payload.events]
+    } else if (type === DASHBOARD_FINISHED) {
+      runTime = payload.finishedAt - payload.startedAt
+    }
   })
 
-  socket.on(DASHBOARD_FINISHED, ({ startedAt, finishedAt }) => {
-    runTime = finishedAt - startedAt
+  socket.on('open', () => {
+    setTimeout(() => {
+      socket.write({
+        type: DASHBOARD_INITIALIZE,
+        payload: {}
+      })
+    }, 500)
+  })
 
+  socket.on('end', () => {
     expect(serverEvents.length).toBe(4)
     expect(clientEvents.length).toBe(4)
     expect(runTime > 0).toBe(true)
-
     done()
-  })
-
-  socket.on('connect', () => {
-    setTimeout(() => {
-      socket.emit(DASHBOARD_INITIALIZE)
-    }, 100)
   })
 
   socket.open()
@@ -444,7 +452,7 @@ test('dashboard works as expected', (done) => {
 
 test('calling devalpha logs to console', (done) => {
   const actions = []
-  const strategy = ({ order }, action) => {}
+  const strategy = ({ order }, action) => { }
   console.error = jest.fn()
   devalpha({
     feeds: {
