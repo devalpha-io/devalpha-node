@@ -1,5 +1,5 @@
 import * as _ from 'highland'
-import * as io from 'socket.io-client'
+import * as EventSource from 'eventsource'
 import {
   devalpha,
   createTrader,
@@ -412,18 +412,13 @@ test('dashboard works as expected', (done) => {
     serverEvents.push('a')
   }).resume()
 
-  const socket = io(`http://localhost:${SOCKET_PORT}`, {
-    autoConnect: false
-  })
-
-  expect(serverEvents.length).toBe(0)
-  expect(clientEvents.length).toBe(0)
-
-  socket.on(DASHBOARD_EVENTS, ({ events }) => {
+  const client = new EventSource(`http://127.0.0.1:${SOCKET_PORT}/backtest`)
+  client.addEventListener(DASHBOARD_EVENTS, ({ data }) => {
+    const events = JSON.parse(data).events
     clientEvents = [...clientEvents, ...events]
   })
-
-  socket.on(DASHBOARD_FINISHED, ({ startedAt, finishedAt }) => {
+  client.addEventListener(DASHBOARD_FINISHED, ({ data }) => {
+    const { startedAt, finishedAt } = JSON.parse(data)
     runTime = finishedAt - startedAt
 
     expect(serverEvents.length).toBe(4)
@@ -433,13 +428,8 @@ test('dashboard works as expected', (done) => {
     done()
   })
 
-  socket.on('connect', () => {
-    setTimeout(() => {
-      socket.emit(DASHBOARD_INITIALIZE)
-    }, 100)
-  })
-
-  socket.open()
+  expect(serverEvents.length).toBe(0)
+  expect(clientEvents.length).toBe(0)
 })
 
 test('calling devalpha logs to console', (done) => {

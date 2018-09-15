@@ -1,6 +1,6 @@
 import * as _ from 'highland'
-import * as http from 'http'
-import * as socket from 'socket.io'
+import { createServer } from 'http'
+import { parse } from 'url'
 
 import { createStreamMerged, createStreamSorted } from './util/streams'
 import { createConsumerCreator } from './util/consumers'
@@ -24,8 +24,6 @@ import {
 import {
   INITIALIZED,
   FINISHED,
-  SOCKETIO_CONNECTION,
-  DASHBOARD_INITIALIZE,
   DASHBOARD_EVENTS,
   DASHBOARD_FINISHED,
   SOCKET_PORT
@@ -193,40 +191,75 @@ export function createTrader(settings: any, strategy: Strategy) {
     }))
 
   if (config.dashboard.active) {
-    const app = http.createServer()
-    const io = socket(app, {
-      pingTimeout: 1000,
-      pingInterval: 400,
-      origins: /* istanbul ignore next: must be manually tested for now */
-        process.env.NODE_ENV === 'test' ? '*:*' : 'beta.devalpha.io:*'
-    })
-
-    app.listen(config.dashboard.port)
 
     const socketStream = output.fork()
     output = output.fork()
 
-    io.on(SOCKETIO_CONNECTION, (client) => {
-      client.on(DASHBOARD_INITIALIZE, () => {
+    let id = 0;
+    const createMessage = (message: any) => {
+      let response = ''
+      response += `id: ${id++}\n`
+      response += `event: ${message.type}\n`
+      response += `data: ${JSON.stringify(message.payload)}\n`
+      response += `\n`
+      return response
+    }
+
+    const app = createServer((req, res) => {
+      const headers: any = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'OPTIONS, GET',
+        'Access-Control-Max-Age': 60 * 60 * 24 * 30,
+        'Cache-Control': 'no-cache',
+        'Connection': 'close'
+      }
+
+      if (req.method === 'OPTIONS') {
+        res.writeHead(204, headers)
+        return res.end()
+      }
+
+      const url = parse(req.url as string)
+      if (url.pathname === '/') {
+        headers['Content-Type'] = 'application/json'
+        res.writeHead(200, headers)
+        res.write(JSON.stringify({
+          message: 'ok'
+        }))
+        res.end()
+      } else if (url.pathname === '/backtest') {
+        headers['Content-Type'] = 'text/event-stream',
+        headers['Connection'] = 'keep-alive',
+        res.writeHead(200, headers)
         startedAt = Date.now()
         socketStream
           .batchWithTimeOrCount(500, 1000)
           .each((events) => {
-            io.emit(DASHBOARD_EVENTS, { events })
+            res.write(createMessage({
+              type: DASHBOARD_EVENTS,
+              payload: { events }
+            }))
           })
           .done(() => {
             finishedAt = Date.now()
-
-            io.emit(DASHBOARD_FINISHED, {
-              startedAt,
-              finishedAt
-            })
-
-            client.disconnect(true)
-            io.close()
+            res.write(createMessage({
+              type: DASHBOARD_FINISHED,
+              payload: {
+                startedAt,
+                finishedAt
+              }
+            }))
+            res.end()
+            app.close()
           })
-      })
+      } else {
+        res.writeHead(404, headers)
+        res.end()
+      }
     })
+
+    app.listen(config.dashboard.port)
+
   }
 
   return output

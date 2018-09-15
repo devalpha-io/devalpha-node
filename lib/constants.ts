@@ -9,14 +9,7 @@ export const ORDER_CANCEL = '@@devalpha/ORDER_CANCEL'
 export const INITIALIZED = '@@devalpha/INITIALIZED'
 export const FINISHED = '@@devalpha/FINISHED'
 
-export const DASHBOARD_INITIALIZE = '@@devalpha/DASHBOARD_INITIALIZE'
 export const DASHBOARD_EVENTS = '@@devalpha/DASHBOARD_EVENTS'
 export const DASHBOARD_FINISHED = '@@devalpha/DASHBOARD_FINISHED'
-
-export const SOCKETIO_RECONNECT_FAILED = 'reconnect_failed'
-export const SOCKETIO_CONNECT = 'connect'
-export const SOCKETIO_CONNECTION = 'connection'
-export const SOCKETIO_RECONNECT = 'reconnect'
-export const SOCKETIO_DISCONNECT = 'disconnect'
 
 export const SOCKET_PORT = '4449'
