@@ -8,7 +8,7 @@ import {
 } from '../lib/constants'
 
 test('return the initial state', () => {
-  const actual = reducer(undefined, {})
+  const actual = reducer(undefined, { type: 'whatever', payload: { timestamp: 0 } })
   const expected = {
     cash: new Decimal(0),
     commission: new Decimal(0),
@@ -77,7 +77,8 @@ test(`${ORDER_PLACED} of a sell-side order correctly edits reservedCash`, () => 
     identifier: 'MSFT',
     quantity: new Decimal(-50),
     price: new Decimal(110),
-    commission: new Decimal(5.5)
+    commission: new Decimal(5.5),
+    timestamp: 0
   }
   const action = { type: ORDER_PLACED, payload: order }
 
@@ -98,12 +99,13 @@ test(`${ORDER_PLACED} of a buy-side order correctly edits cash, commission and r
     identifier: 'MSFT',
     quantity: new Decimal(100),
     price: new Decimal(100),
-    commission: new Decimal(10)
+    commission: new Decimal(10),
+    timestamp: 0
   }
   const action = { type: ORDER_PLACED, payload: order }
 
   const actual = reducer(undefined, action)
-  const expected = Object.assign(reducer(undefined, {}), {
+  const expected = Object.assign(reducer(undefined, { type: 'whatever', payload: { timestamp: 0 } }), {
     reservedCash: new Decimal(10010),
     cash: new Decimal(-10010),
     commission: new Decimal(0),
@@ -119,40 +121,46 @@ test(`${ORDER_CANCELLED} of a sell-side order does not modify anything`, () => {
     identifier: 'MSFT',
     quantity: new Decimal(-50),
     price: new Decimal(110),
-    commission: new Decimal(5.5)
+    commission: new Decimal(5.5),
+    timestamp: 0
   }
   const action = { type: ORDER_CANCELLED, payload: order }
 
   const actual = reducer(undefined, action)
-  const expected = reducer(undefined, {})
+  const expected = reducer(undefined, { type: 'whatever', payload: { timestamp: 0 } })
 
   expect(actual).toEqual(expected)
 })
 
-test(`${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reservedCash, also doesn't change commission or total`, () => {
-  const order = {
-    id: '0',
-    identifier: 'MSFT',
-    quantity: new Decimal(100),
-    price: new Decimal(100),
-    commission: new Decimal(10)
-  }
-  const action = { type: ORDER_CANCELLED, payload: order }
-  const initialState = {
-    cash: 0,
-    reservedCash: 10010,
-    commission: 0,
-    total: 0
-  }
+test(
+  `${ORDER_CANCELLED} of a buy-side order correctly reverts cash and reservedCash,
+  also doesn't change commission or total`,
+  () => {
+    const order = {
+      id: '0',
+      identifier: 'MSFT',
+      quantity: new Decimal(100),
+      price: new Decimal(100),
+      commission: new Decimal(10),
+      timestamp: 0
+    }
+    const action = { type: ORDER_CANCELLED, payload: order }
+    const initialState = {
+      cash: new Decimal(0),
+      reservedCash: new Decimal(10010),
+      commission: new Decimal(0),
+      total: new Decimal(0)
+    }
 
-  const actual = reducer(initialState, action)
-  const expected = Object.assign(reducer(initialState, {}), {
-    cash: new Decimal(10010),
-    reservedCash: new Decimal(0)
-  })
+    const actual = reducer(initialState, action)
+    const expected = Object.assign(reducer(initialState, { type: 'whatever', payload: { timestamp: 0 } }), {
+      cash: new Decimal(10010),
+      reservedCash: new Decimal(0)
+    })
 
-  expect(actual).toEqual(expected)
-})
+    expect(actual).toEqual(expected)
+  }
+)
 
 test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decrease reservedCash`, () => {
   const placedOrder = {
@@ -164,7 +172,7 @@ test(`${ORDER_FILLED}, sell-side, should increase cash and commission, and decre
     timestamp: new Decimal(100)
   }
   const filledOrder = { ...placedOrder }
-  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder, timestamp: 0 } }
   const initialState = {
     cash: new Decimal(-10),
     reservedCash: new Decimal(10),
@@ -193,7 +201,7 @@ test(`${ORDER_FILLED}, buy-side, should increase commission and decrease reserve
     timestamp: 100
   }
   const filledOrder = { ...placedOrder }
-  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder, timestamp: 0 } }
   const initialState = {
     cash: new Decimal(0),
     reservedCash: new Decimal(10010),
@@ -226,7 +234,7 @@ test(`${ORDER_FILLED}, buy-side, partial fill, should increase commission and de
     quantity: new Decimal(50),
     commission: new Decimal(5)
   }
-  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder, timestamp: 0 } }
   const initialState = {
     cash: new Decimal(0),
     reservedCash: new Decimal(10010),
@@ -259,7 +267,7 @@ test(`${ORDER_FILLED}, sell-side, partial fill, increase cash and commission, an
     quantity: new Decimal(-50),
     commission: new Decimal(5)
   }
-  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder, timestamp: 0 } }
   const initialState = {
     cash: new Decimal(-10),
     reservedCash: new Decimal(10),
@@ -293,7 +301,7 @@ test(`${ORDER_FILLED}, buy-side, better price, should increase commission and de
     price: new Decimal(90),
     commission: new Decimal(9),
   }
-  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder, timestamp: 0 } }
   const initialState = {
     cash: new Decimal(0),
     reservedCash: new Decimal(10010),
@@ -327,7 +335,7 @@ test(`${ORDER_FILLED}, sell-side, better price, increase cash and commission, an
     price: new Decimal(110),
     commission: new Decimal(11),
   }
-  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder } }
+  const action = { type: ORDER_FILLED, payload: { placedOrder, filledOrder, timestamp: 0 } }
   const initialState = {
     cash: new Decimal(-10),
     reservedCash: new Decimal(10),

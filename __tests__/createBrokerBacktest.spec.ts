@@ -9,7 +9,7 @@ import {
 
 import { createBrokerBacktest as createMiddleware } from '../lib/middleware/createBrokerBacktest'
 
-const t = { context: {} }
+const t = { context: {} as any }
 
 beforeEach(() => {
   const store = createMockStore({ orders: {} })

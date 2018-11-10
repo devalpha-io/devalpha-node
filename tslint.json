@@ -1,13 +1,13 @@
 {
-    "extends": "tslint-config-airbnb",
-    "rules": {
-      "import-name": false,
-      "semicolon": [true, "never"],
-      "trailing-comma": [true, "never"],
-      "typedef": true,
-      "object-shorthand-properties-first": false,
-      "no-parameter-reassignment": false,
-      "max-line-length": [true, 120],
-      "no-boolean-literal-compare": false
-    }
+  "extends": ["tslint-config-airbnb", "tslint-config-prettier"],
+  "rules": {
+    "import-name": false,
+    "semicolon": [true, "never"],
+    "trailing-comma": [true, "never"],
+    "typedef": true,
+    "object-shorthand-properties-first": false,
+    "no-parameter-reassignment": false,
+    "max-line-length": [true, 120],
+    "no-boolean-literal-compare": false
+  }
 }

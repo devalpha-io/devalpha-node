@@ -17,7 +17,7 @@ test('createConsumer pushes errors', (done) => {
   const errors = []
   const items = []
 
-  const middleware = (store) => (next) => (action) => next({})
+  const middleware = store => next => action => next({})
 
   _.fromError(new Error('error')).concat([1, 2, 3])
     .consume(createConsumer(store)(middleware))
@@ -37,7 +37,7 @@ test('createConsumer pushes errors', (done) => {
 
 test('createConsumer pushes the current item if next() is not supplied a new item', (done) => {
   const items = []
-  const middleware = (store) => (next) => (action) => next()
+  const middleware = store => next => action => next()
 
   _([1, 2, 3])
     .consume(createConsumer(store)(middleware))

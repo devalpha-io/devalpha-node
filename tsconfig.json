@@ -1,22 +1,18 @@
 {
-    "compilerOptions": {
-      "outDir": "dist",
-      "module": "commonjs",
-      "target": "es5",
-      "declaration": true,
-      "lib": ["es2015"],
-      "sourceMap": true,
-      "strict": true,
-      "noUnusedLocals": true,
-      "noUnusedParameters": true,
-      "noImplicitReturns": true,
-      "noFallthroughCasesInSwitch": true
-    },
-    "include": [
-      "lib/**/*"
-    ],
-    "exclude": [
-      "node_modules",
-      "**/*.spec.ts"
-    ]
+  "compilerOptions": {
+    "outDir": "dist",
+    "module": "commonjs",
+    "target": "es5",
+    "declaration": true,
+    "lib": ["es2015"],
+    "sourceMap": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": false
+  },
+  "include": ["lib/**/*"],
+  "exclude": ["node_modules"]
 }
