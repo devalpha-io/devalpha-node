@@ -42,6 +42,7 @@ export * from './types'
  */
 export function createTrader(settings: any, strategy: Strategy) {
   const config: DevAlphaOptions = {
+    project: null,
     backtesting: true,
     client: null,
     startCapital: 0,
@@ -72,6 +73,10 @@ export function createTrader(settings: any, strategy: Strategy) {
 
   if (typeof strategy !== 'function') {
     throw new Error('strategy must be a function')
+  }
+
+  if (config.dashboard.active && config.project === null) {
+    throw new Error('the dashboard will not recognize your algorithm unless you set config.project to the ID of your DevAlpha project');
   }
 
   // Store
@@ -220,14 +225,14 @@ export function createTrader(settings: any, strategy: Strategy) {
       }
 
       const url = parse(req.url as string)
-      if (url.pathname === '/') {
+      if (url.pathname === `/${config.project}`) {
         headers['Content-Type'] = 'application/json'
         res.writeHead(200, headers)
         res.write(JSON.stringify({
           message: 'ok'
         }))
         res.end()
-      } else if (url.pathname === '/backtest') {
+      } else if (url.pathname === `/${config.project}/backtest`) {
         headers['Content-Type'] = 'text/event-stream',
         headers['Connection'] = 'keep-alive',
         res.writeHead(200, headers)

@@ -62,6 +62,7 @@ export interface GuardOptions {
 export interface DevAlphaOptions {
   backtesting: boolean,
   client: any,
+  project: string,
   startCapital: number,
   initialStates: RootState,
   feeds: {

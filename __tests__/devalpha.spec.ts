@@ -402,6 +402,7 @@ test('dashboard works as expected', (done) => {
   let runTime = -1
 
   const trader = createTrader({
+    project: 'example',
     feeds: {
       events: [{ timestamp: 0 }, { timestamp: 1 }]
     },
@@ -412,7 +413,7 @@ test('dashboard works as expected', (done) => {
     serverEvents.push('a')
   }).resume()
 
-  const client = new EventSource(`http://127.0.0.1:${SOCKET_PORT}/backtest`)
+  const client = new EventSource(`http://127.0.0.1:${SOCKET_PORT}/example/backtest`)
   client.addEventListener(DASHBOARD_EVENTS, ({ data }) => {
     const events = JSON.parse(data).events
     clientEvents = [...clientEvents, ...events]
