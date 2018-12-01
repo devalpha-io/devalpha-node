@@ -17,13 +17,6 @@ beforeEach(() => {
   t.context.middleware = createMiddleware(() => {})(store)(next)
 })
 
-test("pass the intercepted action to the next", () => {
-  const { middleware, next } = t.context
-  const action = { type: "FOO", payload: {} }
-  middleware(action)
-  expect(next.mock.calls[0][0]).toBe(action)
-})
-
 test("order() should synchronously dispatch order requested", done => {
   const { store, next } = t.context
   const action = { type: "FOO", payload: { timestamp: 0 } }

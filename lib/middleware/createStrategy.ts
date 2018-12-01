@@ -40,9 +40,9 @@ export function createStrategy(strategy: Strategy): Middleware {
           }
         })
       },
-      action
+      action,
+      next
     )
-    return next(action)
   }
 
 }
