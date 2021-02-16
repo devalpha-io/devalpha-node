@@ -18,6 +18,10 @@ The internal architecture primarily consists of one big stream and a bunch of co
 -   [x] Thoroughly tested
 -   [x] Typescript definitions
 
+## Interested in finance?
+
+[Talos](https://talos.com) is hiring senior engineers! Send an email to `filip+hiring` at `talos.com`.
+
 ## Installation
 
 Install using NPM:
