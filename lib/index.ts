@@ -76,7 +76,8 @@ export function createTrader(settings: any, strategy: Strategy) {
   }
 
   if (config.dashboard.active && config.project === null) {
-    throw new Error('the dashboard will not recognize your algorithm unless you set config.project to the ID of your DevAlpha project');
+    // tslint:disable:max-line-length
+    throw new Error('the dashboard will not recognize your algorithm unless you set config.project to the ID of your DevAlpha project')
   }
 
   // Store
@@ -200,10 +201,10 @@ export function createTrader(settings: any, strategy: Strategy) {
     const socketStream = output.fork()
     output = output.fork()
 
-    let id = 0;
+    let id = 0
     const createMessage = (message: any) => {
       let response = ''
-      response += `id: ${id++}\n`
+      response += `id: ${id+=1}\n`
       response += `event: ${message.type}\n`
       response += `data: ${JSON.stringify(message.payload)}\n`
       response += `\n`

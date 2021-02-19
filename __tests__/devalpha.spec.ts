@@ -19,7 +19,7 @@ const t = { context: {} }
 
 test("backtest event order", done => {
   const executions = []
-  const strategy = ({ order }, action) => {
+  const strategy = ({ order }, action, next) => {
     switch (action.type) {
       case "example":
         executions.push("a")
@@ -45,6 +45,7 @@ test("backtest event order", done => {
       default:
         break
     }
+    next(action);
   }
 
   createTrader(
@@ -80,7 +81,7 @@ test("backtest event order", done => {
 
 test("live trading event order", done => {
   const executions = []
-  const strategy = ({ order }, action) => {
+  const strategy = ({ order }, action, next) => {
     switch (action.type) {
       case "example":
         executions.push("a")
@@ -106,6 +107,7 @@ test("live trading event order", done => {
       default:
         break
     }
+    next(action)
   }
 
   createTrader(
@@ -140,7 +142,7 @@ test("live trading event order", done => {
 })
 
 test("state() returns an object", done => {
-  const strategy = ({ state }, action) => {
+  const strategy = ({ state }, action, next) => {
     expect(typeof state()).toBe("object")
     done()
   }
@@ -154,7 +156,7 @@ test("state() returns an object", done => {
 })
 
 test("failing orders are dispatched", done => {
-  const strategy = ({ order }, action) => {
+  const strategy = ({ order }, action, next) => {
     switch (action.type) {
       case "example":
         order({
@@ -169,6 +171,7 @@ test("failing orders are dispatched", done => {
       default:
         break
     }
+    next(action)
   }
 
   createTrader(
@@ -193,7 +196,7 @@ test("failing orders are dispatched", done => {
 })
 
 test("orders are cancellable", done => {
-  const strategy = ({ order, cancel, state }, action) => {
+  const strategy = ({ order, cancel, state }, action, next) => {
     switch (action.type) {
       case "example":
         order({
@@ -214,6 +217,7 @@ test("orders are cancellable", done => {
       default:
         break
     }
+    next(action)
   }
 
   createTrader(
@@ -238,7 +242,7 @@ test("orders are cancellable", done => {
 })
 
 test("should not be able to cancel unknown orders", done => {
-  const strategy = ({ cancel }, action) => {
+  const strategy = ({ cancel }, action, next) => {
     switch (action.type) {
       case "example":
         cancel("1")
@@ -249,6 +253,7 @@ test("should not be able to cancel unknown orders", done => {
       default:
         break
     }
+    next()
   }
 
   createTrader(
@@ -286,7 +291,7 @@ test("stream returns items containing action and state during live trading", don
       feeds: {},
       backtesting: false
     },
-    () => {}
+    (context, action, next) => {next(action)}
   )
 
   strat
@@ -309,7 +314,7 @@ test("stream returns items containing action and state during backtests", done =
     {
       feeds: {}
     },
-    () => {}
+    (context, action, next) => { next(action) }
   )
 
   strat
@@ -390,8 +395,9 @@ test("stream consumers recieve all events in the right order", done => {
         events: [{ timestamp: 0 }, { timestamp: 1 }]
       }
     },
-    (context, action) => {
+    (context, action, next) => {
       events.push("a")
+      next(action)
     }
   )
 
@@ -413,8 +419,9 @@ test("stream consumers can apply backpressure", done => {
         events: [{ timestamp: 0 }, { timestamp: 1 }]
       }
     },
-    () => {
+    (context, action, next) => {
       events.push("a")
+      next(action)
     }
   )
 
@@ -456,8 +463,9 @@ test("dashboard works as expected", done => {
         active: true
       }
     },
-    () => {
+    (context, action, next) => {
       serverEvents.push("a")
+      next(action)
     }
   ).resume()
 
@@ -485,7 +493,7 @@ test("dashboard works as expected", done => {
 
 test("calling devalpha logs to console", done => {
   const actions = []
-  const strategy = ({ order }, action) => {}
+  const strategy = ({ order }, action, next) => {next(action)}
   console.error = jest.fn()
   devalpha(
     {

@@ -133,4 +133,4 @@ export interface ExecutedOrder extends CreatedOrder {
   id: string
 }
 
-export type Strategy = (context: Context, action: StreamAction) => void
+export type Strategy = (context: Context, action: StreamAction, next: Function) => void

@@ -17,6 +17,7 @@ The internal architecture primarily consists of one big stream and a bunch of co
 -   [x] Simple API
 -   [x] Thoroughly tested
 -   [x] Typescript definitions
+-   [x] Allow async calls into strategy
 
 ## Interested in finance?
 
@@ -42,7 +43,7 @@ const feeds = {
   myStreamFeed: fs.createReadStream(...)
 }
 
-const strategy = (context, action) => {
+const strategy = (context, action, next) => {
 
   // Place an order
   if (action.type === 'myQuandlFeed') {
@@ -62,6 +63,9 @@ const strategy = (context, action) => {
       id: 123
     })
   }
+
+  // Will call strategy with next data
+  next(action);
 }
 
 // Create the trading stream
@@ -147,7 +151,7 @@ The `createTrader`-function returns an unconsumed stream, and so it is up to you
 
 ```javascript
 const settings = {...}
-const strategy = (context, action) => {...}
+const strategy = (context, action ,next) => {...}
 
 createTrader(settings, strategy).resume()
 ```
@@ -158,7 +162,7 @@ However, you could also do crazy things like this:
 import { createTrader, ORDER_FILLED, ORDER_FAILED } from 'devalpha'
 
 const settings = {...}
-const strategy = (context, action) => {...}
+const strategy = (context, action, next) => {...}
 
 const stream = createTrader(settings, strategy)
 
