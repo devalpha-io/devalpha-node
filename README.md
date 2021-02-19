@@ -91,7 +91,7 @@ const settings = {
   client: null,
 
   /* Define the starting capital of your algorithm. Use only in backtesting mode. In realtime mode
-  you're better of using the `initialStates` setting instead. */
+  you're better off using the `initialStates` setting instead. */
   startCapital: 0,
   
   /* Provide initial states for your algorithm. One obvious use case would be when realtime
